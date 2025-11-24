@@ -1,0 +1,45 @@
+#
+# Copyright Kroxylicious Authors.
+#
+# Licensed under the Apache Software License version 2.0, available at http://www.apache.org/licenses/LICENSE-2.0
+#
+
+---
+management:
+  endpoints:
+    prometheus: {}
+
+virtualClusters:
+  - name: demo-cluster
+    targetCluster:
+      bootstrapServers: kafka1:9092
+    gateways:
+      - name: demo-gateway
+        portIdentifiesNode:
+          bootstrapAddress: ksi:9192
+    logNetwork: false
+    logFrames: false
+
+filterDefinitions:
+  - name: cold-storage
+    type: ColdStorageFilterFactory
+    config:
+      enabled: true
+      # Use direct Iceberg API reader
+      coldStorageType: "iceberg"
+      # Iceberg warehouse path (REST catalog URI comes from ICEBERG_REST_URI env var)
+      icebergWarehousePath: "s3://warehouse/"
+      # Iceberg namespace where tables are stored
+      icebergNamespace: "coldset"
+      # Schema Registry URL for Avro deserialization
+      schemaRegistryUrl: "http://schema-registry:8081"
+      # Filter behavior
+      maxColdStorageRecordsPerFetch: 1000
+      coldStorageTimeoutMs: 30000
+      # Return -1 as earliest offset to indicate cold storage availability
+      alwaysReturnMinusOneStartOffset: true
+      # Offset range cache TTL
+      offsetRangeCacheTtlMs: 300000
+
+defaultFilters:
+  - cold-storage
