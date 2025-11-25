@@ -36,7 +36,7 @@
       - DEMO_MODE=true
       - AUTH_SECRET=""
       - HYPERSTREAM_BASE_URL=http://hyperstream:9088
-      - OPENAI_API_KEY=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
+      - OPENAI_API_KEY=ignored
       - OPEN_AI_MODEL=gpt-4o-mini
 
   ksi:
