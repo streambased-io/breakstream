@@ -42,6 +42,11 @@ do
   cp -R $SCRIPT_DIR/datasets/$DATASET/* $SCRIPT_DIR/environment/shadowtraffic
   docker-compose up shadowtraffic_setup
   ./shadowtraffic/post_setup.sh
+  if (( $? != 0 ))
+  then
+    # setup failed
+    exit 111
+  fi
 done
 
 # load background datasets

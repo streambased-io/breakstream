@@ -15,5 +15,7 @@ docker-compose exec kafka1 kafka-configs --bootstrap-server kafka1:9092 --alter 
 docker-compose exec kafka1 kafka-configs --bootstrap-server kafka1:9092 --alter --topic customers --add-config segment.ms=500
 docker-compose cp $SCRIPT_DIR/scala/check_transactions_count.scala spark-iceberg:/tmp/check_transactions_count.scala
 docker-compose exec spark-iceberg spark-shell --driver-memory 8g -i /tmp/check_transactions_count.scala
+EXITCODE=$?
 docker-compose exec kafka1 kafka-configs --bootstrap-server kafka1:9092 --alter --topic transactions --add-config retention.ms=604800000
 docker-compose exec kafka1 kafka-configs --bootstrap-server kafka1:9092 --alter --topic transactions --add-config segment.ms=604800000
+exit $EXITCODE
