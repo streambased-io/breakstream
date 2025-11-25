@@ -1,0 +1,64 @@
+  directstream:
+    image: streambased/directstream:overlay-demo
+    hostname: directstream
+    container_name: directstream
+    platform: linux/amd64
+    restart: on-failure
+    volumes:
+      - "./directstream/etc/directstream.properties:/app/etc/directstream.properties"
+      - "./directstream/etc/logback.xml:/app/etc/logback.xml"
+    ports:
+      - 11000:11000
+      - 11001:11001
+    environment:
+      - AWS_REGION=us-east-1
+
+  hyperstream:
+    #image: local/streambased-hyperstream:latest
+    image: streambased/hyperstream:overlay-demo
+    container_name: hyperstream
+    platform: linux/amd64
+    ports:
+      - 9088:9088
+    environment:
+      - SPARK_CONNECT_URL=sc://spark-iceberg:15002
+      - COLD_SET_SCHEMA=direct.coldset
+      - HOT_SET_SCHEMA=isk.hotset
+      - UNIFIED_SET_SCHEMA=isk.merged
+
+  streambased-ui:
+    image: streambased/ui:overlay-demo
+    container_name: streambased-ui
+    ports:
+      - "3000:3000"
+    environment:
+      - NODE_ENV=production
+      - DEMO_MODE=true
+      - AUTH_SECRET=""
+      - HYPERSTREAM_BASE_URL=http://hyperstream:9088
+      - OPENAI_API_KEY=ignored
+      - OPEN_AI_MODEL=gpt-4o-mini
+
+  ksi:
+    image: local/streambased-ksi:latest
+    hostname: ksi
+    container_name: ksi
+    depends_on:
+      schema-registry:
+        condition: service_healthy
+      rest:
+        condition: service_started
+    ports:
+      - "9192:9192"
+    volumes:
+      - ./ksi/proxy-config.yaml:/opt/kroxylicious/config.yaml:ro
+    environment:
+      - KROXYLICIOUS_CONFIG=/opt/kroxylicious/config.yaml
+      - KROXYLICIOUS_APP_LOG_LEVEL=TRACE
+      - KROXYLICIOUS_LOGGING_OPTIONS=-Dlog4j2.configurationFile=/opt/kroxylicious/config/log4j2.yaml ${KROXYLICIOUS_JAVA_OPTS}
+      - ICEBERG_REST_URI=http://rest:8181
+      - AWS_ACCESS_KEY_ID=admin
+      - AWS_SECRET_ACCESS_KEY=password
+      - AWS_REGION=us-east-1
+      - AWS_S3_ENDPOINT=http://minio:9000
+    command: [ "-c", "/opt/kroxylicious/config.yaml" ]
