@@ -14,35 +14,6 @@ import java.time.Duration
 
 val rand = new scala.util.Random
 
-val consumerProps = new Properties()
-consumerProps.put("bootstrap.servers","kafka1:9092")
-consumerProps.put("key.deserializer", "org.apache.kafka.common.serialization.StringDeserializer")
-consumerProps.put("value.deserializer", "org.apache.kafka.common.serialization.StringDeserializer")
-consumerProps.put("group.id","testGroup" + rand.nextInt())
-consumerProps.put("auto.offset.reset", "earliest")
-
-
-val kafkaConsumer =  new KafkaConsumer(consumerProps)
-kafkaConsumer.subscribe(ArrayBuffer("transactions").asJava)
-var kafkaRecords = kafkaConsumer.poll(Duration.ofSeconds(2))
-while (kafkaRecords.count() == 0) {
-  kafkaRecords = kafkaConsumer.poll(Duration.ofSeconds(2))
-}
-
-consumerProps.put("bootstrap.servers","ksi:9192")
-consumerProps.put("group.id","testGroup" + rand.nextInt())
-val ksiConsumer =  new KafkaConsumer(consumerProps)
-ksiConsumer.subscribe(ArrayBuffer("transactions").asJava)
-
-
-var ksiRecords = ksiConsumer.poll(Duration.ofSeconds(2))
-while (ksiRecords.count() == 0) {
-  ksiRecords = ksiConsumer.poll(Duration.ofSeconds(2))
-}
-
-kafkaRecords.records("transactions").iterator().next()
-kafkaRecords.records("transactions").iterator().next()
-
 class CoreFunctionsSuite extends FunSuite {
   test("kafka starts from hotset") {
     val consumerProps = new Properties()
