@@ -41,11 +41,18 @@ do
   fi
   cp -R $SCRIPT_DIR/datasets/$DATASET/* $SCRIPT_DIR/environment/shadowtraffic
   docker-compose up shadowtraffic_setup
-  ./shadowtraffic/post_setup.sh
   if (( $? != 0 ))
   then
     # setup failed
-    exit 111
+    echo "FAILED TO SETUP DATASET $DATASET: SETUP STEPS FAILED"
+    exit 112
+  fi
+  $SCRIPT_DIR/environment/shadowtraffic/post_setup.sh
+  if (( $? != 0 ))
+  then
+    # setup failed
+    echo "FAILED TO SETUP DATASET $DATASET: POST SETUP STEPS FAILED"
+    exit 113
   fi
 done
 
@@ -65,12 +72,12 @@ do
   $SCRIPT_DIR/tests/$TEST_NAME/run.sh
   if (( $? != 0 ))
   then
-    EXITCODE=1
+    EXITCODE=114
   fi
 done
 
 # tear down
-$SCRIPT_DIR/bin/stop.sh
+#$SCRIPT_DIR/bin/stop.sh
 
 if (( $EXITCODE != 0 ))
 then
