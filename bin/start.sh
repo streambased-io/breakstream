@@ -77,7 +77,7 @@ do
 done
 
 # tear down
-#$SCRIPT_DIR/bin/stop.sh
+$SCRIPT_DIR/bin/stop.sh
 
 if (( $EXITCODE != 0 ))
 then
