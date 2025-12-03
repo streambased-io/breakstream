@@ -14,8 +14,8 @@
       - AWS_REGION=us-east-1
 
   hyperstream:
-    image: local/hyperstream:latest
-    #image: streambased/hyperstream:overlay-demo
+    #image: local/hyperstream:latest
+    image: streambased/hyperstream:latest
     container_name: hyperstream
     platform: linux/amd64
     ports:
