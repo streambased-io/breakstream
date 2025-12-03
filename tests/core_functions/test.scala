@@ -4,8 +4,6 @@ import org.scalatest.Args
 /*
 Verify Core Functions
 */
-var exitCode = 0
-
 class CoreFunctionsSuite extends FunSuite { 
     test("All 3 databases exist") {
         val databases = spark.sql("SHOW DATABASES")
@@ -76,6 +74,5 @@ try {
         System.exit(1)
     }
 } finally {
-    val isComplete = true
-    System.exit(exitCode)
+    System.exit(0)
 }

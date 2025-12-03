@@ -1,7 +1,10 @@
 import scala.util.control.Breaks._
 
+// give it a head start
+Thread.sleep(20000)
+
 var count = -1L;
-val tries : Range = 1 to 20;
+val tries : Range = 1 to 10;
 breakable { for (t <- tries) {
     Thread.sleep(5000)
     println("Checking transactions topic has been drained. Attempt: " + t)
