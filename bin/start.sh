@@ -66,13 +66,14 @@ cp -R $SCRIPT_DIR/datasets/$BACKGROUND_DATASET/* $SCRIPT_DIR/environment/shadowt
 docker-compose up -d shadowtraffic_background
 
 # run tests
-EXITCODE=0
+export EXITCODE=0
 for TEST_NAME in $(cat $SCRIPT_DIR/specs/$SPEC_NAME/spec.json | jq .tests[] | sed -e 's/"//g')
 do
   $SCRIPT_DIR/tests/$TEST_NAME/run.sh
   if (( $? != 0 ))
   then
-    EXITCODE=114
+    echo "TEST $TEST_NAME FAILED"
+    export EXITCODE=114
   fi
 done
 
