@@ -1,4 +1,4 @@
-name: Run all specs
+name: Run single spec
 
 on:
   workflow_dispatch:
