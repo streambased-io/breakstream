@@ -1,17 +1,40 @@
   directstream:
-    image: streambased/directstream:overlay-demo
+    image: local/directstream:latest
+    #image: streambased/directstream:overlay-demo
     hostname: directstream
     container_name: directstream
     platform: linux/amd64
     restart: on-failure
-    volumes:
-      - "./directstream/etc/directstream.properties:/app/etc/directstream.properties"
-      - "./directstream/etc/logback.xml:/app/etc/logback.xml"
     ports:
       - 11000:11000
       - 11001:11001
     environment:
       - AWS_REGION=us-east-1
+      - ISK_PORT=11000
+      - ISK_CATALOG_PORT=11001
+      - ISK_TEST_EXECUTION_MODE=docker
+      - ISK_EXTERNAL_HOSTNAME=directstream
+      - ISK_CONFIG_SERVICE_URL=http://unused
+      - ISK_CACHE_OFFSET_REANGES_EXPIRATION_SECONDS=10
+      - ISK_CONFIG_PROVIDER=properties
+      - ISK_CONFIG_SOURCES=dummyapi
+      - ISK_CONFIG_SOURCE_DUMMYAPI_S3KEY=dummyapi
+      - ISK_CONFIG_SOURCE_DUMMYAPI_S3SECRET=dummysecret
+      - ISK_CONFIG_SOURCE_DUMMYAPI_BOOTSTRAP_SERVERS=kafka1:9092
+      - ISK_CONFIG_SOURCE_DUMMYAPI_SCHEMA_REGISTRY_SCHEMA_REGISTRY_URL=http://schema-registry:8081/
+      - ISK_COLDSET_CLIENT_URI=http://rest:8181/
+      - ISK_COLDSET_CLIENT_REST_SIGV4-ENABLED=true
+      - ISK_COLDSET_CLIENT_REST_ACCESS-KEY-ID=admin
+      - ISK_COLDSET_CLIENT_REST_SECRET-ACCESS-KEY=password
+      - ISK_COLDSET_CLIENT_REST_SIGNING-REGION=us-east-1
+      - ISK_COLDSET_CLIENT_REST-METRICS-REPORTING-ENABLED=false
+      - ISK_COLDSET_CLIENT_WAREHOUSE=s3://
+      - ISK_COLDSET_CLIENT_IO-IMPL=org.apache.iceberg.aws.s3.S3FileIO
+      - ISK_COLDSET_CLIENT_S3_ENDPOINT=http://minio:9000/
+      - ISK_COLDSET_CLIENT_S3_PATH-STYLE-ACCESS=true
+      - ISK_COLDSET_CLIENT_S3_ACCESS-KEY-ID=admin
+      - ISK_COLDSET_CLIENT_S3_SECRET-ACCESS-KEY=password
+      - ISK_COLDSET_CLIENT_S3_REGION=us-east-1
 
   hyperstream:
     #image: local/streambased-hyperstream:latest
