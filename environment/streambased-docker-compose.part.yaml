@@ -1,6 +1,6 @@
   directstream:
-    image: local/directstream:latest
-    #image: streambased/directstream:overlay-demo
+    #image: local/directstream:latest
+    image: streambased/directstream:latest
     hostname: directstream
     container_name: directstream
     platform: linux/amd64

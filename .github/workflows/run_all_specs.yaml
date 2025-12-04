@@ -1,0 +1,116 @@
+name: Run all specs
+
+on: workflow_dispatch
+
+permissions:
+  pull-requests: write
+  repository-projects: read
+  contents: read
+  id-token: write
+  actions: read
+  issues: write
+
+jobs:
+  build:
+
+    runs-on: STREAMBASED_PR_XL
+
+    env:
+      DOCKER_IMAGES: |
+        shadowtraffic/shadowtraffic:latest
+        confluentinc/cp-schema-registry:7.5.0
+        confluentinc/cp-kafka:7.5.0
+        confluentinc/cp-zookeeper:7.5.0
+        streambased/directstream:latest
+        streambased/hyperstream:latest
+        streambased/ui:overlay-demo
+        streambased/ksi:latest
+        apache/iceberg-rest-fixture:1.8.1
+        minio/minio
+        minio/mc:RELEASE.2025-03-12T17-29-24Z
+        shadowtraffic/shadowtraffic:latest
+        tabulario/spark-iceberg:3.5.5_1.8.1
+    steps:
+      # 1. Get PR associated with the branch / commit sha of the branch.
+      - name: Get PR for the branch
+        uses: 8BitJonny/gh-get-current-pr@3.0.0
+        id: PR
+        with:
+          # Authentication token to access GitHub APIs. (Can be omitted by default.)
+          github-token: ${{ github.token }}
+          sha: ${{ github.ref }}
+          # Only return if PR is still open. (By default it returns PRs in any state.)
+          filterOutClosed: true
+      - run: echo "PR ${{steps.PR.outputs.number}} ${{steps.PR.outputs.pr_title}} at ${{steps.PR.outputs.pr_url}}"
+        if: steps.PR.outputs.pr_found == 'true'
+      # 2. Add a comment on the PR that job has been started.
+      - name: comment
+        uses: actions/github-script@v7
+        if: steps.PR.outputs.pr_found == 'true'
+        with:
+          script: |
+            github.rest.issues.createComment({
+               issue_number: ${{ steps.PR.outputs.number }},
+               owner: context.repo.owner,
+               repo: context.repo.repo,
+               body: 'Run Build and Tests action initiated : https://github.com/streambased-io/streambased/actions/runs/${{ github.run_id }}'
+            })
+      - name: checkout
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.ref }}
+      # 3. Restore Docker image cache
+      - name: Restore Docker images cache
+        uses: actions/cache@v4
+        with:
+          path: /tmp/docker-images
+          key: docker-images
+
+      # 4. Load cached Docker images
+      - name: Load cached Docker images
+        run: |
+          mkdir -p /tmp/docker-images
+          for image in $DOCKER_IMAGES; do
+            image_file="/tmp/docker-images/$(echo $image | tr '/:' '_').tar"
+            if [ -f "$image_file" ]; then
+              echo "Loading cached image: $image"
+              docker load -i "$image_file"
+            else
+              echo "No cache for: $image"
+            fi
+          done
+      # 5. Pull & update cache for missing or outdated images
+      - name: Pull and cache Docker images
+        run: |
+          for image in $DOCKER_IMAGES; do
+            image_file="/tmp/docker-images/$(echo $image | tr '/:' '_').tar"
+            needs_pull=false
+            # 5a. If image is missing, mark for pull
+            if ! docker image inspect "$image" >/dev/null 2>&1; then
+              echo "$image not present. Will pull."
+              needs_pull=true
+            fi
+            # 5c. Pull and cache if needed
+            if [ "$needs_pull" = true ]; then
+              docker pull "$image"
+              echo "Saving $image to cache..."
+              docker save "$image" -o "$image_file"
+            else
+              echo "$image is already up to date in cache."
+            fi
+          done
+
+      # 6. Setup tools
+      - name: Install tools
+        run: sudo apt-get install jq curl
+
+      # 7. install docker
+      - name: Install docker-compose standalone
+        run: |
+          curl -SL https://github.com/docker/compose/releases/download/v2.30.1/docker-compose-linux-x86_64 -o /usr/local/bin/docker-compose
+          sudo chmod 777 /usr/local/bin/docker-compose
+
+      # 8. Run black box tests
+      - name: Run Black Box tests
+        run: |
+          bin/run_all.sh
