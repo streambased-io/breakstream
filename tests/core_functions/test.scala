@@ -1,32 +1,9 @@
 import org.scalatest.FunSuite
 import org.scalatest.Args
-import org.scalatest.Reporter
-import org.scalatest.events.Event
-import org.scalatest.events.TestFailed
-import org.scalatest.events.TestSucceeded
 
 /*
 Verify Core Functions
 */
-var exitCode = 0
-
-// TODO: either get rid of this or move it somewhere common
-class TestReporter extends Reporter {
-  def apply(event: Event): Unit = {
-    event match {
-          case event: TestFailed => {
-            println("TEST: " + event.testName + " in SUITE: " + event.suiteName + " FAILED")
-            println(event.message)
-            System.exit(1)
-          }
-          case event: TestSucceeded => {
-            println("TEST: " + event.testName + " in SUITE: " + event.suiteName + " SUCCEEDED")
-          }
-          case _ =>
-        }
-  }
-}
-
 class CoreFunctionsSuite extends FunSuite { 
     test("All 3 databases exist") {
         val databases = spark.sql("SHOW DATABASES")
@@ -97,6 +74,5 @@ try {
         System.exit(1)
     }
 } finally {
-    val isComplete = true
-    System.exit(exitCode)
+    System.exit(0)
 }

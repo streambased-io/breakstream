@@ -9,4 +9,4 @@ echo "Running test.scala as $TEST_FILE"
 docker-compose cp $SCRIPT_DIR/test.scala spark-iceberg:/tmp/$SUITE_FILE
 docker-compose cp $SCRIPT_DIR/../common/scalatest_common.scala spark-iceberg:/tmp/$COMMON_FILE
 docker-compose exec spark-iceberg sh -c "cat /tmp/$COMMON_FILE /tmp/$SUITE_FILE > /tmp/$TEST_FILE"
-docker-compose exec spark-iceberg sh -c "cat /tmp/$TEST_FILE | spark-shell --driver-memory 8g --packages org.scalatest:scalatest_2.12:3.0.6"
+docker-compose exec spark-iceberg sh -c "cat /tmp/$TEST_FILE | spark-shell --driver-memory 8g --packages org.scalatest:scalatest_2.12:3.0.6,org.apache.kafka:kafka-clients:4.1.0"

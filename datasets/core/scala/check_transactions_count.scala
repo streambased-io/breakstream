@@ -1,5 +1,8 @@
 import scala.util.control.Breaks._
 
+// give it a head start
+Thread.sleep(20000)
+
 var count = -1L;
 val tries : Range = 1 to 10;
 breakable { for (t <- tries) {

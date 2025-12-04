@@ -37,8 +37,8 @@
       - ISK_COLDSET_CLIENT_S3_REGION=us-east-1
 
   hyperstream:
-    #image: local/streambased-hyperstream:latest
-    image: streambased/hyperstream:overlay-demo
+    #image: local/hyperstream:latest
+    image: streambased/hyperstream:latest
     container_name: hyperstream
     platform: linux/amd64
     ports:
@@ -63,7 +63,8 @@
       - OPEN_AI_MODEL=gpt-4o-mini
 
   ksi:
-    image: local/streambased-ksi:latest
+    #image: local/ksi:latest
+    image: streambased/ksi:latest
     hostname: ksi
     container_name: ksi
     depends_on:
@@ -73,15 +74,20 @@
         condition: service_started
     ports:
       - "9192:9192"
-    volumes:
-      - ./ksi/proxy-config.yaml:/opt/kroxylicious/config.yaml:ro
     environment:
       - KROXYLICIOUS_CONFIG=/opt/kroxylicious/config.yaml
       - KROXYLICIOUS_APP_LOG_LEVEL=TRACE
       - KROXYLICIOUS_LOGGING_OPTIONS=-Dlog4j2.configurationFile=/opt/kroxylicious/config/log4j2.yaml ${KROXYLICIOUS_JAVA_OPTS}
-      - ICEBERG_REST_URI=http://rest:8181
-      - AWS_ACCESS_KEY_ID=admin
-      - AWS_SECRET_ACCESS_KEY=password
-      - AWS_REGION=us-east-1
-      - AWS_S3_ENDPOINT=http://minio:9000
+      - KSI_BOOTSTRAP_SERVERS=kafka1:9092
+      - KSI_GATEWAY_BOOTSTRAP_ADDRESS=ksi:9192
+      - KSI_COLD_STORAGE_TYPE=spark-connect
+      - KSI_MAX_COLD_STORAGE_RECORDS_PER_FETCH=1000
+      - KSI_COLD_STORAGE_TIMEOUT_MS=30000
+      - KSI_ALWAYS_RETURN_MINUS_ONE_START_OFFSET=true
+      - KSI_ICEBERG_NAMESPACE=coldset
+      - KSI_SPARK_CONNECT_URL=sc://spark-iceberg:15002
+      - KSI_SPARK_CATALOG_NAME=direct
+      - KSI_OFFSET_RANGE_CACHE_TTL_MS=300000
+      - KSI_OFFSET_RANGE_CACHE_REFRESH_MS=60000
+      - KSI_SCHEMA_REGISTRY_URL=http://schema-registry:8081
     command: [ "-c", "/opt/kroxylicious/config.yaml" ]
