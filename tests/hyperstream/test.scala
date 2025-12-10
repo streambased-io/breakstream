@@ -8,7 +8,6 @@ import sttp.client4.quick._
 import net.liftweb.json._
 implicit val formats = net.liftweb.json.DefaultFormats
 
-
 class HyperstreamSuite extends FunSuite {
   test("creates index and uses it") {
 
@@ -17,14 +16,14 @@ class HyperstreamSuite extends FunSuite {
       "topic" -> "customers",
       "field" -> "Name"
     ))
-    val indexCreateResponse = quickRequest.put(uri"http://hyperstream:9088/api/index").body(indexCreateRequest).send()
+    val indexCreateResponse = quickRequest.put(uri"http://hyperstream:9088/api/index").auth.basic("sbpk_12345678", "sbsk_12345678").body(indexCreateRequest).send()
     assert(indexCreateResponse.code.code == 200)
 
     // now check enrichment
     val enrichRequest = Serialization.write(Map(
       "sql" -> "SELECT * FROM customers WHERE Name = 'Judith Gottlieb'"
     ))
-    val enrichResponse = quickRequest.post(uri"http://hyperstream:9088/api/enrich").body(enrichRequest).send()
+    val enrichResponse = quickRequest.post(uri"http://hyperstream:9088/api/enrich").auth.basic("sbpk_12345678", "sbsk_12345678").body(enrichRequest).send()
     assert(enrichResponse.code.code == 200)
 
     case class EnrichedResponse(originalSql:String, enrichedSql:String)
@@ -41,7 +40,7 @@ class HyperstreamSuite extends FunSuite {
       "set" -> "UNIFIED"
     ))
     val unindexedStartTime = System.currentTimeMillis()
-    val unindexedResponse = quickRequest.post(uri"http://hyperstream:9088/api/query").body(unindexedQueryRequest).send()
+    val unindexedResponse = quickRequest.post(uri"http://hyperstream:9088/api/query").auth.basic("sbpk_12345678", "sbsk_12345678").body(unindexedQueryRequest).send()
     val unindexedEndTime = System.currentTimeMillis()
     assert(unindexedResponse.code.code == 200)
 
@@ -51,7 +50,7 @@ class HyperstreamSuite extends FunSuite {
       "set" -> "UNIFIED"
     ))
     val indexedStartTime = System.currentTimeMillis()
-    val indexedResponse = quickRequest.post(uri"http://hyperstream:9088/api/query").body(indexedQueryRequest).send()
+    val indexedResponse = quickRequest.post(uri"http://hyperstream:9088/api/query").auth.basic("sbpk_12345678", "sbsk_12345678").body(indexedQueryRequest).send()
     val indexedEndTime = System.currentTimeMillis()
     assert(indexedResponse.code.code == 200)
 
