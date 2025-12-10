@@ -95,5 +95,5 @@
       - HYPERSTREAM_EUROPE_WEST2_BASE_URL=http://dev-hyperstream-service:9088
       - HYPERSTREAM_US_EAST1_BASE_URL=http://dev-hyperstream-service:9088
       - HYPERSTREAM_US_WEST2_BASE_URL=http://dev-hyperstream-service:9088
-      - OPENAI_API_KEY=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
+      - OPENAI_API_KEY=nope
       - OPEN_AI_MODEL=gpt-4o-mini
