@@ -1,3 +1,4 @@
+
   directstream:
     #image: local/directstream:latest
     image: streambased/directstream:latest
@@ -12,16 +13,10 @@
       - AWS_REGION=us-east-1
       - ISK_PORT=11000
       - ISK_CATALOG_PORT=11001
-      - ISK_TEST_EXECUTION_MODE=docker
       - ISK_EXTERNAL_HOSTNAME=directstream
-      - ISK_CONFIG_SERVICE_URL=http://unused
-      - ISK_CACHE_OFFSET_REANGES_EXPIRATION_SECONDS=10
-      - ISK_CONFIG_PROVIDER=properties
-      - ISK_CONFIG_SOURCES=dummyapi
-      - ISK_CONFIG_SOURCE_DUMMYAPI_S3KEY=dummyapi
-      - ISK_CONFIG_SOURCE_DUMMYAPI_S3SECRET=dummysecret
-      - ISK_CONFIG_SOURCE_DUMMYAPI_BOOTSTRAP_SERVERS=kafka1:9092
-      - ISK_CONFIG_SOURCE_DUMMYAPI_SCHEMA_REGISTRY_SCHEMA_REGISTRY_URL=http://schema-registry:8081/
+      - ISK_CACHE_OFFSET_RANGES_EXPIRATION_SECONDS=10
+      - ISK_CONFIG_PROVIDER=service
+      - ISK_CONFIG_SERVICE_URL=http://slipstream:3000/api/internal/cluster-config
       - ISK_COLDSET_CLIENT_URI=http://rest:8181/
       - ISK_COLDSET_CLIENT_REST_SIGV4-ENABLED=true
       - ISK_COLDSET_CLIENT_REST_ACCESS-KEY-ID=admin
@@ -48,19 +43,7 @@
       - COLD_SET_SCHEMA=direct.coldset
       - HOT_SET_SCHEMA=isk.hotset
       - UNIFIED_SET_SCHEMA=isk.merged
-
-  streambased-ui:
-    image: streambased/ui:overlay-demo
-    container_name: streambased-ui
-    ports:
-      - "3000:3000"
-    environment:
-      - NODE_ENV=production
-      - DEMO_MODE=true
-      - AUTH_SECRET=""
-      - HYPERSTREAM_BASE_URL=http://hyperstream:9088
-      - OPENAI_API_KEY=ignored
-      - OPEN_AI_MODEL=gpt-4o-mini
+      - AUTH_ENABLED=true
 
   ksi:
     #image: local/ksi:latest
@@ -91,3 +74,26 @@
       - KSI_OFFSET_RANGE_CACHE_REFRESH_MS=60000
       - KSI_SCHEMA_REGISTRY_URL=http://schema-registry:8081
     command: [ "-c", "/opt/kroxylicious/config.yaml" ]
+
+  slipstream:
+    #image: local/slipstream:latest
+    image: streambased/slipstream:latest
+    hostname: slipstream
+    container_name: slipstream
+    ports:
+      - "3000:3000"
+    environment:
+      - NODE_ENV=production
+      - SINGLE_TENANT_MODE=true
+      - SINGLE_TENANT_MODE_PUBLIC_KEY=sbpk_12345678
+      - SINGLE_TENANT_MODE_SECRET_KEY=sbsk_12345678
+      - SINGLE_TENANT_MODE_CLUSTER_BOOTSTRAP_SERVERS=kafka1:9092
+      - SINGLE_TENANT_MODE_CLUSTER_ADDITIONAL_KAFKA_CONFIG=""
+      - SINGLE_TENANT_MODE_CLUSTER_SCHEMA_REGISTRY_URL=http://schema-registry:8081
+      - SINGLE_TENANT_MODE_CLUSTER_ADDITIONAL_SCHEMA_REGISTRY_CONFIG=""
+      - AUTH_SECRET=CIGLbbr24MBq9svn7WyArCi1UJ0EqjTc
+      - HYPERSTREAM_EUROPE_WEST2_BASE_URL=http://dev-hyperstream-service:9088
+      - HYPERSTREAM_US_EAST1_BASE_URL=http://dev-hyperstream-service:9088
+      - HYPERSTREAM_US_WEST2_BASE_URL=http://dev-hyperstream-service:9088
+      - OPENAI_API_KEY=nope
+      - OPEN_AI_MODEL=gpt-4o-mini

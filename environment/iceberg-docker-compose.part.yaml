@@ -1,19 +1,15 @@
 
   spark-iceberg:
-    build:
-      context: ./spark
-      dockerfile: Dockerfile
+    #image: local/spark-iceberg:latest
+    image: streambased/spark-iceberg:latest
     hostname: spark
     container_name: spark-iceberg
-    volumes:
-      - ./spark/warehouse:/home/iceberg/warehouse
-      - ./spark/notebooks:/home/iceberg/notebooks/notebooks
-      - ./spark/scripts:/home/iceberg/scripts
-      - ./spark/spark-defaults.conf:/opt/spark/conf/spark-defaults.conf
     environment:
-      - AWS_ACCESS_KEY_ID=dummyapi
-      - AWS_SECRET_ACCESS_KEY=dummysecret
       - AWS_REGION=us-east-1
+      - AWS_ACCESS_KEY_ID=sbpk_12345678
+      - AWS_SECRET_ACCESS_KEY=sbsk_12345678
+      - DIRECTSTREAM_CATALOG_URI=http:\/\/directstream:11001
+      - DIRECTSTREAM_S3_ENDPOINT=http:\/\/directstream:11000
       - SPARK_MASTER_HOST=spark-iceberg
       - SPARK_MASTER_PORT=7077
       - SPARK_MASTER_WEBUI_PORT=8180
