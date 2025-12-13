@@ -62,3 +62,19 @@ A Breakstream test consists of 3 components:
    ```bash
    ./bin/stop.sh
    ```
+
+## Setup Mode
+
+If you want to run only the setup phase (e.g. to prepopulate data) you can run:
+```bash
+SETUP_MODE=true ./bin/start.sh <spec name> 
+```
+This will run only the setup parts of the spec, will skip any tests and leave the 
+environment up for playing with.
+
+## Demos
+
+Any spec that starts "demo_" is considered a demo spec. This will run a "test" that 
+expects user interaction and leave the environment up after running so that the user 
+can mess around with it. The idea is that these test demonstrate features and don't 
+verify anything. demo_core is a good example of this.

@@ -14,7 +14,6 @@
       - ISK_PORT=11000
       - ISK_CATALOG_PORT=11001
       - ISK_EXTERNAL_HOSTNAME=directstream
-      - ISK_CACHE_OFFSET_RANGES_EXPIRATION_SECONDS=10
       - ISK_CONFIG_PROVIDER=service
       - ISK_CONFIG_SERVICE_URL=http://slipstream:3000/api/internal/cluster-config
       - ISK_COLDSET_CLIENT_URI=http://rest:8181/

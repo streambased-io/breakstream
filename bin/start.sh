@@ -65,6 +65,13 @@ fi
 cp -R $SCRIPT_DIR/datasets/$BACKGROUND_DATASET/* $SCRIPT_DIR/environment/shadowtraffic
 docker-compose up -d shadowtraffic_background
 
+# exit if setup mode
+if [ "$SETUP_MODE" = "true" ]
+then
+  echo "Setup mode is enabled, no tests will be run. Run ./bin/stop.sh to stop the environment."
+  exit 0
+fi
+
 # run tests
 export EXITCODE=0
 for TEST_NAME in $(cat $SCRIPT_DIR/specs/$SPEC_NAME/spec.json | jq .tests[] | sed -e 's/"//g')
@@ -78,12 +85,18 @@ do
 done
 
 # tear down
-$SCRIPT_DIR/bin/stop.sh
-
-if (( $EXITCODE != 0 ))
+if [[ $SPEC_NAME == demo_* ]]
 then
-  echo "TESTS FAILED"
+  echo "Demo spec detected, preserving environment for inspection. Run ./bin/stop.sh to stop the environment."
+  exit $EXITCODE
 else
-  echo "TESTS PASSED"
+  $SCRIPT_DIR/bin/stop.sh
+
+  if (( $EXITCODE != 0 ))
+  then
+    echo "TESTS FAILED"
+  else
+    echo "TESTS PASSED"
+  fi
+  exit $EXITCODE
 fi
-exit $EXITCODE
