@@ -20,7 +20,7 @@ done
 
 # start services
 cd $SCRIPT_DIR/environment
-docker-compose up -d
+docker compose up -d
 
 # prepare shadowtraffic
 if [ -d "$SCRIPT_DIR/environment/shadowtraffic" ]
@@ -40,7 +40,7 @@ do
       rm -rf $SCRIPT_DIR/environment/shadowtraffic/*
   fi
   cp -R $SCRIPT_DIR/datasets/$DATASET/* $SCRIPT_DIR/environment/shadowtraffic
-  docker-compose up shadowtraffic_setup
+  docker compose up shadowtraffic_setup
   if (( $? != 0 ))
   then
     # setup failed
@@ -63,7 +63,7 @@ then
     rm -rf $SCRIPT_DIR/environment/shadowtraffic/*
 fi
 cp -R $SCRIPT_DIR/datasets/$BACKGROUND_DATASET/* $SCRIPT_DIR/environment/shadowtraffic
-docker-compose up -d shadowtraffic_background
+docker compose up -d shadowtraffic_background
 
 # exit if setup mode
 if [ "$SETUP_MODE" = "true" ]
