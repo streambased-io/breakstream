@@ -23,7 +23,7 @@ echo "Running demo_pt3.scala"
 echo "About to run demo part 3: ksi"
 read -n 1 -s -r -p "Press any key to continue"
 docker compose cp $SCRIPT_DIR/demo_pt3.scala spark-iceberg:/tmp/demo_pt3.scala
-docker compose exec spark-iceberg sh -c "cat /tmp/demo_pt3.scala | spark-shell --driver-memory 8g --packages org.apache.kafka:kafka-clients:4.1.0"
+docker compose exec spark-iceberg sh -c "cat /tmp/demo_pt3.scala | spark-shell --driver-memory 8g --repositories https://packages.confluent.io/maven/ --packages org.apache.kafka:kafka-clients:4.1.0,io.confluent:kafka-avro-serializer:8.1.0"
 echo "Part 3 complete"
 read -n 1 -s -r -p "Press any key to continue"
 
