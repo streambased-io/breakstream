@@ -30,3 +30,5 @@ replay_pid*
 environment/shadowtraffic/**
 environment/docker-compose.yaml
 environment/shadowtraffic_license.env
+
+shadowtraffic-logs.txt
