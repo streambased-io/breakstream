@@ -1,5 +1,3 @@
-println("This is Jack's test")
-spark.sql("DESCRIBE hotset.transactions").show()
 
 println("Look at my databases")
 spark.sql("SHOW DATABASES").show()
