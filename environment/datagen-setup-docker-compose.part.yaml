@@ -12,4 +12,4 @@
         read_only: true
     env_file: "shadowtraffic_license.env"
     command: --config /etc/shadowtraffic/setup.json --seed 1234
-    restart: on-failure
+    restart: no
