@@ -57,6 +57,47 @@
       }
     },
     {
+      "topic": "accounts",
+      "value": {
+        "AccountID": {
+          "_gen": "sequentialInteger",
+          "startingFrom": 1000
+        },
+        "CustomerID": {
+          "_gen": "lookup",
+          "topic": "customers",
+          "path": [
+            "value",
+            "CustomerID"
+          ]
+        },
+        "AccountType": {
+          "_gen": "oneOf",
+          "choices": [
+            "Savings",
+            "Checking",
+            "Loan"
+          ]
+        },
+        "BranchID": {
+          "_gen": "lookup",
+          "topic": "branches",
+          "path": [
+            "value",
+            "BranchID"
+          ]
+        },
+        "IsActive": {
+          "_gen": "boolean"
+        }
+      },
+      "localConfigs": {
+        "events": {
+          "exactly": 500
+        }
+      }
+    },
+    {
       "topic": "transactions",
       "vars": {
         "TransactionType": {
@@ -75,8 +116,8 @@
         "AccountID": {
           "_gen": "uniformDistribution",
           "bounds": [
-            0,
-            10000
+            1000,
+            1500
           ],
           "decimals": 0
         },

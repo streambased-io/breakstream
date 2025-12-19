@@ -19,8 +19,8 @@
         "AccountID": {
           "_gen": "uniformDistribution",
           "bounds": [
-            0,
-            10000
+            1000,
+            1500
           ],
           "decimals": 0
         },
