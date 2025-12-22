@@ -20,7 +20,9 @@ done
 
 # start services
 cd $SCRIPT_DIR/environment
-docker-compose up -d
+echo "Starting environment for spec $SPEC_NAME"
+docker --log-level ERROR compose up -d
+clear
 
 # prepare shadowtraffic
 if [ -d "$SCRIPT_DIR/environment/shadowtraffic" ]
@@ -34,20 +36,34 @@ curl  https://raw.githubusercontent.com/ShadowTraffic/shadowtraffic-examples/ref
 for DATASET in $(cat $SCRIPT_DIR/specs/$SPEC_NAME/spec.json | jq .setup_datasets[] | sed -e 's/"//g')
 do
 
+  echo "Setting up dataset $DATASET"
+
   # run setup
   if [ -d "$SCRIPT_DIR/environment/shadowtraffic" ]
   then
       rm -rf $SCRIPT_DIR/environment/shadowtraffic/*
   fi
   cp -R $SCRIPT_DIR/datasets/$DATASET/* $SCRIPT_DIR/environment/shadowtraffic
-  docker-compose up shadowtraffic_setup
-  if (( $? != 0 ))
-  then
-    # setup failed
-    echo "FAILED TO SETUP DATASET $DATASET: SETUP STEPS FAILED"
-    exit 112
-  fi
+  docker --log-level ERROR compose up -d shadowtraffic_setup
+  while [ "$(docker --log-level ERROR compose ps | grep shadowtraffic_setup | wc -l)" = "1" ]
+  do
+    echo "Loading data to topics:"
+    for topic in $(docker --log-level ERROR compose exec kafka1 kafka-topics --bootstrap-server kafka1:9092 --list | grep -v __consumer_offsets | grep -v _schemas)
+    do
+      docker --log-level ERROR compose exec kafka1 kafka-run-class kafka.tools.GetOffsetShell   --broker-list kafka1:9092 --topic $topic
+    done
+    echo "."
+    sleep 1
+    echo ".."
+    sleep 1
+    echo "..."
+    sleep 1
+    clear
+  done
+
+  echo "Dataset $DATASET loaded to Kafka topics, running post setup steps (this may take several minutes)..."
   $SCRIPT_DIR/environment/shadowtraffic/post_setup.sh
+  echo "Post setup steps for dataset $DATASET completed."
   if (( $? != 0 ))
   then
     # setup failed
@@ -57,18 +73,31 @@ do
 done
 
 # load background datasets
+sleep 3
+clear
+echo "Starting background dataset"
 BACKGROUND_DATASET=$(cat $SCRIPT_DIR/specs/$SPEC_NAME/spec.json | jq .background_dataset | sed -e 's/"//g')
 if [ -d "$SCRIPT_DIR/environment/shadowtraffic" ]
 then
     rm -rf $SCRIPT_DIR/environment/shadowtraffic/*
 fi
 cp -R $SCRIPT_DIR/datasets/$BACKGROUND_DATASET/* $SCRIPT_DIR/environment/shadowtraffic
-docker-compose up -d shadowtraffic_background
+docker --log-level ERROR compose up -d shadowtraffic_background
+sleep 3
+
+# exit if setup mode
+if [ "$SETUP_MODE" = "true" ]
+then
+  echo "Setup mode is enabled, no tests will be run. Run ./bin/stop.sh to stop the environment."
+  exit 0
+fi
 
 # run tests
 export EXITCODE=0
 for TEST_NAME in $(cat $SCRIPT_DIR/specs/$SPEC_NAME/spec.json | jq .tests[] | sed -e 's/"//g')
 do
+  clear
+  echo "Running TEST: $TEST_NAME"
   $SCRIPT_DIR/tests/$TEST_NAME/run.sh
   if (( $? != 0 ))
   then
@@ -78,12 +107,18 @@ do
 done
 
 # tear down
-$SCRIPT_DIR/bin/stop.sh
-
-if (( $EXITCODE != 0 ))
+if [[ $SPEC_NAME == demo_* ]]
 then
-  echo "TESTS FAILED"
+  echo "Demo spec detected, preserving environment for inspection. Run ./bin/stop.sh to stop the environment."
+  exit $EXITCODE
 else
-  echo "TESTS PASSED"
+  $SCRIPT_DIR/bin/stop.sh
+
+  if (( $EXITCODE != 0 ))
+  then
+    echo "TESTS FAILED"
+  else
+    echo "TESTS PASSED"
+  fi
+  exit $EXITCODE
 fi
-exit $EXITCODE

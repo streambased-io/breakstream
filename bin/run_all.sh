@@ -2,7 +2,7 @@
 
 SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )/../
 
-for SPEC in $(ls specs)
+for SPEC in $(ls specs | grep -v ^demo_)
 do
   echo "Running SPEC: $SPEC"
   $SCRIPT_DIR/bin/start.sh $SPEC
