@@ -8,7 +8,7 @@ die () {
 # setup and validate
 SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )/../
 [ "$#" -eq 1 ] || die "1 argument required, $# provided"
-ls $SCRIPT_DIR/tests/$1 > /dev/null 2>&1  || die "Test case not found, $1 provided"
+ls $SCRIPT_DIR/specs/$1 > /dev/null 2>&1  || die "Test case not found, $1 provided"
 SPEC_NAME=$1
 
 # make docker compose
@@ -44,7 +44,10 @@ do
       rm -rf $SCRIPT_DIR/environment/shadowtraffic/*
   fi
   cp -R $SCRIPT_DIR/datasets/$DATASET/* $SCRIPT_DIR/environment/shadowtraffic
-  docker --log-level ERROR compose up -d shadowtraffic_setup
+  if [ -f $SCRIPT_DIR/environment/shadowtraffic/setup.json ]
+  then
+    docker --log-level ERROR compose up -d shadowtraffic_setup
+  fi
   while [ "$(docker --log-level ERROR compose ps | grep shadowtraffic_setup | wc -l)" = "1" ]
   do
     echo "Loading data to topics:"
@@ -62,7 +65,10 @@ do
   done
 
   echo "Dataset $DATASET loaded to Kafka topics, running post setup steps (this may take several minutes)..."
-  $SCRIPT_DIR/environment/shadowtraffic/post_setup.sh
+  if [ -f $SCRIPT_DIR/environment/shadowtraffic/post_setup.sh ]
+  then
+    $SCRIPT_DIR/environment/shadowtraffic/post_setup.sh
+  fi
   echo "Post setup steps for dataset $DATASET completed."
   if (( $? != 0 ))
   then
@@ -76,13 +82,21 @@ done
 sleep 3
 clear
 echo "Starting background dataset"
-BACKGROUND_DATASET=$(cat $SCRIPT_DIR/specs/$SPEC_NAME/spec.json | jq .background_dataset | sed -e 's/"//g')
-if [ -d "$SCRIPT_DIR/environment/shadowtraffic" ]
+if [[ "$(cat $SCRIPT_DIR/specs/$SPEC_NAME/spec.json | jq '.background_dataset')" = "null" ]];
 then
+  echo "No background dataset specified, skipping background load."
+else
+  BACKGROUND_DATASET=$(cat $SCRIPT_DIR/specs/$SPEC_NAME/spec.json | jq .background_dataset | sed -e 's/"//g')
+  if [ -d "$SCRIPT_DIR/environment/shadowtraffic" ]
+  then
     rm -rf $SCRIPT_DIR/environment/shadowtraffic/*
+  fi
+  cp -R $SCRIPT_DIR/datasets/$BACKGROUND_DATASET/* $SCRIPT_DIR/environment/shadowtraffic
+  if [ -f $SCRIPT_DIR/environment/shadowtraffic/background.json ]
+  then
+    docker --log-level ERROR compose up -d shadowtraffic_background
+  fi
 fi
-cp -R $SCRIPT_DIR/datasets/$BACKGROUND_DATASET/* $SCRIPT_DIR/environment/shadowtraffic
-docker --log-level ERROR compose up -d shadowtraffic_background
 sleep 3
 
 # exit if setup mode

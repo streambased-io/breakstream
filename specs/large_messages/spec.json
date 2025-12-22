@@ -1,0 +1,14 @@
+{
+  "components": [
+    "kafka",
+    "iceberg",
+    "datagen-setup",
+    "streambased"
+  ],
+  "setup_datasets": [
+    "large_messages"
+  ],
+  "tests" : [
+    "large_messages"
+  ]
+}
