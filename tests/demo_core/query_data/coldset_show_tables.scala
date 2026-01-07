@@ -1,0 +1,5 @@
+println("")
+println("We can also see the coldset tables below:")
+spark.sql("SHOW TABLES IN coldset").show()
+println("Mirroring the \"accounts\" topic in Kafka, the \"branches\" table here can only be found in Iceberg.")
+println("the \"branches\" table here can only be found in Iceberg.")

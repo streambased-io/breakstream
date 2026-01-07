@@ -1,0 +1,5 @@
+println("")
+println("To round this off, we display 10 messages from the transactions topic within the merged table.")
+spark.sql("SELECT * FROM isk.merged.transactions ORDER BY kafka_offset DESC LIMIT 10").show()
+println("These rows, ordered by kafka_offset and so showing the most recent data, actually display Kafka messages in an Iceberg tabl")
+println("Streambased creates this seamless view whilst your data stays in place.")
