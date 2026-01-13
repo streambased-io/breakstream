@@ -1,80 +1,88 @@
 # BreakStream
 
-Small docker based project for black-box testing of Streambased components.
+Docker-based demo and testing environment for Streambased components.
 
-## Overview
+## What is Streambased?
 
-`breakstream` provides utilities and examples to perform black-box tests against 
-Streambased components.
+Streambased unifies Apache Kafka and Apache Iceberg, enabling real-time analytics across streaming and historical data without traditional batch pipelines. See [Streambased Overview](docs/STREAMBASED_OVERVIEW.md) for details.
 
-## Features
+## Demo Quickstart
 
-A Breakstream test consists of 3 components:
+Run the interactive demo to see Streambased in action:
 
-1. A spec - Specs are defined in a json file `spec.json` stored inside a test-named 
-    directory (e.g. `specs/my-first-test/spec.json`). These define the data and test 
-    cases that to be run. e.g.
-    ```json
-    {
-        "components": [
-            "kafka",
-            "iceberg",
-            "datagen-setup",
-            "datagen-background",
-            "streambased"
-        ],
-        "setup_datasets": [
-            "core"
-        ],
-        "background_dataset" : "core",
-        "tests" : [
-            "core_functions"
-        ]
-    }
-    ```
-2. One or more datasets - Datasets are shadowtraffic specs and post load actions defined in 
-   a named directory (e.g. `datasets/my-first-dataset`). Breakstream has 2 classes of dataset:
-   * Setup - These are one shot Shadowtraffic jobs (named `setup.json`) used to prepopulate 
-     data ahead of the test run. They are followed by after population steps (defined in 
-     `post_setup.sh`).
-   * Background - These are long-running Shadowtraffic jobs (named `background.json`) used to 
-     provide background traffic during the test run. Only 1 background dataset is currently 
-     supported per test run.
-3. One or more test cases - Test cases are defined in a named directory (e.g. 
-   `tests/my-first-test-case`) and contain simply a shell script to execute (`run.sh`). 
-   Breakstream requires only that the return code of the script is 0 for success, non-zero 
-   for failure and has no opinions about how the tests are run. 
+```bash
+./bin/start.sh demo_core
+```
+
+This starts the full stack and walks through:
+1. **Unified data views** - Query streaming (hotset) and historical (coldset) data with SQL
+2. **Data tiering** - Move data from Kafka to Iceberg
+3. **Extended retention** - Kafka consumers reading historical data via KSI
+
+See [Demo Quickstart Guide](docs/QUICKSTART.md) for the full walkthrough.
+
+## Documentation
+
+- [Streambased Overview](docs/STREAMBASED_OVERVIEW.md) - Product introduction and concepts
+- [Architecture](docs/ARCHITECTURE.md) - Component diagram and interactions
+- [Demo Quickstart](docs/QUICKSTART.md) - Hands-on walkthrough
 
 ## Requirements
 
-- Java 11+ (or your project's configured JVM)
+- Docker and Docker Compose
 - jq
-- Docker
+- Java 11+
+- ~8GB RAM available for Docker
 
-## Quickstart
+## Commands
 
-1. Clone the repository
-2. Run with a test name, e.g.
-   ```bash
-   ./bin/start.sh <spec name>
-   ```
-3. Breakstream should clean itself up but if it doesn't you can run:
-   ```bash
-   ./bin/stop.sh
-   ```
-
-## Setup Mode
-
-If you want to run only the setup phase (e.g. to prepopulate data) you can run:
 ```bash
-SETUP_MODE=true ./bin/start.sh <spec name> 
+# Run interactive demo
+./bin/start.sh demo_core
+
+# Run automated tests
+./bin/start.sh core_functions
+
+# Run all test specs
+./bin/run_all.sh
+
+# Stop environment
+./bin/stop.sh
+
+# Setup mode (start environment, skip tests)
+SETUP_MODE=true ./bin/start.sh demo_core
 ```
-This will run only the setup parts of the spec, will skip any tests and leave the 
-environment up for playing with.
 
-## Demos
+---
 
-Any spec that starts "demo_" is considered a demo spec. This will run a "test" that 
-expects user interaction and leave the environment up after running so that the user 
-can mess around with it. The idea is that these test demonstrate features and don't 
-verify anything. demo_core is a good example of this.
+## Test Framework
+
+BreakStream also serves as a black-box testing framework for Streambased components.
+
+### Test Structure
+
+A test consists of 3 components:
+
+1. **Spec** (`specs/<name>/spec.json`) - Defines Docker components, datasets, and tests to run:
+   ```json
+   {
+       "components": ["kafka", "iceberg", "datagen-setup", "datagen-background", "streambased"],
+       "setup_datasets": ["core"],
+       "background_dataset": "core",
+       "tests": ["core_functions"]
+   }
+   ```
+
+2. **Datasets** (`datasets/<name>/`) - ShadowTraffic configs for data generation:
+   - `setup.json` - One-shot data prepopulation
+   - `background.json` - Continuous background traffic
+   - `post_setup.sh` - Post-load actions (e.g., copy to Iceberg)
+
+3. **Test Cases** (`tests/<name>/run.sh`) - Shell script returning 0 for success
+
+### Demo Specs
+
+Specs prefixed with `demo_` are interactive demonstrations that:
+- Expect user interaction (press key to continue)
+- Leave environment running after completion
+- Don't verify correctness, just demonstrate features
