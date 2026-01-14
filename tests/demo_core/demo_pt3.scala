@@ -44,7 +44,7 @@ while (iter.hasNext && recordsDisplayed < 10) {
 
 Thread.sleep(sleepTime)
 
-println(s"${GREEN}\n\nNow let's read using the Streambased proxy  Notice that the Kafka client configurations stay the same, it is merely pointed at a different bootstrap server.\n\nStreambased serves the data we transferred to Iceberg previously as if it was Kafka data allowing us to restore access to the previously deleted records.\n\nYou canb confirm this by noting that the first offset retrieved is now 0\n${RESET}")
+println(s"${GREEN}\n\nNow let's read using the Streambased proxy  Notice that the Kafka client configurations stay the same, it is merely pointed at a different bootstrap server.\n\nStreambased serves the data we transferred to Iceberg previously as if it was Kafka data allowing us to restore access to the previously deleted records.\n\nYou can confirm this by noting that the first offset retrieved is now 0\n${RESET}")
 
 Thread.sleep(sleepTime)
 
