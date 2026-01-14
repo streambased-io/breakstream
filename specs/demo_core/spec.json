@@ -4,12 +4,13 @@
     "iceberg",
     "datagen-setup",
     "datagen-background",
-    "streambased"
+    "streambased",
+    "debug"
   ],
   "setup_datasets": [
-    "core"
+    "demo"
   ],
-  "background_dataset" : "core",
+  "background_dataset" : "demo",
   "tests" : [
     "demo_core"
   ]
