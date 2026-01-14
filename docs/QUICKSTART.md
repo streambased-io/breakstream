@@ -14,7 +14,7 @@ This guide walks through the Streambased demo, demonstrating unified access to s
 ### Step 1: Start the Demo Environment
 
 ```bash
-./bin/start.sh demo_core
+./bin/start.sh
 ```
 
 This command:
