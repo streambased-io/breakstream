@@ -11,7 +11,7 @@ Streambased unifies Apache Kafka and Apache Iceberg, enabling real-time analytic
 Run the interactive demo to see Streambased in action:
 
 ```bash
-./bin/start.sh demo_core
+./bin/start.sh
 ```
 
 This starts the full stack and walks through:
@@ -38,7 +38,7 @@ See [Demo Quickstart Guide](docs/QUICKSTART.md) for the full walkthrough.
 
 ```bash
 # Run interactive demo
-./bin/start.sh demo_core
+./bin/start.sh
 
 # Run automated tests
 ./bin/start.sh core_functions
@@ -50,7 +50,7 @@ See [Demo Quickstart Guide](docs/QUICKSTART.md) for the full walkthrough.
 ./bin/stop.sh
 
 # Setup mode (start environment, skip tests)
-SETUP_MODE=true ./bin/start.sh demo_core
+SETUP_MODE=true ./bin/start.sh core_functions
 ```
 
 ---
