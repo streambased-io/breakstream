@@ -1,0 +1,242 @@
+{
+  "generators": [
+    {
+      "topic": "transactions",
+      "vars": {
+        "TransactionType": {
+          "_gen": "oneOf",
+          "choices": [
+            "Deposit",
+            "Withdrawal"
+          ]
+        }
+      },
+      "value": {
+        "TransactionID": {
+          "_gen": "uuid",
+          "var": "TransactionID"
+        },
+        "AccountID": {
+          "_gen": "uniformDistribution",
+          "bounds": [
+            1000,
+            1500
+          ],
+          "decimals": 0
+        },
+        "TransactionType": {
+          "_gen": "var",
+          "var": "TransactionType"
+        },
+        "TransactionAmount": {
+          "_gen": "uniformDistribution",
+          "bounds": [
+            100,
+            10000
+          ],
+          "decimals": 2
+        },
+        "BranchID": {
+          "_gen": "weightedOneOf",
+          "choices": [
+            {
+              "weight": 1,
+              "value": 100
+            },
+            {
+              "weight": 1,
+              "value": 101
+            },
+            {
+              "weight": 1,
+              "value": 102
+            },
+            {
+              "weight": 1,
+              "value": 103
+            },
+            {
+              "weight": 1,
+              "value": 104
+            },
+            {
+              "weight": 1,
+              "value": 105
+            },
+            {
+              "weight": 1,
+              "value": 106
+            },
+            {
+              "weight": 1,
+              "value": 107
+            },
+            {
+              "weight": 1,
+              "value": 108
+            },
+            {
+              "weight": 1,
+              "value": 109
+            },
+            {
+              "weight": 1,
+              "value": 110
+            },
+            {
+              "weight": 1,
+              "value": 111
+            },
+            {
+              "weight": 1,
+              "value": 112
+            },
+            {
+              "weight": 1,
+              "value": 113
+            },
+            {
+              "weight": 1,
+              "value": 114
+            },
+            {
+              "weight": 1,
+              "value": 115
+            },
+            {
+              "weight": 1,
+              "value": 116
+            },
+            {
+              "weight": 1,
+              "value": 117
+            },
+            {
+              "weight": 1,
+              "value": 118
+            },
+            {
+              "weight": 1,
+              "value": 119
+            },
+            {
+              "weight": 1,
+              "value": 120
+            },
+            {
+              "weight": 20,
+              "value": 121
+            },
+            {
+              "weight": 1,
+              "value": 122
+            },
+            {
+              "weight": 1,
+              "value": 123
+            },
+            {
+              "weight": 1,
+              "value": 124
+            },
+            {
+              "weight": 1,
+              "value": 125
+            },
+            {
+              "weight": 1,
+              "value": 126
+            },
+            {
+              "weight": 1,
+              "value": 127
+            },
+            {
+              "weight": 1,
+              "value": 128
+            },
+            {
+              "weight": 1,
+              "value": 129
+            },
+            {
+              "weight": 1,
+              "value": 130
+            }
+          ]
+        },
+        "CustomerFlaggedFraud": {
+          "_gen": "weightedOneOf",
+          "choices": [
+            {
+              "weight": 7,
+              "value": true
+            },
+            {
+              "weight": 3,
+              "value": false
+            }
+          ]
+        },
+        "TransactionTime": {
+          "_gen": "sequentialInteger",
+          "startingFrom": 1761222886000000,
+          "advanceBy": 333000
+        }
+      },
+      "localConfigs": {
+        "throughput": 3,
+        "avroSchemaHint": {
+          "value": {
+            "type": "record",
+            "name": "transactionsValue",
+            "fields": [
+              {
+                "name": "TransactionID",
+                "type": "string"
+              },
+              {
+                "name": "AccountID",
+                "type": "long"
+              },
+              {
+                "name": "TransactionType",
+                "type": "string"
+              },
+              {
+                "name": "TransactionAmount",
+                "type": "double"
+              },
+              {
+                "name": "BranchID",
+                "type": "long"
+              },
+              {
+                "name": "CustomerFlaggedFraud",
+                "type": "boolean"
+              },
+              {
+                "name": "TransactionTime",
+                "type": {
+                  "type": "long",
+                  "logicalType": "timestamp-micros"
+                }
+              }
+            ]
+          }
+        }
+      }
+    }
+  ],
+  "connections": {
+    "kafka": {
+      "kind": "kafka",
+      "producerConfigs": {
+        "bootstrap.servers": "kafka1:9092",
+        "key.serializer": "io.confluent.kafka.serializers.KafkaAvroSerializer",
+        "value.serializer": "io.confluent.kafka.serializers.KafkaAvroSerializer",
+        "schema.registry.url": "http://schema-registry:8081"
+      }
+    }
+  }
+}

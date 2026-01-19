@@ -1,0 +1,66 @@
+{
+  "generators": [
+    {
+      "topic": "customers",
+      "value": {
+        "LongString1": {
+          "_gen": "string",
+          "expr": "#{Image.base64BMP}"
+        },
+        "LongString2": {
+          "_gen": "string",
+          "expr": "#{Image.base64BMP}"
+        },
+        "LongString3": {
+          "_gen": "string",
+          "expr": "#{Image.base64BMP}"
+        },
+        "LongString4": {
+          "_gen": "string",
+          "expr": "#{Image.base64BMP}"
+        },
+        "LongString5": {
+          "_gen": "string",
+          "expr": "#{Image.base64BMP}"
+        },
+        "LongString6": {
+          "_gen": "string",
+          "expr": "#{Image.base64BMP}"
+        },
+        "LongString7": {
+          "_gen": "string",
+          "expr": "#{Image.base64BMP}"
+        },
+        "LongString8": {
+          "_gen": "string",
+          "expr": "#{Image.base64BMP}"
+        },
+        "LongString9": {
+          "_gen": "string",
+          "expr": "#{Image.base64BMP}"
+        },
+        "LongString10": {
+          "_gen": "string",
+          "expr": "#{Image.base64BMP}"
+        }
+      },
+      "localConfigs": {
+        "events": {
+          "exactly": 100
+        }
+      }
+    }
+  ],
+  "connections": {
+    "kafka": {
+      "kind": "kafka",
+      "producerConfigs": {
+        "bootstrap.servers": "kafka1:9092",
+        "key.serializer": "io.confluent.kafka.serializers.KafkaAvroSerializer",
+        "value.serializer": "io.confluent.kafka.serializers.KafkaAvroSerializer",
+        "max.request.size": "30485760",
+        "schema.registry.url": "http://schema-registry:8081"
+      }
+    }
+  }
+}

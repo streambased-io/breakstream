@@ -1,0 +1,95 @@
+
+  directstream:
+    #image: local/directstream:latest
+    image: streambased/directstream:latest
+    hostname: directstream
+    container_name: directstream
+    platform: linux/amd64
+    restart: on-failure
+    ports:
+      - 11000:11000
+      - 11001:11001
+    environment:
+      - AWS_REGION=us-east-1
+      - ISK_PORT=11000
+      - ISK_CATALOG_PORT=11001
+      - ISK_EXTERNAL_HOSTNAME=directstream
+      - ISK_CONFIG_PROVIDER=service
+      - ISK_CONFIG_SERVICE_URL=http://slipstream:3000/api/internal/cluster-config
+      - ISK_COLDSET_CLIENT_URI=http://rest:8181/
+      - ISK_COLDSET_CLIENT_REST_SIGV4-ENABLED=true
+      - ISK_COLDSET_CLIENT_REST_ACCESS-KEY-ID=admin
+      - ISK_COLDSET_CLIENT_REST_SECRET-ACCESS-KEY=password
+      - ISK_COLDSET_CLIENT_REST_SIGNING-REGION=us-east-1
+      - ISK_COLDSET_CLIENT_REST-METRICS-REPORTING-ENABLED=false
+      - ISK_COLDSET_CLIENT_WAREHOUSE=s3://
+      - ISK_COLDSET_CLIENT_IO-IMPL=org.apache.iceberg.aws.s3.S3FileIO
+      - ISK_COLDSET_CLIENT_S3_ENDPOINT=http://minio:9000/
+      - ISK_COLDSET_CLIENT_S3_PATH-STYLE-ACCESS=true
+      - ISK_COLDSET_CLIENT_S3_ACCESS-KEY-ID=admin
+      - ISK_COLDSET_CLIENT_S3_SECRET-ACCESS-KEY=password
+      - ISK_COLDSET_CLIENT_S3_REGION=us-east-1
+
+  hyperstream:
+    #image: local/hyperstream:latest
+    image: streambased/hyperstream:latest
+    container_name: hyperstream
+    platform: linux/amd64
+    ports:
+      - 9088:9088
+    environment:
+      - SPARK_CONNECT_URL=sc://spark-iceberg:15002
+      - COLD_SET_SCHEMA=direct.coldset
+      - HOT_SET_SCHEMA=isk.hotset
+      - UNIFIED_SET_SCHEMA=isk.merged
+      - AUTH_ENABLED=true
+
+  ksi:
+    #image: local/ksi:latest
+    image: streambased/ksi:latest
+    hostname: ksi
+    container_name: ksi
+    depends_on:
+      schema-registry:
+        condition: service_healthy
+      rest:
+        condition: service_started
+    ports:
+      - "9192:9192"
+    environment:
+      - KSI_BOOTSTRAP_SERVERS=kafka1:9092
+      - KSI_GATEWAY_BOOTSTRAP_ADDRESS=ksi:9192
+      - KSI_COLD_STORAGE_TYPE=spark-connect
+      - KSI_MAX_COLD_STORAGE_RECORDS_PER_FETCH=1000
+      - KSI_COLD_STORAGE_TIMEOUT_MS=30000
+      - KSI_ALWAYS_RETURN_MINUS_ONE_START_OFFSET=true
+      - KSI_ICEBERG_NAMESPACE=coldset
+      - KSI_SPARK_CONNECT_URL=sc://spark-iceberg:15002
+      - KSI_SPARK_CATALOG_NAME=direct
+      - KSI_OFFSET_RANGE_CACHE_TTL_MS=300000
+      - KSI_OFFSET_RANGE_CACHE_REFRESH_MS=60000
+      - KSI_SCHEMA_REGISTRY_URL=http://schema-registry:8081
+    command: [ "-c", "/opt/kroxylicious/config.yaml" ]
+
+  slipstream:
+    #image: local/slipstream:latest
+    image: streambased/slipstream:latest
+    hostname: slipstream
+    container_name: slipstream
+    ports:
+      - "3000:3000"
+    environment:
+      - NODE_ENV=production
+      - SINGLE_TENANT_MODE=true
+      - SINGLE_TENANT_MODE_PUBLIC_KEY=sbpk_12345678
+      - SINGLE_TENANT_MODE_SECRET_KEY=sbsk_12345678
+      - SINGLE_TENANT_MODE_CLUSTER_BOOTSTRAP_SERVERS=kafka1:9092
+      - SINGLE_TENANT_MODE_CLUSTER_ADDITIONAL_KAFKA_CONFIG=""
+      - SINGLE_TENANT_MODE_CLUSTER_SCHEMA_REGISTRY_URL=http://schema-registry:8081
+      - SINGLE_TENANT_MODE_CLUSTER_ADDITIONAL_SCHEMA_REGISTRY_CONFIG=""
+      - AUTH_SECRET=CIGLbbr24MBq9svn7WyArCi1UJ0EqjTc
+      - HYPERSTREAM_EUROPE_WEST2_BASE_URL=http://dev-hyperstream-service:9088
+      - HYPERSTREAM_US_EAST1_BASE_URL=http://dev-hyperstream-service:9088
+      - HYPERSTREAM_US_WEST2_BASE_URL=http://dev-hyperstream-service:9088
+      - OPENAI_API_KEY=nope
+      - OPEN_AI_MODEL=gpt-4o-mini
