@@ -4,6 +4,7 @@
     image: streambased/spark-iceberg:latest
     hostname: spark
     container_name: spark-iceberg
+    platform: linux/amd64
     environment:
       - AWS_REGION=us-east-1
       - AWS_ACCESS_KEY_ID=sbpk_12345678
