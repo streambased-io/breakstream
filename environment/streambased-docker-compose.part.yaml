@@ -49,8 +49,11 @@
     image: streambased/ksi:latest
     hostname: ksi
     container_name: ksi
+    platform: linux/amd64
     depends_on:
       schema-registry:
+        condition: service_healthy
+      spark-iceberg:
         condition: service_healthy
       rest:
         condition: service_started
@@ -76,6 +79,7 @@
     image: streambased/dev-slipstream:latest
     hostname: slipstream
     container_name: slipstream
+    platform: linux/amd64
     ports:
       - "3000:3000"
     environment:

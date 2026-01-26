@@ -57,6 +57,7 @@ done
 # start services
 cd $SCRIPT_DIR/environment
 echo "Starting environment for spec $SPEC_NAME"
+docker --log-level ERROR compose pull
 docker --log-level ERROR compose up -d
 clear
 
@@ -165,6 +166,7 @@ done
 # tear down
 demo_paragraph 8
 if [ "$DEBUG_MODE" != "true" ]
+then
   $SCRIPT_DIR/bin/stop.sh
 
   if [[ $EXITCODE != 0 ]]

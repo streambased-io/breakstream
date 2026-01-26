@@ -3,7 +3,7 @@
 SLEEP_TIME=20
 
 SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
-BASEDIR=$( cd -- "$SCRIPT_DIR/../../" &> /dev/null && pwd )
+BASE_DIR=$( cd -- "$SCRIPT_DIR/../../" &> /dev/null && pwd )
 echo $BASE_DIR
 
 demo_paragraph() {
