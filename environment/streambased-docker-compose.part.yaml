@@ -1,7 +1,7 @@
 
   directstream:
     #image: local/directstream:latest
-    image: streambased/directstream:latest
+    image: streambased/dev-directstream:latest
     hostname: directstream
     container_name: directstream
     platform: linux/amd64
@@ -32,7 +32,7 @@
 
   hyperstream:
     #image: local/hyperstream:latest
-    image: streambased/hyperstream:latest
+    image: streambased/dev-hyperstream:latest
     container_name: hyperstream
     platform: linux/amd64
     ports:
@@ -49,8 +49,11 @@
     image: streambased/ksi:latest
     hostname: ksi
     container_name: ksi
+    platform: linux/amd64
     depends_on:
       schema-registry:
+        condition: service_healthy
+      spark-iceberg:
         condition: service_healthy
       rest:
         condition: service_started
@@ -73,9 +76,10 @@
 
   slipstream:
     #image: local/slipstream:latest
-    image: streambased/slipstream:latest
+    image: streambased/dev-slipstream:latest
     hostname: slipstream
     container_name: slipstream
+    platform: linux/amd64
     ports:
       - "3000:3000"
     environment:
@@ -87,9 +91,10 @@
       - SINGLE_TENANT_MODE_CLUSTER_ADDITIONAL_KAFKA_CONFIG=""
       - SINGLE_TENANT_MODE_CLUSTER_SCHEMA_REGISTRY_URL=http://schema-registry:8081
       - SINGLE_TENANT_MODE_CLUSTER_ADDITIONAL_SCHEMA_REGISTRY_CONFIG=""
-      - AUTH_SECRET=CIGLbbr24MBq9svn7WyArCi1UJ0EqjTc
-      - HYPERSTREAM_EUROPE_WEST2_BASE_URL=http://dev-hyperstream-service:9088
-      - HYPERSTREAM_US_EAST1_BASE_URL=http://dev-hyperstream-service:9088
-      - HYPERSTREAM_US_WEST2_BASE_URL=http://dev-hyperstream-service:9088
+      - AUTH_SECRET=""
+      - HYPERSTREAM_EU_WEST_2_BASE_URL=http://hyperstream:9088
+      - HYPERSTREAM_US_EAST_2_BASE_URL=http://hyperstream:9088
+      - HYPERSTREAM_US_WEST_2_BASE_URL=http://hyperstream:9088
       - OPENAI_API_KEY=nope
       - OPEN_AI_MODEL=gpt-4o-mini
+      - SAAS_MODE=true

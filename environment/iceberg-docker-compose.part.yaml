@@ -4,6 +4,12 @@
     image: streambased/spark-iceberg:latest
     hostname: spark
     container_name: spark-iceberg
+    platform: linux/amd64
+    healthcheck:
+      start_period: 5s
+      interval: 5s
+      retries: 20
+      test: "grep 'Spark Connect server started at: 0:0:0:0:0:0:0:0:15002' /opt/spark/logs/spark--org.apache.spark.sql.connect.service.SparkConnectServer-1-spark.out"
     environment:
       - AWS_REGION=us-east-1
       - AWS_ACCESS_KEY_ID=sbpk_12345678

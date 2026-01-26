@@ -10,7 +10,7 @@ docker --log-level ERROR compose cp $SCRIPT_DIR/scala/post_setup.scala spark-ice
 echo ""
 echo "Copying populated hotset to cold set using Spark"
 echo ""
-docker --log-level ERROR compose exec --no-tty spark-iceberg spark-shell --driver-memory 8g -i /tmp/post_setup.scala 2>&1 >/dev/null
+docker --log-level ERROR compose exec spark-iceberg spark-shell --driver-memory 8g -i /tmp/post_setup.scala 2>&1 >/dev/null
 
 echo ""
 echo "Deleting coldset only topic"
