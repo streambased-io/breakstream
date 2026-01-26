@@ -165,7 +165,7 @@ done
 
 # tear down
 demo_paragraph 8
-if [ "$DEBUG_MODE" != "true" ]
+if [ "$DEMO_MODE" != "true" ]
 then
   $SCRIPT_DIR/bin/stop.sh
 
