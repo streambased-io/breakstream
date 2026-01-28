@@ -8,6 +8,8 @@ Streambased unifies Apache Kafka and Apache Iceberg, enabling real-time analytic
 
 ## Demo Quickstart
 
+[![Open in Gitpod](https://gitpod.io/button/open-in-gitpod.svg)](https://gitpod.io/#https://github.com/streambased-io/breakstream)
+
 Run the interactive demo to see Streambased in action:
 
 ```bash

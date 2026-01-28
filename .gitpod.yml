@@ -14,7 +14,7 @@ github:
 
 tasks:
   - name: breakstream
-    before: |
+    command: |
       ./bin/start.sh
 
 ports:
