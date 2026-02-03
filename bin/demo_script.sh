@@ -1,8 +1,11 @@
 #! /bin/bash
 
+GREEN='\033[0;32m'
+NC='\033[0m' # No Color
+
 PARAGRAPH=$1
 
-if [[ $PARAGRAPH == 1 ]]
+if [ "$PARAGRAPH" == "header" ]
 then
   echo "______                _        _                            "
   echo "| ___ \              | |      | |                           "
@@ -18,9 +21,10 @@ then
   echo ""
 fi
 
-if [[ $PARAGRAPH == 2 ]]
+if [ "$PARAGRAPH" = "architecture" ]
 then
   echo "Streambased combines real-time data in Kafka with lake data in Iceberg to provide a unified view of your data."
+  echo ""
   echo "┌────────────────────────────────────────────────────────────────────────────┐"
   echo "│                              APPLICATIONS                                  │"
   echo "│  ┌──────────────┐  ┌──────────────┐  ┌──────────────┐  ┌──────────────┐    │"
@@ -51,7 +55,35 @@ then
   echo ""
 fi
 
-if [[ $PARAGRAPH == 3 ]]
+if [ "$PARAGRAPH" = "deep_dive" ]
+then
+  echo "Let's take a closer look at the Streambased Layer"
+  echo ""
+  echo "┌───────────────────────────────────────────────────────────────────┐"
+  echo "│                         STREAMBASED LAYER                         │"
+  echo "│                                                                   │"
+  echo "│  ┌────────────────────────────┐   ┌────────────────────────────┐  │"
+  echo "│  │   Streambased I.S.K.       │   │     Streambased K.S.I.     │  │"
+  echo "│  │ Iceberg Service for Kafka  │   │ Kafka Service for Iceberg  │  │"
+  echo "│  │                            │   │                            │  │"
+  echo "│  └────────────────────────────┘   └────────────────────────────┘  │"
+  echo "│                                                                   │"
+  echo "└───────────────────────────────────────────────────────────────────┘"
+  echo ""
+  echo ""
+  echo "* Streambased I.S.K. takes pre-existing Iceberg data (the cold set ) and combines"
+  echo "  it with real-time data in Kafka (the hot set) to provide a unified view of your"
+  echo "  data in Iceberg format."
+  echo ""
+  echo "* Streambased K.S.I. takes the same hot and cold set and provides it in Kafka format."
+  echo ""
+  echo ""
+  echo ""
+fi
+
+
+
+if [ "$PARAGRAPH" = "environment" ]
 then
   echo "In this environment, we will set up the typical components of a modern data architecture:"
   echo ""
@@ -63,11 +95,22 @@ then
   echo "In addition we will deploy Streambased components:"
   echo ""
   echo " * I.S.K. - a service to surface Kafka data in Iceberg format"
-  echo " * K.S.I. - a service that surafces Iceberg data in Kafka format"
+  echo " * K.S.I. - a service that surfaces Iceberg data in Kafka format"
   echo ""
 fi
 
-if [[ $PARAGRAPH == 4 ]]
+if [ "$PARAGRAPH" = "containers" ]
+then
+  echo "Streambased is deployed as a set of horizontally scalable containers. In this demo environment we "
+  echo "will deploy a single instance of each service, but in production you would typically deploy      "
+  echo "multiple instances behind a load balancer for high availability and scalability."
+  echo ""
+  echo " * directstream is the I.S.K. service"
+  echo " * ksi is the K.S.I. service"
+  echo ""
+fi
+
+if [ "$PARAGRAPH" = "setup_intro" ]
 then
   echo "First let's get set up, to populate our demo environment we will:"
   echo ""
@@ -86,7 +129,7 @@ then
   echo ""
 fi
 
-if [[ $PARAGRAPH == 5 ]]
+if [ "$PARAGRAPH" = "data_to_kafka" ]
 then
   echo "Step 1: Loading an initial population into Kafka"
   echo ""
@@ -100,7 +143,7 @@ then
   echo ""
 fi
 
-if [[ $PARAGRAPH == 6 ]]
+if [ "$PARAGRAPH" = "kafka_to_iceberg" ]
 then
   echo "Step 2: Using Spark and Streambased to move the initial population from Kafka to Iceberg"
   echo ""
@@ -115,7 +158,36 @@ then
   echo ""
 fi
 
-if [[ $PARAGRAPH == 7 ]]
+if [ "$PARAGRAPH" = "hotset_to_coldset" ]
+then
+  echo "So far we have assembled a dataset in Kafka (the hotset)."
+  echo "The Iceberg environment (the coldset) is empty."
+  echo ""
+  echo "To prepare the demo environment we need to:"
+  echo "  1. Copy the Kafka data to Iceberg to populate the coldset"
+  echo "  2. Delete the hotset data from Kafka"
+  echo ""
+  echo "All of the steps are performed using Spark and Stremabased I.S.K. (we will revisit this later)."
+  echo "You can see the scripts executed here:"
+  echo "  ./datasets/demo/scala"
+  echo ""
+  echo ""
+fi
+
+if [ "$PARAGRAPH" = "post_setup_complete" ]
+then
+  echo ""
+  echo " _____      _                 _____                       _      _       "
+  echo "/  ___|    | |               /  __ \                     | |    | |      "
+  echo "\ \`--.  ___| |_ _   _ _ __   | /  \/ ___  _ __ ___  _ __ | | ___| |_ ___ "
+  echo " \`--. \/ _ \ __| | | | '_ \  | |    / _ \| '_ \` _ \| '_ \| |/ _ \ __/ _ \ "
+  echo "/\__/ /  __/ |_| |_| | |_) | | \__/\ (_) | | | | | | |_) | |  __/ ||  __/"
+  echo "\____/ \___|\__|\__,_| .__/   \____/\___/|_| |_| |_| .__/|_|\___|\__\___|"
+  echo "                     | |                           | |                   "
+  echo "                     |_|                           |_|                   "
+fi
+
+if [ "$PARAGRAPH" = "new_data" ]
 then
   echo "Step 3: Starting continuous background data generation into Kafka"
   echo ""
@@ -128,7 +200,7 @@ then
   echo ""
 fi
 
-if [[ $PARAGRAPH == 8 ]]
+if [ "$PARAGRAPH" = "finish" ]
 then
   echo " _____                  _____      __   __          "
   echo "|  _  |                |_   _|     \ \ / /          "
@@ -139,10 +211,20 @@ then
   echo "                                                    "
   echo ""
   echo "Demo spec detected, preserving environment for inspection. Run ./bin/stop.sh to stop the environment."
+  echo ""
+  echo "Here's a couple of things to try:"
+  echo ""
+  echo " 1. Launch spark-shell and explore the Iceberg tables directly"
+  echo "      cd environment"
+  echo "      docker compose exec -it spark-iceberg spark-shell"
+  echo " 2. Review example Kafka client code in ./tests/demo_core/*.scala"
+  echo ""
 fi
 
-if [[ $PARAGRAPH == 9 ]]
+if [ "$PARAGRAPH" = "test_intro" ]
 then
+  echo -e ""
+  echo -e "${GREEN}"
   echo "In this simulated environment we will perform the following steps:"
   echo ""
   echo " 1. Use Spark to query a unified dataset composed of Kafka and Iceberg in Iceberg format using I.S.K."
@@ -157,44 +239,61 @@ then
   echo "| |___|  __/ |_\__ \ |_\ \ (_) |_|"
   echo "\_____/\___|\__|___/\____/\___/(_)"
   echo "                                  "
+  echo -e "${NC}"
+  echo ""
 fi
 
-if [[ $PARAGRAPH == 10 ]]
+if [ "$PARAGRAPH" = "test_1_header" ]
 then
   echo ""
-  echo "                 _                                      _   "
-  echo "                (_)                                    | |  "
-  echo "  ___ _ ____   ___ _ __ ___  _ __  _ __ ___   ___ _ __ | |_ "
-  echo " / _ \ '_ \ \ / / | '__/ _ \| '_ \| '_ \` _ \ / _ \ '_ \| __|"
-  echo "|  __/ | | \ V /| | | | (_) | | | | | | | | |  __/ | | | |_ "
-  echo " \___|_| |_|\_/ |_|_|  \___/|_| |_|_| |_| |_|\___|_| |_|\__|"
+  echo -e ""
+  echo -e "${GREEN}"
+  echo "Demo Part 1:"
+  echo " _____           _                                      _   "
+  echo "|  ___|         (_)                                    | |  "
+  echo "| |__ _ ____   ___ _ __ ___  _ __  _ __ ___   ___ _ __ | |_ "
+  echo "|  __| '_ \ \ / / | '__/ _ \| '_ \| '_ \` _ \ / _ \ '_ \| __|"
+  echo "| |__| | | \ V /| | | | (_) | | | | | | | | |  __/ | | | |_ "
+  echo "\____/_| |_|\_/ |_|_|  \___/|_| |_|_| |_| |_|\___|_| |_|\__|"
   echo "                                                            "
   echo "First let's look at our Iceberg environment, we are using Spark Shell so you can run these exact same commands in your own environment."
+  echo -e "${NC}"
+  echo ""
 fi
 
-if [[ $PARAGRAPH == 11 ]]
+if [ "$PARAGRAPH" = "test_2_header" ]
 then
-  echo " _          _                    "
-  echo "(_)        | |                   "
-  echo " _  ___ ___| |__   ___ _ __ __ _ "
-  echo "| |/ __/ _ \ '_ \ / _ \ '__/ _\` |"
-  echo "| | (_|  __/ |_) |  __/ | | (_| |"
-  echo "|_|\___\___|_.__/ \___|_|  \__, |"
-  echo "                            __/ |"
-  echo "                           |___/ "
-  echo " _                       _   _             "
-  echo "(_)                     | | (_)            "
-  echo " _ _ __   __ _  ___  ___| |_ _  ___  _ __  "
-  echo "| | '_ \ / _\` |/ _ \/ __| __| |/ _ \| '_ \ "
-  echo "| | | | | (_| |  __/\__ \ |_| | (_) | | | |"
-  echo "|_|_| |_|\__, |\___||___/\__|_|\___/|_| |_|"
-  echo "          __/ |                            "
-  echo "         |___/                             "
+  echo ""
+  echo -e ""
+  echo -e "${GREEN}"
+  echo "Demo Part 2:"
+  echo " _____         _                              "
+  echo "|_   _|       | |                             "
+  echo "  | |  ___ ___| |__   ___ _ __ __ _           "
+  echo "  | | / __/ _ \ '_ \ / _ \ '__/ _\` |          "
+  echo " _| || (_|  __/ |_) |  __/ | | (_| |          "
+  echo " \___/\___\___|_.__/ \___|_|  \__, |          "
+  echo "                               __/ |          "
+  echo "                              |___/           "
+  echo " _____                      _   _             "
+  echo "|_   _|                    | | (_)            "
+  echo "  | | _ __   __ _  ___  ___| |_ _  ___  _ __  "
+  echo "  | || '_ \ / _\` |/ _ \/ __| __| |/ _ \| '_ \ "
+  echo " _| || | | | (_| |  __/\__ \ |_| | (_) | | | |"
+  echo " \___/_| |_|\__, |\___||___/\__|_|\___/|_| |_|"
+  echo "             __/ |                            "
+  echo "            |___/                             "
   echo "Now let's look at how Streambased can help transfer data from Kafka to Iceberg"
+  echo -e "${NC}"
+  echo ""
 fi
 
-if [[ $PARAGRAPH == 12 ]]
+if [ "$PARAGRAPH" = "test_3_header" ]
 then
+  echo ""
+  echo -e ""
+  echo -e "${GREEN}"
+  echo "Demo Part 3:"
   echo " _____         _                          __     _   __       __ _         "
   echo "|_   _|       | |                         \ \   | | / /      / _| |        "
   echo "  | |  ___ ___| |__   ___ _ __ __ _   _____\ \  | |/ /  __ _| |_| | ____ _ "
@@ -205,10 +304,15 @@ then
   echo "                              |___/                                        "
   echo ""
   echo "Now let's read Iceberg data from Kafka clients..."
+  echo -e "${NC}"
+  echo ""
 fi
 
-if [[ $PARAGRAPH == 13 ]]
+if [ "$PARAGRAPH" = "complete" ]
 then
+  echo ""
+  echo -e ""
+  echo -e "${GREEN}"
   echo "______                       _____                       _      _       "
   echo "|  _  \                     /  __ \                     | |    | |      "
   echo "| | | |___ _ __ ___   ___   | /  \/ ___  _ __ ___  _ __ | | ___| |_ ___ "
@@ -217,4 +321,6 @@ then
   echo "|___/ \___|_| |_| |_|\___/   \____/\___/|_| |_| |_| .__/|_|\___|\__\___|"
   echo "                                                  | |                   "
   echo "                                                  |_|                   "
+  echo -e "${NC}"
+  echo ""
 fi

@@ -1,6 +1,6 @@
 #! /bin/bash
 
-SLEEP_TIME=20
+export SLEEP_TIME=20
 DEMO_MODE=false
 SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )/../
 
@@ -39,13 +39,13 @@ fi
 # are we running a demo?
 if [[  $SPEC_NAME == demo_* ]]
 then
-  DEMO_MODE=true
+  export DEMO_MODE=true
 fi
 
-demo_paragraph 1
-demo_paragraph 2
-demo_paragraph 3
-demo_paragraph 4
+demo_paragraph "header"
+demo_paragraph "architecture"
+demo_paragraph "deep_dive"
+demo_paragraph "environment"
 
 # make docker compose
 cat $SCRIPT_DIR/environment/header-docker-compose.part.yaml > $SCRIPT_DIR/environment/docker-compose.yaml
@@ -56,7 +56,6 @@ done
 
 # start services
 cd $SCRIPT_DIR/environment
-echo "Starting environment for spec $SPEC_NAME"
 docker --log-level ERROR compose pull
 docker --log-level ERROR compose up -d
 clear
@@ -68,16 +67,17 @@ then
 fi
 mkdir -p $SCRIPT_DIR/environment/shadowtraffic
 curl  https://raw.githubusercontent.com/ShadowTraffic/shadowtraffic-examples/refs/heads/master/free-trial-license.env > $SCRIPT_DIR/environment/shadowtraffic_license.env
+clear
 
-
+demo_paragraph "containers"
 
 # load datasets
 
 for DATASET in $(cat $SCRIPT_DIR/specs/$SPEC_NAME/spec.json | jq .setup_datasets[] | sed -e 's/"//g')
 do
 
-  demo_paragraph 5
-  echo "Setting up dataset $DATASET"
+  demo_paragraph "setup_intro"
+  demo_paragraph "data_to_kafka"
 
   # run setup
   if [ -d "$SCRIPT_DIR/environment/shadowtraffic" ]
@@ -88,6 +88,7 @@ do
   if [ -f $SCRIPT_DIR/environment/shadowtraffic/setup.json ]
   then
     docker --log-level ERROR compose up -d shadowtraffic_setup
+    clear
   fi
   while [ ! -z "$(docker --log-level ERROR compose ps -q shadowtraffic_setup)" ]
   do
@@ -105,13 +106,11 @@ do
     clear
   done
 
-  demo_paragraph 6
-  echo "Dataset $DATASET loaded to Kafka topics, running post setup steps (this may take several minutes)..."
+  demo_paragraph "kafka_to_iceberg"
   if [ -f $SCRIPT_DIR/environment/shadowtraffic/post_setup.sh ]
   then
     $SCRIPT_DIR/environment/shadowtraffic/post_setup.sh
   fi
-  echo "Post setup steps for dataset $DATASET completed."
   if [[ $? != 0 ]]
   then
     # setup failed
@@ -121,10 +120,9 @@ do
 done
 
 # load background datasets
-demo_paragraph 7
+demo_paragraph "new_data"
 sleep 3
 clear
-echo "Starting background dataset"
 if [[ "$(cat $SCRIPT_DIR/specs/$SPEC_NAME/spec.json | jq '.background_dataset')" = "null" ]];
 then
   echo "No background dataset specified, skipping background load."
@@ -154,7 +152,6 @@ export EXITCODE=0
 for TEST_NAME in $(cat $SCRIPT_DIR/specs/$SPEC_NAME/spec.json | jq .tests[] | sed -e 's/"//g')
 do
   clear
-  echo "Running TEST: $TEST_NAME"
   $SCRIPT_DIR/tests/$TEST_NAME/run.sh
   if [[ $? != 0 ]]
   then
@@ -164,7 +161,7 @@ do
 done
 
 # tear down
-demo_paragraph 8
+demo_paragraph "finish"
 if [ "$DEMO_MODE" != "true" ]
 then
   $SCRIPT_DIR/bin/stop.sh
