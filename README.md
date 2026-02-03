@@ -6,9 +6,21 @@ Docker-based demo and testing environment for Streambased components.
 
 Streambased unifies Apache Kafka and Apache Iceberg, enabling real-time analytics across streaming and historical data without traditional batch pipelines. See [Streambased Overview](docs/STREAMBASED_OVERVIEW.md) for details.
 
-## Demo Quickstart
+## Running in github Codespaces
 
-[![Open in Gitpod](https://gitpod.io/button/open-in-gitpod.svg)](https://gitpod.io/#https://github.com/streambased-io/breakstream)
+The easiest way to try out BreakStream and Streambased is via GitHub [Codespaces](https://docs.github.com/en/codespaces/about-codespaces/what-are-codespaces).
+
+1. Click the green **Code** button above and select **Open with Codespaces** > **New codespace**.
+   ![Start Codespace](docs/images/codespaces_1.png)
+2. Wait for the Codespace to initialize (this may take a few minutes).
+3. Open a terminal in the Codespace and run:
+   ```bash
+   ./bin/start.sh
+   ```
+   ![Start Breakstream](docs/images/codespaces_2.png)
+   
+
+## Demo Quickstart
 
 Run the interactive demo to see Streambased in action:
 
