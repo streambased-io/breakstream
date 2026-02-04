@@ -1,0 +1,9 @@
+{
+  "name": "Streambased Demo",
+  "image": "mcr.microsoft.com/devcontainers/universal",
+  "hostRequirements": {
+    "cpus": 4,
+    "memory": "8gb",
+    "storage": "32gb"
+  }
+}
