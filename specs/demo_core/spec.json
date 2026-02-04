@@ -4,6 +4,8 @@
     "iceberg",
     "datagen-setup",
     "datagen-background",
+    "datagen-setup-evolved",
+    "datagen-background-evolved",
     "streambased",
     "debug"
   ],

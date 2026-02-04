@@ -1,7 +1,7 @@
 
   directstream:
     #image: local/directstream:latest
-    image: streambased/dev-directstream:latest
+    image: streambased/directstream-enterprise:latest
     hostname: directstream
     container_name: directstream
     platform: linux/amd64

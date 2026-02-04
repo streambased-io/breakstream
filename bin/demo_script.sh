@@ -261,6 +261,33 @@ then
   echo ""
 fi
 
+if [ "$PARAGRAPH" = "test_1a_header" ]
+then
+  echo ""
+  echo -e ""
+  echo -e "${GREEN}"
+  echo "Demo Part 1a:"
+  echo " _____      _                              "
+  echo "/  ___|    | |                             "
+  echo "\ \`--.  ___| |__   ___ _ __ ___   __ _     "
+  echo " \`--. \/ __| '_ \ / _ \ '_ \` _ \ / _\` |    "
+  echo "/\__/ / (__| | | |  __/ | | | | | (_| |    "
+  echo "\____/ \___|_| |_|\___|_| |_| |_|\__,_|    "
+  echo "                                           "
+  echo "                                           "
+  echo " _____           _       _   _             "
+  echo "|  ___|         | |     | | (_)            "
+  echo "| |____   _____ | |_   _| |_ _  ___  _ __  "
+  echo "|  __\ \ / / _ \| | | | | __| |/ _ \| '_ \  "
+  echo "| |___\ V / (_) | | |_| | |_| | (_) | | | |"
+  echo "\____/ \_/ \___/|_|\__,_|\__|_|\___/|_| |_|"
+  echo "                                           "
+  echo "                                           "
+  echo "Now let's look at how Streambased can handle schema evolution cases on the fly"
+  echo -e "${NC}"
+  echo ""
+fi
+
 if [ "$PARAGRAPH" = "test_2_header" ]
 then
   echo ""
