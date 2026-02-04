@@ -1,0 +1,14 @@
+  shadowtraffic_setup_evolved:
+    image: shadowtraffic/shadowtraffic:latest
+    hostname: shadowtraffic_run
+    depends_on:
+      schema-registry:
+        condition: service_healthy
+    volumes:
+      - type: bind
+        source: "./shadowtraffic"
+        target: /etc/shadowtraffic
+        read_only: true
+    env_file: "shadowtraffic_license.env"
+    command: --config /etc/shadowtraffic/setup-evolved.json --seed 1234
+    restart: on-failure
