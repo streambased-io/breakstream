@@ -83,7 +83,6 @@
     ports:
       - "3000:3000"
     environment:
-      - NODE_ENV=production
       - SINGLE_TENANT_MODE=true
       - SINGLE_TENANT_MODE_PUBLIC_KEY=sbpk_12345678
       - SINGLE_TENANT_MODE_SECRET_KEY=sbsk_12345678
@@ -92,9 +91,6 @@
       - SINGLE_TENANT_MODE_CLUSTER_SCHEMA_REGISTRY_URL=http://schema-registry:8081
       - SINGLE_TENANT_MODE_CLUSTER_ADDITIONAL_SCHEMA_REGISTRY_CONFIG=""
       - AUTH_SECRET=""
-      - HYPERSTREAM_EU_WEST_2_BASE_URL=http://hyperstream:9088
-      - HYPERSTREAM_US_EAST_2_BASE_URL=http://hyperstream:9088
-      - HYPERSTREAM_US_WEST_2_BASE_URL=http://hyperstream:9088
+      - HYPERSTREAM_BASE_URL=http://hyperstream:9088
       - OPENAI_API_KEY=nope
       - OPEN_AI_MODEL=gpt-4o-mini
-      - SAAS_MODE=true
