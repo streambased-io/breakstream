@@ -35,9 +35,32 @@ clear
 docker --log-level ERROR compose exec spark-iceberg python -i /tmp/run_demo_1.py
 
 clear
+docker --log-level ERROR compose down -v shadowtraffic_background 2>&1 >/dev/null
+clear
+demo_paragraph "test_1a_header"
+docker --log-level ERROR compose cp $SCRIPT_DIR/run_demo_1a.py spark-iceberg:/tmp/run_demo_1a.py 2>&1 >/dev/null
+docker --log-level ERROR compose cp $SCRIPT_DIR/describe_transactions_hotset.scala spark-iceberg:/tmp/describe_transactions_hotset.scala 2>&1 >/dev/null
+docker --log-level ERROR compose cp $SCRIPT_DIR/fetch_transactions_hotset.scala spark-iceberg:/tmp/fetch_transactions_hotset.scala 2>&1 >/dev/null
+clear
+docker --log-level ERROR compose exec spark-iceberg python -i /tmp/run_demo_1a.py
+
+clear
+docker --log-level ERROR compose up shadowtraffic_setup_evolved 2>&1 >/dev/null
+clear
+
+docker --log-level ERROR compose cp $SCRIPT_DIR/run_demo_1b.py spark-iceberg:/tmp/run_demo_1b.py 2>&1 >/dev/null
+docker --log-level ERROR compose cp $SCRIPT_DIR/describe_transactions_hotset_after.scala spark-iceberg:/tmp/describe_transactions_hotset_after.scala 2>&1 >/dev/null
+docker --log-level ERROR compose cp $SCRIPT_DIR/fetch_transactions_hotset_after.scala spark-iceberg:/tmp/fetch_transactions_hotset_after.scala 2>&1 >/dev/null
+clear
+docker --log-level ERROR compose exec spark-iceberg python -i /tmp/run_demo_1b.py
+
+clear
+docker --log-level ERROR compose up -d shadowtraffic_background_evolved 2>&1 >/dev/null
+clear
 demo_paragraph "test_2_header"
 
 docker --log-level ERROR compose cp $SCRIPT_DIR/pre_move.scala spark-iceberg:/tmp/pre_move.scala 2>&1 >/dev/null
+docker --log-level ERROR compose cp $SCRIPT_DIR/alter_table.scala spark-iceberg:/tmp/alter_table.scala 2>&1 >/dev/null
 docker --log-level ERROR compose cp $SCRIPT_DIR/move.scala spark-iceberg:/tmp/move.scala 2>&1 >/dev/null
 docker --log-level ERROR compose cp $SCRIPT_DIR/post_move.scala spark-iceberg:/tmp/post_move.scala 2>&1 >/dev/null
 
