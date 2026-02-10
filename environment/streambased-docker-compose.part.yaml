@@ -31,8 +31,8 @@
       - ISK_COLDSET_CLIENT_S3_REGION=us-east-1
 
   hyperstream:
-    #image: local/hyperstream:latest
-    image: streambased/dev-hyperstream:latest
+    image: local/hyperstream:latest
+    #image: streambased/dev-hyperstream:latest
     container_name: hyperstream
     platform: linux/amd64
     ports:
@@ -43,6 +43,7 @@
       - HOT_SET_SCHEMA=isk.hotset
       - UNIFIED_SET_SCHEMA=isk.merged
       - AUTH_ENABLED=true
+      - SLIPSTREAM_URL=http://slipstream:3000
 
   ksi:
     #image: local/ksi:latest
@@ -75,8 +76,8 @@
     command: [ "-c", "/opt/kroxylicious/config.yaml" ]
 
   slipstream:
-    #image: local/slipstream:latest
-    image: streambased/dev-slipstream:latest
+    image: local/slipstream:latest
+    #image: streambased/dev-slipstream:latest
     hostname: slipstream
     container_name: slipstream
     platform: linux/amd64
