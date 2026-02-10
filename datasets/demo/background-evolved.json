@@ -181,6 +181,16 @@
           "_gen": "sequentialInteger",
           "startingFrom": 1761222886000000,
           "advanceBy": 333000
+        },
+        "FraudRiskScore": {
+          "double": {
+            "_gen": "uniformDistribution",
+            "bounds": [
+              1,
+              10
+            ],
+            "decimals": 2
+          }
         }
       },
       "localConfigs": {
@@ -220,6 +230,14 @@
                   "type": "long",
                   "logicalType": "timestamp-micros"
                 }
+              },
+              {
+                "name": "FraudRiskScore",
+                "type": [
+                  "null",
+                  "double"
+                ],
+                "default": null
               }
             ]
           }

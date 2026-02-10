@@ -7,11 +7,8 @@ from runner_utils import run_section
 p = Popen(['spark-shell --driver-memory 2g'], stdout=PIPE, stdin=PIPE, stderr=DEVNULL, text=True, shell=True)
 
 # run sections
-run_section(p,'/tmp/pre_move.scala')
-run_section(p,'/tmp/alter_table.scala')
-run_section(p,'/tmp/move.scala')
-run_section(p,'/tmp/post_move.scala')
-
+run_section(p,'/tmp/describe_transactions_hotset_after.scala')
+run_section(p,'/tmp/fetch_transactions_hotset_after.scala')
 #  shut down
 p.stdin.close()
 os._exit(0)
