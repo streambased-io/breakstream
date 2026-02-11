@@ -43,6 +43,7 @@
       - HOT_SET_SCHEMA=isk.hotset
       - UNIFIED_SET_SCHEMA=isk.merged
       - AUTH_ENABLED=true
+      - SLIPSTREAM_URL=http://slipstream:3000
 
   ksi:
     #image: local/ksi:latest
