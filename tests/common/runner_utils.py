@@ -25,7 +25,7 @@ dependency_timeout = 300  # seconds
 
 def should_filter(line):
     for filtered_line in filtered_lines.strip().split("\n"):
-        if filtered_line in line or line == "" or line == 'scala>' or line == "scala> println(\"section complete\")" or line == "scala> section complete":
+        if filtered_line in line or line == "" or line == 'scala>' or line == "scala> println(\"section complete\")" or line == "section complete":
             return True
     return False
 
@@ -39,8 +39,10 @@ def stderr_before_spark_ready(p):
 def wait_for_section_complete(p):
     start_time = time.time()
     line = ""
-    while line != "scala> section complete" and time.time() - start_time < prompt_timeout:
+    while line != "section complete" and time.time() - start_time < prompt_timeout:
         line = p.stdout.readline().strip()
+        if line.startswith("scala> "):
+            line = line[len("scala> "):].strip()
         if not should_filter(line):
             print(f"{line}")
     input("Press Enter to continue...")
