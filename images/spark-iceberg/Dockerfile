@@ -26,9 +26,10 @@ ENV PYTHONPATH=/opt/spark/python:/opt/spark/python/lib/py4j-0.10.9.7-src.zip
 
 WORKDIR ${SPARK_HOME}
 
-ENV SPARK_VERSION=3.5.6
-ENV SPARK_MAJOR_VERSION=3.5
-ENV ICEBERG_VERSION=1.9.0
+ENV SPARK_VERSION=4.0.2
+ENV SPARK_MAJOR_VERSION=4.0
+ENV ICEBERG_VERSION=1.10.0
+ENV SCALA_VERSION=2.13
 
 # Download spark
 RUN mkdir -p ${SPARK_HOME} \
@@ -37,7 +38,7 @@ RUN mkdir -p ${SPARK_HOME} \
  && rm -rf spark-${SPARK_VERSION}-bin-hadoop3.tgz
 
 # Download iceberg spark runtime
-RUN curl https://repo1.maven.org/maven2/org/apache/iceberg/iceberg-spark-runtime-${SPARK_MAJOR_VERSION}_2.12/${ICEBERG_VERSION}/iceberg-spark-runtime-${SPARK_MAJOR_VERSION}_2.12-${ICEBERG_VERSION}.jar -Lo /opt/spark/jars/iceberg-spark-runtime-${SPARK_MAJOR_VERSION}_2.12-${ICEBERG_VERSION}.jar
+RUN curl https://repo1.maven.org/maven2/org/apache/iceberg/iceberg-spark-runtime-${SPARK_MAJOR_VERSION}_${SCALA_VERSION}/${ICEBERG_VERSION}/iceberg-spark-runtime-${SPARK_MAJOR_VERSION}_${SCALA_VERSION}-${ICEBERG_VERSION}.jar -Lo /opt/spark/jars/iceberg-spark-runtime-${SPARK_MAJOR_VERSION}_${SCALA_VERSION}-${ICEBERG_VERSION}.jar
 
 # Download AWS bundle
 RUN curl -s https://repo1.maven.org/maven2/org/apache/iceberg/iceberg-aws-bundle/${ICEBERG_VERSION}/iceberg-aws-bundle-${ICEBERG_VERSION}.jar -Lo /opt/spark/jars/iceberg-aws-bundle-${ICEBERG_VERSION}.jar
@@ -107,4 +108,4 @@ COPY spark-defaults.conf /opt/spark/conf/spark-defaults-orig.conf
 COPY bin/entrypoint.sh /opt/spark/entrypoint.sh
 
 ENTRYPOINT ["/opt/spark/entrypoint.sh"]
-CMD ["notebook"]
+#CMD ["notebook"]

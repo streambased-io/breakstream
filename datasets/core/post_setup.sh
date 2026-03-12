@@ -10,7 +10,7 @@ docker --log-level ERROR compose cp $SCRIPT_DIR/scala/post_setup.scala spark-ice
 echo ""
 echo "Copying populated hotset to cold set using Spark"
 echo ""
-docker --log-level ERROR compose exec spark-iceberg spark-shell --driver-memory 8g -i /tmp/post_setup.scala 2>&1 >/dev/null
+docker --log-level ERROR compose exec spark-iceberg sh -c 'cat /tmp/post_setup.scala | spark-shell --driver-memory 8g  2>&1 >/dev/null'
 
 echo ""
 echo "Deleting coldset only topic"
@@ -27,7 +27,7 @@ docker --log-level ERROR compose exec kafka1 kafka-configs --bootstrap-server ka
 docker --log-level ERROR compose exec kafka1 kafka-configs --bootstrap-server kafka1:9092 --alter --topic customers --add-config retention.ms=500 2>&1 >/dev/null
 docker --log-level ERROR compose exec kafka1 kafka-configs --bootstrap-server kafka1:9092 --alter --topic customers --add-config segment.ms=500 2>&1 >/dev/null
 docker --log-level ERROR compose cp $SCRIPT_DIR/scala/check_transactions_count.scala spark-iceberg:/tmp/check_transactions_count.scala 2>&1 >/dev/null
-docker --log-level ERROR compose exec spark-iceberg spark-shell --driver-memory 8g -i /tmp/check_transactions_count.scala 2>&1 >/dev/null
+docker --log-level ERROR compose exec spark-iceberg sh -c 'cat /tmp/check_transactions_count.scala | spark-shell --driver-memory 8g  2>&1 >/dev/null'
 docker --log-level ERROR compose exec kafka1 kafka-configs --bootstrap-server kafka1:9092 --alter --topic transactions --add-config retention.ms=604800000 2>&1 >/dev/null
 docker --log-level ERROR compose exec kafka1 kafka-configs --bootstrap-server kafka1:9092 --alter --topic transactions --add-config segment.ms=604800000 2>&1 >/dev/null
 
