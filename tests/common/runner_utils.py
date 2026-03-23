@@ -41,6 +41,8 @@ def wait_for_section_complete(p):
     line = ""
     while line != "section complete" and time.time() - start_time < prompt_timeout:
         line = p.stdout.readline().strip()
+        if line.startswith("scala> "):
+            line = line[len("scala> "):].strip()
         if not should_filter(line):
             print(f"{line}")
     input("Press Enter to continue...")
