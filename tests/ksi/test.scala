@@ -1,4 +1,4 @@
-import org.scalatest.FunSuite
+import org.scalatest.funsuite.AnyFunSuite
 import org.scalatest.Args
 
 /*
@@ -12,7 +12,7 @@ import java.time.Duration
 
 val rand = new scala.util.Random
 
-class KsiSuite extends FunSuite {
+class KsiSuite extends AnyFunSuite {
   test("kafka starts from hotset") {
     val consumerProps = new Properties()
     consumerProps.put("bootstrap.servers","kafka1:9092")

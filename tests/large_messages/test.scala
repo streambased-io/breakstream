@@ -1,10 +1,10 @@
-import org.scalatest.FunSuite
+import org.scalatest.funsuite.AnyFunSuite
 import org.scalatest.Args
 
 /*
 Verify Core Functions
 */
-class LargeMessagesSuite extends FunSuite {
+class LargeMessagesSuite extends AnyFunSuite {
     test("Can fetch messages") {
         val rows = spark.sql("SELECT * FROM hotset.customers LIMIT 10")
             .collect

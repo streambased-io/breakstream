@@ -45,7 +45,7 @@
       - UNIFIED_SET_SCHEMA=isk.merged
       - AUTH_ENABLED=true
       - SLIPSTREAM_URL=http://slipstream:3000
-      - INDEX_CACHE_DURATION_SECONDS=1
+      - INDEX_CACHE_DURATION_SECONDS=600
 
   ksi:
     #image: local/ksi:latest
