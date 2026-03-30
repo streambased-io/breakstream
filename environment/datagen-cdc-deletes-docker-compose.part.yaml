@@ -1,0 +1,16 @@
+
+  shadowtraffic_cdc_deletes:
+    image: shadowtraffic/shadowtraffic:latest
+    hostname: shadowtraffic_cdc_deletes
+    profiles: [ cdc_deletes ]
+    depends_on:
+      schema-registry:
+        condition: service_healthy
+    volumes:
+      - type: bind
+        source: "./shadowtraffic"
+        target: /etc/shadowtraffic
+        read_only: true
+    env_file: "shadowtraffic_license.env"
+    command: --config /etc/shadowtraffic/cdc-deletes.json --seed 5678
+    restart: no
