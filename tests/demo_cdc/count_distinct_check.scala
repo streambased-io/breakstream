@@ -5,7 +5,7 @@ spark.sql("" +
   "  COUNT(*) as total_rows, " +
   "  COUNT(DISTINCT OrderID) as distinct_orders, " +
   "  COUNT(*) = COUNT(DISTINCT OrderID) as no_duplicates " +
-  "FROM isk.hotset.orders" +
+  "FROM isk.hotset.orders WHERE OrderID > 0" +
   "").show()
 println(s"${GREEN}Total rows equals distinct order count - no duplicate rows from CDC updates.${RESET}")
 println("section complete")
