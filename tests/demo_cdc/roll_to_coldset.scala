@@ -3,7 +3,7 @@ println(s"${GREEN}\n\nRolling hotset to coldset using a single atomic MERGE INTO
 spark.sql("" +
   "MERGE INTO direct.coldset.orders t " +
   "USING ( " +
-  "  SELECT OrderID, CustomerID, Status, Amount, kafka_partition, kafka_offset, " +
+  "  SELECT OrderID, CustomerID, Status, Amount, kafka_partition, kafka_offset, kafka_timestamp, " +
   "         false as _to_delete " +
   "  FROM isk.hotset.orders " +
   "  UNION ALL " +
@@ -13,6 +13,7 @@ spark.sql("" +
   "         CAST(null AS DOUBLE) as Amount, " +
   "         kafka_partition, " +
   "         delete_kafka_offset  as kafka_offset, " +
+  "         CAST(null AS TIMESTAMP_NTZ) as kafka_timestamp, " +
   "         true                 as _to_delete " +
   "  FROM isk.cdc_deletes.orders " +
   ") s " +
@@ -20,9 +21,9 @@ spark.sql("" +
   "WHEN MATCHED AND s._to_delete     THEN DELETE " +
   "WHEN MATCHED AND NOT s._to_delete THEN UPDATE SET " +
   "  t.CustomerID = s.CustomerID, t.Status = s.Status, t.Amount = s.Amount, " +
-  "  t.kafka_partition = s.kafka_partition, t.kafka_offset = s.kafka_offset " +
+  "  t.kafka_partition = s.kafka_partition, t.kafka_offset = s.kafka_offset, t.kafka_timestamp = s.kafka_timestamp " +
   "WHEN NOT MATCHED AND NOT s._to_delete THEN INSERT " +
-  "  (OrderID, CustomerID, Status, Amount, kafka_partition, kafka_offset) " +
-  "  VALUES (s.OrderID, s.CustomerID, s.Status, s.Amount, s.kafka_partition, s.kafka_offset) " +
+  "  (OrderID, CustomerID, Status, Amount, kafka_partition, kafka_offset, kafka_timestamp) " +
+  "  VALUES (s.OrderID, s.CustomerID, s.Status, s.Amount, s.kafka_partition, s.kafka_offset, s.kafka_timestamp) " +
   "").show()
 println("section complete")
