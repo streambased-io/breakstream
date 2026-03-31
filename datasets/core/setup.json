@@ -1,6 +1,7 @@
 {
   "generators": [
     {
+      "name": "customers_batch_1",
       "topic": "customers",
       "value": {
         "CustomerID": {
@@ -26,11 +27,106 @@
       },
       "localConfigs": {
         "events": {
-          "exactly": 1000000
+          "exactly": 333000
         }
       }
     },
     {
+      "name": "customers_test_1",
+      "topic": "customers",
+      "value": {
+        "CustomerID": "SB_TEST_1",
+        "Name": "Judith Gottlieb Streambased1",
+        "Address": "123 Test Street",
+        "Email": "streambased1@test.com",
+        "PhoneNo": "000-000-0001"
+      },
+      "localConfigs": {
+        "events": {
+          "exactly": 1
+        }
+      }
+    },
+    {
+      "name": "customers_batch_2",
+      "topic": "customers",
+      "value": {
+        "CustomerID": {
+          "_gen": "string",
+          "expr": "#{Number.numberBetween '100','500000'}"
+        },
+        "Name": {
+          "_gen": "string",
+          "expr": "#{Name.full_name}"
+        },
+        "Address": {
+          "_gen": "string",
+          "expr": "#{Address.full_address}"
+        },
+        "Email": {
+          "_gen": "string",
+          "expr": "#{Internet.email_address}"
+        },
+        "PhoneNo": {
+          "_gen": "string",
+          "expr": "#{PhoneNumber.phone_number}"
+        }
+      },
+      "localConfigs": {
+        "events": {
+          "exactly": 329999
+        }
+      }
+    },
+    {
+      "name": "customers_test_2",
+      "topic": "customers",
+      "value": {
+        "CustomerID": "SB_TEST_2",
+        "Name": "Judith Gottlieb Streambased2",
+        "Address": "456 Test Avenue",
+        "Email": "streambased2@test.com",
+        "PhoneNo": "000-000-0002"
+      },
+      "localConfigs": {
+        "events": {
+          "exactly": 1
+        }
+      }
+    },
+    {
+      "name": "customers_batch_3",
+      "topic": "customers",
+      "value": {
+        "CustomerID": {
+          "_gen": "string",
+          "expr": "#{Number.numberBetween '100','500000'}"
+        },
+        "Name": {
+          "_gen": "string",
+          "expr": "#{Name.full_name}"
+        },
+        "Address": {
+          "_gen": "string",
+          "expr": "#{Address.full_address}"
+        },
+        "Email": {
+          "_gen": "string",
+          "expr": "#{Internet.email_address}"
+        },
+        "PhoneNo": {
+          "_gen": "string",
+          "expr": "#{PhoneNumber.phone_number}"
+        }
+      },
+      "localConfigs": {
+        "events": {
+          "exactly": 336999
+        }
+      }
+    },
+    {
+      "name": "branches",
       "topic": "branches",
       "value": {
         "BranchID": {
@@ -57,6 +153,7 @@
       }
     },
     {
+      "name": "accounts",
       "topic": "accounts",
       "value": {
         "AccountID": {
@@ -98,6 +195,7 @@
       }
     },
     {
+      "name": "transactions",
       "topic": "transactions",
       "vars": {
         "TransactionType": {
@@ -206,6 +304,28 @@
       }
     }
   ],
+  "schedule": {
+    "stages": [
+      {
+        "generators": ["customers_batch_1"]
+      },
+      {
+        "generators": ["customers_test_1"]
+      },
+      {
+        "generators": ["customers_batch_2"]
+      },
+      {
+        "generators": ["customers_test_2"]
+      },
+      {
+        "generators": ["customers_batch_3"]
+      },
+      {
+        "generators": ["branches", "accounts", "transactions"]
+      }
+    ]
+  },
   "connections": {
     "kafka": {
       "kind": "kafka",

@@ -1,10 +1,10 @@
-import org.scalatest.FunSuite
+import org.scalatest.funsuite.AnyFunSuite
 import org.scalatest.Args
 
 /*
 Verify Core Functions
 */
-class CoreFunctionsSuite extends FunSuite { 
+class CoreFunctionsSuite extends AnyFunSuite { 
     test("All 3 databases exist") {
         val databases = spark.sql("SHOW DATABASES")
             .select("namespace")
