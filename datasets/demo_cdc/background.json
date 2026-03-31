@@ -1,0 +1,184 @@
+{
+  "generators": [
+    {
+      "topic": "orders",
+      "vars": {
+        "OrderID": {
+          "_gen": "sequentialInteger",
+          "startingFrom": 1001
+        }
+      },
+      "key": {
+        "OrderID": {
+          "_gen": "var",
+          "var": "OrderID"
+        }
+      },
+      "value": {
+        "op": "c",
+        "before": {"null": null},
+        "after": {
+          "io.streambased.demo.OrderValue": {
+            "OrderID": {
+              "_gen": "var",
+              "var": "OrderID"
+            },
+            "CustomerID": {
+              "_gen": "uniformDistribution",
+              "bounds": [1000, 9999],
+              "decimals": 0
+            },
+            "Status": "PENDING",
+            "Amount": {
+              "_gen": "uniformDistribution",
+              "bounds": [10.0, 1000.0],
+              "decimals": 2
+            }
+          }
+        }
+      },
+      "localConfigs": {
+        "throughput": 1,
+        "avroSchemaHint": {
+          "key": {
+            "type": "record",
+            "name": "OrderKey",
+            "namespace": "io.streambased.demo",
+            "fields": [
+              {"name": "OrderID", "type": "int"}
+            ]
+          },
+          "value": {
+            "type": "record",
+            "name": "Envelope",
+            "namespace": "io.streambased.demo",
+            "fields": [
+              {"name": "op", "type": "string"},
+              {
+                "name": "before",
+                "type": [
+                  "null",
+                  {
+                    "type": "record",
+                    "name": "OrderValue",
+                    "fields": [
+                      {"name": "OrderID", "type": "int"},
+                      {"name": "CustomerID", "type": "int"},
+                      {"name": "Status", "type": "string"},
+                      {"name": "Amount", "type": "double"}
+                    ]
+                  }
+                ],
+                "default": null
+              },
+              {
+                "name": "after",
+                "type": ["null", "io.streambased.demo.OrderValue"],
+                "default": null
+              }
+            ]
+          }
+        }
+      }
+    },
+    {
+      "topic": "orders",
+      "vars": {
+        "OrderID": {
+          "_gen": "uniformDistribution",
+          "bounds": [1, 500],
+          "decimals": 0
+        },
+        "CustomerID": {
+          "_gen": "uniformDistribution",
+          "bounds": [1000, 9999],
+          "decimals": 0
+        },
+        "Amount": {
+          "_gen": "uniformDistribution",
+          "bounds": [10.0, 1000.0],
+          "decimals": 2
+        }
+      },
+      "key": {
+        "OrderID": {
+          "_gen": "var",
+          "var": "OrderID"
+        }
+      },
+      "value": {
+        "op": "u",
+        "before": {
+          "io.streambased.demo.OrderValue": {
+            "OrderID": {"_gen": "var", "var": "OrderID"},
+            "CustomerID": {"_gen": "var", "var": "CustomerID"},
+            "Status": "PENDING",
+            "Amount": {"_gen": "var", "var": "Amount"}
+          }
+        },
+        "after": {
+          "io.streambased.demo.OrderValue": {
+            "OrderID": {"_gen": "var", "var": "OrderID"},
+            "CustomerID": {"_gen": "var", "var": "CustomerID"},
+            "Status": "SHIPPED",
+            "Amount": {"_gen": "var", "var": "Amount"}
+          }
+        }
+      },
+      "localConfigs": {
+        "throughput": 1,
+        "avroSchemaHint": {
+          "key": {
+            "type": "record",
+            "name": "OrderKey",
+            "namespace": "io.streambased.demo",
+            "fields": [
+              {"name": "OrderID", "type": "int"}
+            ]
+          },
+          "value": {
+            "type": "record",
+            "name": "Envelope",
+            "namespace": "io.streambased.demo",
+            "fields": [
+              {"name": "op", "type": "string"},
+              {
+                "name": "before",
+                "type": [
+                  "null",
+                  {
+                    "type": "record",
+                    "name": "OrderValue",
+                    "fields": [
+                      {"name": "OrderID", "type": "int"},
+                      {"name": "CustomerID", "type": "int"},
+                      {"name": "Status", "type": "string"},
+                      {"name": "Amount", "type": "double"}
+                    ]
+                  }
+                ],
+                "default": null
+              },
+              {
+                "name": "after",
+                "type": ["null", "io.streambased.demo.OrderValue"],
+                "default": null
+              }
+            ]
+          }
+        }
+      }
+    }
+  ],
+  "connections": {
+    "kafka": {
+      "kind": "kafka",
+      "producerConfigs": {
+        "bootstrap.servers": "kafka1:9092",
+        "key.serializer": "io.confluent.kafka.serializers.KafkaAvroSerializer",
+        "value.serializer": "io.confluent.kafka.serializers.KafkaAvroSerializer",
+        "schema.registry.url": "http://schema-registry:8081"
+      }
+    }
+  }
+}
