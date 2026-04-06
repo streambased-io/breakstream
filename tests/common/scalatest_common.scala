@@ -13,6 +13,16 @@ class TestReporter extends Reporter {
       case event: TestFailed => {
         println("TEST: " + event.testName + " in SUITE: " + event.suiteName + " FAILED")
         println(event.message)
+        event.throwable match {
+          case Some(t) =>
+            println("Exception: " + t.getClass.getName + ": " + t.getMessage)
+            t.printStackTrace()
+            if (t.getCause != null) {
+              println("Caused by: " + t.getCause.getClass.getName + ": " + t.getCause.getMessage)
+              t.getCause.printStackTrace()
+            }
+          case None =>
+        }
         System.exit(1)
       }
       case event: TestSucceeded => {

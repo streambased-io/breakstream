@@ -1,10 +1,11 @@
 
   directstream:
     #image: local/directstream:latest
-    image: streambased/directstream-enterprise:latest
+    image: streambased/directstream-enterprise:chris
     hostname: directstream
     container_name: directstream
-    platform: linux/amd64
+    pull_policy: never
+
     restart: on-failure
     ports:
       - 11000:11000
@@ -31,7 +32,7 @@
       - ISK_COLDSET_CLIENT_S3_REGION=us-east-1
 
   hyperstream:
-    image: local/hyperstream:local
+    image: local/hyperstream:chris1
 #    image: streambased/dev-hyperstream:latest
     container_name: hyperstream
     pull_policy: never
@@ -46,22 +47,27 @@
       - AUTH_ENABLED=true
       - SLIPSTREAM_URL=http://slipstream:3000
       - INDEX_CACHE_DURATION_SECONDS=600
+      - LOG4J_HYPERSTREAM_LEVEL=DEBUG
 
   ksi:
     #image: local/ksi:latest
-    image: streambased/ksi:latest
+    image: streambased/cold-storage-filter:latest
     hostname: ksi
     container_name: ksi
-
+    pull_policy: never
     depends_on:
       schema-registry:
         condition: service_healthy
-      spark-iceberg:
-        condition: service_healthy
       rest:
+        condition: service_started
+      directstream:
+        condition: service_started
+      hyperstream:
         condition: service_started
     ports:
       - "9192:9192"
+    volumes:
+      - ./ksi-condition-topics.yaml:/opt/kroxylicious/config/condition-topics.yaml:ro
     environment:
       - KSI_BOOTSTRAP_SERVERS=kafka1:9092
       - KSI_GATEWAY_BOOTSTRAP_ADDRESS=ksi:9192
@@ -75,6 +81,17 @@
       - KSI_OFFSET_RANGE_CACHE_TTL_MS=300000
       - KSI_OFFSET_RANGE_CACHE_REFRESH_MS=60000
       - KSI_SCHEMA_REGISTRY_URL=http://schema-registry:8081
+      - KSI_ISK_CATALOG_NAME=isk
+      - KSI_ISK_NAMESPACE=coldset
+      - KSI_HYPERSTREAM_URL=http://hyperstream:9088
+      - KSI_HYPERSTREAM_TIMEOUT_MS=60000
+      - KSI_HYPERSTREAM_CACHE_TTL_MS=300000
+      - KSI_HYPERSTREAM_AUTH_ENABLED=true
+      - KSI_HYPERSTREAM_API_KEY=sbpk_12345678
+      - KSI_HYPERSTREAM_SECRET_KEY=sbsk_12345678
+      - KSI_CONDITION_TOPIC_CONFIG_PATH=/opt/kroxylicious/config/condition-topics.yaml
+      - KSI_SPARK_DATABASE=isk.merged
+      - KSI_HYPERSTREAM_DATABASE=UNIFIED
     command: [ "-c", "/opt/kroxylicious/config.yaml" ]
 
   slipstream:
