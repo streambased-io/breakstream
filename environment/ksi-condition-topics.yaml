@@ -5,3 +5,6 @@ virtualTopics:
   - virtualName: "streambased-customers"
     sourceTopic: "customers"
     sqlCondition: "UPPER(Name) = 'JUDITH GOTTLIEB STREAMBASED2'"
+  - virtualName: "nyc-stores"
+    sourceTopic: "stores"
+    sqlCondition: "City = 'New York'"
