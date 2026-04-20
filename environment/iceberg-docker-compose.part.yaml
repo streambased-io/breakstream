@@ -1,7 +1,7 @@
 
   spark-iceberg:
-    image: local/spark-iceberg:latest
-    #image: streambased/spark-iceberg:latest
+    # image: local/spark-iceberg:latest
+    image: streambased/spark-iceberg:latest
     hostname: spark
     container_name: spark-iceberg
     platform: linux/amd64

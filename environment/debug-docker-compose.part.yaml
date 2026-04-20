@@ -1,3 +1,4 @@
+  
   akhq:
     image: tchiotludo/akhq:latest
     container_name: akhq

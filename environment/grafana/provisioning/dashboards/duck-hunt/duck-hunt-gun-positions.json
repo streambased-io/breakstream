@@ -1,0 +1,290 @@
+{
+  "annotations": {
+    "list": [
+      {
+        "builtIn": 1,
+        "datasource": {
+          "type": "grafana",
+          "uid": "-- Grafana --"
+        },
+        "enable": true,
+        "hide": true,
+        "iconColor": "rgba(0, 211, 255, 1)",
+        "name": "Annotations & Alerts",
+        "type": "dashboard"
+      }
+    ]
+  },
+  "editable": true,
+  "fiscalYearStartMonth": 0,
+  "graphTooltip": 0,
+  "links": [],
+  "panels": [
+    {
+      "datasource": {
+        "type": "yesoreyeram-infinity-datasource",
+        "uid": "infinity"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              }
+            ]
+          },
+          "unit": "none"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 6,
+        "w": 8,
+        "x": 0,
+        "y": 0
+      },
+      "id": 1,
+      "options": {
+        "colorMode": "value",
+        "graphMode": "none",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "reduceOptions": {
+          "calcs": ["lastNotNull"],
+          "fields": "",
+          "values": false
+        },
+        "showPercentChange": false,
+        "textMode": "auto"
+      },
+      "pluginVersion": "12.0.0",
+      "targets": [
+        {
+          "columns": [
+            {
+              "selector": "active_sessions",
+              "text": "active_sessions",
+              "type": "number"
+            }
+          ],
+          "datasource": {
+            "type": "yesoreyeram-infinity-datasource",
+            "uid": "infinity"
+          },
+          "format": "table",
+          "parser": "backend",
+          "refId": "A",
+          "root_selector": "$.rows",
+          "source": "url",
+          "type": "json",
+          "url": "/api/query",
+          "url_options": {
+            "body_content_type": "application/json",
+            "body_type": "raw",
+            "data": "{\n  \"set\": \"HOT\",\n  \"sql\": \"SELECT COUNT(DISTINCT sessionId) AS active_sessions FROM gun_positions\",\n  \"index\": true\n}",
+            "method": "POST"
+          }
+        }
+      ],
+      "title": "Active Sessions",
+      "type": "stat"
+    },
+    {
+      "datasource": {
+        "type": "yesoreyeram-infinity-datasource",
+        "uid": "infinity"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "custom": {
+            "align": "auto",
+            "cellOptions": {
+              "type": "auto"
+            },
+            "inspect": false
+          }
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 6,
+        "w": 16,
+        "x": 8,
+        "y": 0
+      },
+      "id": 2,
+      "options": {
+        "cellHeight": "sm",
+        "footer": {
+          "countRows": false,
+          "fields": "",
+          "reducer": ["sum"],
+          "show": false
+        },
+        "showHeader": true,
+        "sortBy": []
+      },
+      "pluginVersion": "12.0.0",
+      "targets": [
+        {
+          "columns": [
+            {
+              "selector": "x_min",
+              "text": "x_min",
+              "type": "number"
+            },
+            {
+              "selector": "x_max",
+              "text": "x_max",
+              "type": "number"
+            },
+            {
+              "selector": "y_min",
+              "text": "y_min",
+              "type": "number"
+            },
+            {
+              "selector": "y_max",
+              "text": "y_max",
+              "type": "number"
+            }
+          ],
+          "datasource": {
+            "type": "yesoreyeram-infinity-datasource",
+            "uid": "infinity"
+          },
+          "format": "table",
+          "parser": "backend",
+          "refId": "A",
+          "root_selector": "$.rows",
+          "source": "url",
+          "type": "json",
+          "url": "/api/query",
+          "url_options": {
+            "body_content_type": "application/json",
+            "body_type": "raw",
+            "data": "{\n  \"set\": \"HOT\",\n  \"sql\": \"SELECT MIN(x) AS x_min, MAX(x) AS x_max, MIN(y) AS y_min, MAX(y) AS y_max FROM gun_positions\",\n  \"index\": true\n}",
+            "method": "POST"
+          }
+        }
+      ],
+      "title": "Coordinate Envelope",
+      "type": "table"
+    },
+    {
+      "datasource": {
+        "type": "yesoreyeram-infinity-datasource",
+        "uid": "infinity"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "custom": {
+            "align": "auto",
+            "cellOptions": {
+              "type": "auto"
+            },
+            "inspect": false
+          }
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 12,
+        "w": 24,
+        "x": 0,
+        "y": 6
+      },
+      "id": 3,
+      "options": {
+        "cellHeight": "sm",
+        "footer": {
+          "countRows": false,
+          "fields": "",
+          "reducer": ["sum"],
+          "show": false
+        },
+        "showHeader": true,
+        "sortBy": [
+          {
+            "desc": true,
+            "displayName": "kafka_offset"
+          }
+        ]
+      },
+      "pluginVersion": "12.0.0",
+      "targets": [
+        {
+          "columns": [
+            {
+              "selector": "kafka_offset",
+              "text": "kafka_offset",
+              "type": "number"
+            },
+            {
+              "selector": "sessionId",
+              "text": "sessionId",
+              "type": "string"
+            },
+            {
+              "selector": "timestamp",
+              "text": "timestamp",
+              "type": "timestamp_epoch_s"
+            },
+            {
+              "selector": "x",
+              "text": "x",
+              "type": "number"
+            },
+            {
+              "selector": "y",
+              "text": "y",
+              "type": "number"
+            }
+          ],
+          "datasource": {
+            "type": "yesoreyeram-infinity-datasource",
+            "uid": "infinity"
+          },
+          "format": "table",
+          "parser": "backend",
+          "refId": "A",
+          "root_selector": "$.rows",
+          "source": "url",
+          "type": "json",
+          "url": "/api/query",
+          "url_options": {
+            "body_content_type": "application/json",
+            "body_type": "raw",
+            "data": "{\n  \"set\": \"HOT\",\n  \"sql\": \"SELECT kafka_offset, sessionId, timestamp, x, y FROM gun_positions ORDER BY kafka_offset DESC LIMIT 50\",\n  \"index\": true\n}",
+            "method": "POST"
+          }
+        }
+      ],
+      "title": "Recent Gun Positions",
+      "type": "table"
+    }
+  ],
+  "preload": false,
+  "refresh": "30s",
+  "schemaVersion": 41,
+  "tags": ["duck-hunt"],
+  "templating": {
+    "list": []
+  },
+  "time": {
+    "from": "now-7d",
+    "to": "now"
+  },
+  "timepicker": {},
+  "timezone": "browser",
+  "title": "03 Gun Positions",
+  "uid": "duck-hunt-gun-positions",
+  "version": 1,
+  "weekStart": ""
+}

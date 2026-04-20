@@ -1,0 +1,13 @@
+apiVersion: 1
+
+providers:
+  - name: duck-hunt
+    orgId: 1
+    folder: DuckHunt
+    folderUid: duck-hunt
+    type: file
+    disableDeletion: false
+    allowUiUpdates: true
+    updateIntervalSeconds: 30
+    options:
+      path: /etc/grafana/provisioning/dashboards/duck-hunt

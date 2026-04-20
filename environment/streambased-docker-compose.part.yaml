@@ -34,8 +34,8 @@
       - ISK_CDC_COLDSET_INITIAL_SCAN=true
 
   hyperstream:
-    image: local/hyperstream:local
-#    image: streambased/dev-hyperstream:latest
+    # image: local/hyperstream:local
+    image: streambased/dev-hyperstream:latest
     container_name: hyperstream
     pull_policy: never
 
@@ -55,7 +55,7 @@
     image: streambased/ksi:latest
     hostname: ksi
     container_name: ksi
-
+    platform: linux/amd64
     depends_on:
       schema-registry:
         condition: service_healthy

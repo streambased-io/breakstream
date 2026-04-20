@@ -5,9 +5,9 @@
     "datagen-setup",
     "datagen-background",
     "streambased",
-    "observability"
+    "observability",
+    "debug"
   ],
-  "setup_datasets": ["core"],
-  "background_dataset": "core",
-  "tests": ["core_functions"]
+  "setup_datasets": ["duck_hunt"],
+  "background_dataset": "duck_hunt"
 }
