@@ -1,7 +1,7 @@
 
   directstream:
-    image: local/directstream:latest
-    #image: streambased/directstream-enterprise:latest
+    #image: local/directstream:latest
+    image: streambased/directstream:latest
     hostname: directstream
     container_name: directstream
     platform: linux/amd64
@@ -81,8 +81,8 @@
     command: [ "-c", "/opt/kroxylicious/config.yaml" ]
 
   slipstream:
-    image: local/slipstream:latest
-    #image: streambased/dev-slipstream:latest
+    #image: local/slipstream:latest
+    image: streambased/dev-slipstream:latest
     hostname: slipstream
     container_name: slipstream
 
@@ -98,7 +98,7 @@
       - SINGLE_TENANT_MODE_CLUSTER_ADDITIONAL_SCHEMA_REGISTRY_CONFIG=""
       - SINGLE_TENANT_MODE_CLUSTER_COLDSET_CLIENT_ENABLED=true
       - SINGLE_TENANT_MODE_CLUSTER_COLDSET_CLIENT_URI="http://rest:8181/"
-      - SINGLE_TENANT_MODE_CLUSTER_ADDITIONAL_COLDSET_CONFIG="coldset-type=rest\ncrest-sigv4-enabled=true\nrest-access-key-id=admin\nrest-secret-access-key=password\nrest-signing-region=us-east-1\ns3.access-key-id=admin\ns3.secret-access-key=password"
+      - SINGLE_TENANT_MODE_CLUSTER_ADDITIONAL_COLDSET_CONFIG="coldset-type=rest\ncrest-sigv4-enabled=true\nrest-access-key-id=admin\nrest-secret-access-key=password\nrest-signing-region=us-east-1\ns3.access-key-id=admin\ns3.secret-access-key=password\ns3.endpoint=http://minio:9000\ns3.path-style-access=true"
       - AUTH_SECRET=""
       - HYPERSTREAM_BASE_URL=http://hyperstream:9088
       - OPENAI_API_KEY=nope
