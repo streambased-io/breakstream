@@ -8,6 +8,5 @@
     "observability",
     "debug"
   ],
-  "setup_datasets": ["duck_hunt"],
-  "background_dataset": "duck_hunt"
+  "setup_datasets": ["duck_hunt"]
 }
