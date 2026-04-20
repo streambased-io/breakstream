@@ -41,8 +41,8 @@ alter_topic_if_exists shots segment.ms=500
 alter_topic_if_exists control_events retention.ms=500
 alter_topic_if_exists control_events segment.ms=500
 
-docker --log-level ERROR compose cp $SCRIPT_DIR/scala/check_transactions_count.scala spark-iceberg:/tmp/check_transactions_count.scala 2>&1 >/dev/null
-docker --log-level ERROR compose exec spark-iceberg sh -c 'cat /tmp/check_transactions_count.scala | spark-shell --driver-memory 8g --conf spark.ui.enabled=false   2>&1 >/dev/null'
+docker --log-level ERROR compose cp $SCRIPT_DIR/scala/check_table_count.scala spark-iceberg:/tmp/check_table_count.scala 2>&1 >/dev/null
+docker --log-level ERROR compose exec spark-iceberg sh -c 'cat /tmp/check_table_count.scala | spark-shell --driver-memory 8g --conf spark.ui.enabled=false   2>&1 >/dev/null'
 
 alter_topic_if_exists gun_positions retention.ms=604800000
 alter_topic_if_exists gun_positions segment.ms=604800000
