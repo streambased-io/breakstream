@@ -1,0 +1,10 @@
+{
+  "components": [
+    "kafka",
+    "iceberg",
+    "streambased",
+    "debug"
+  ],
+  "setup_datasets": [ ],
+  "tests" : [  ]
+}
