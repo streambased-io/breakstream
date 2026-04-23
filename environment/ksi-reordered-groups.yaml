@@ -1,0 +1,11 @@
+reorderedGroups:
+  - groupId: "reordered-e2e-first-consume"
+    clientId: "consumer-reordered-e2e-first-consume"
+    sourceTopic: "reordered_customers"
+    filter: "Name = 'Reordered Match'"
+    orderBy: "kafka_timestamp ASC"
+  - groupId: "reordered-e2e-resume"
+    clientId: "consumer-reordered-e2e-resume"
+    sourceTopic: "reordered_customers"
+    filter: "Name = 'Reordered Match'"
+    orderBy: "kafka_timestamp ASC"
