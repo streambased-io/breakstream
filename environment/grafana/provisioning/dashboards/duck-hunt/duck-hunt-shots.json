@@ -114,7 +114,7 @@
           "url_options": {
             "body_content_type": "application/json",
             "body_type": "raw",
-            "data": "{\n  \"set\": \"HOT\",\n  \"sql\": \"SELECT state, COUNT(*) AS shots, CASE WHEN state = 'missed' THEN '#E02F44' ELSE '#73BF69' END AS color FROM shots GROUP BY state ORDER BY shots DESC\",\n  \"index\": true\n}",
+            "data": "{\n  \"set\": \"UNIFIED\",\n  \"sql\": \"SELECT state, COUNT(*) AS shots, CASE WHEN state = 'missed' THEN '#E02F44' ELSE '#73BF69' END AS color FROM shots GROUP BY state ORDER BY shots DESC\",\n  \"index\": true\n}",
             "method": "POST"
           }
         }
@@ -127,7 +127,7 @@
         "type": "yesoreyeram-infinity-datasource",
         "uid": "infinity"
       },
-      "description": "Stage boundaries come from setup data.",
+      "description": "Hourly rollup based on millisecond event timestamps.",
       "fieldConfig": {
         "defaults": {
           "custom": {
@@ -163,8 +163,8 @@
         {
           "columns": [
             {
-              "selector": "stage",
-              "text": "stage",
+              "selector": "hour_bucket",
+              "text": "hour_bucket",
               "type": "string"
             },
             {
@@ -192,12 +192,12 @@
           "url_options": {
             "body_content_type": "application/json",
             "body_type": "raw",
-            "data": "{\n  \"set\": \"HOT\",\n  \"sql\": \"SELECT CASE WHEN timestamp < 1776086400 THEN 'early' WHEN timestamp < 1776172800 THEN 'mid' ELSE 'late' END AS stage, COUNT(DISTINCT sessionId) AS sessions, COUNT(*) AS shots FROM shots GROUP BY 1 ORDER BY 1\",\n  \"index\": true\n}",
+            "data": "{\n  \"set\": \"UNIFIED\",\n  \"sql\": \"SELECT date_format(from_unixtime(CAST(timestamp / 1000 AS BIGINT)), 'yyyy-MM-dd HH:00') AS hour_bucket, COUNT(DISTINCT sessionId) AS sessions, COUNT(*) AS shots FROM shots GROUP BY 1 ORDER BY 1\",\n  \"index\": true\n}",
             "method": "POST"
           }
         }
       ],
-      "title": "Shots By Stage",
+      "title": "Shots By Hour",
       "type": "table"
     },
     {
@@ -260,8 +260,8 @@
               "type": "string"
             },
             {
-              "selector": "timestamp",
-              "text": "timestamp",
+              "selector": "event_time",
+              "text": "event_time",
               "type": "timestamp_epoch_s"
             },
             {
@@ -289,7 +289,7 @@
           "url_options": {
             "body_content_type": "application/json",
             "body_type": "raw",
-            "data": "{\n  \"set\": \"HOT\",\n  \"sql\": \"SELECT kafka_offset, sessionId, state, timestamp, x, y FROM shots ORDER BY kafka_offset DESC LIMIT 100\",\n  \"index\": true\n}",
+            "data": "{\n  \"set\": \"UNIFIED\",\n  \"sql\": \"SELECT kafka_offset, sessionId, state, CAST(timestamp / 1000 AS BIGINT) AS event_time, x, y FROM shots ORDER BY kafka_offset DESC LIMIT 100\",\n  \"index\": true\n}",
             "method": "POST"
           }
         }

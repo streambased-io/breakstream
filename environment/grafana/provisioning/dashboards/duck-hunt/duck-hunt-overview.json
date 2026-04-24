@@ -87,7 +87,7 @@
           "url_options": {
             "body_content_type": "application/json",
             "body_type": "raw",
-            "data": "{\n  \"set\": \"HOT\",\n  \"sql\": \"SELECT COUNT(*) AS total_shots FROM shots\",\n  \"index\": true\n}",
+            "data": "{\n  \"set\": \"UNIFIED\",\n  \"sql\": \"SELECT COUNT(*) AS total_shots FROM shots\",\n  \"index\": true\n}",
             "method": "POST"
           }
         }
@@ -174,7 +174,7 @@
           "url_options": {
             "body_content_type": "application/json",
             "body_type": "raw",
-            "data": "{\n  \"set\": \"HOT\",\n  \"sql\": \"SELECT ROUND(100.0 * SUM(CASE WHEN state = 'hit' THEN 1 ELSE 0 END) / COUNT(*), 2) AS hit_rate_pct FROM shots\",\n  \"index\": true\n}",
+            "data": "{\n  \"set\": \"UNIFIED\",\n  \"sql\": \"SELECT ROUND(100.0 * SUM(CASE WHEN state = 'hit' THEN 1 ELSE 0 END) / NULLIF(COUNT(*), 0), 2) AS hit_rate_pct FROM shots\",\n  \"index\": true\n}",
             "method": "POST"
           }
         }
@@ -276,7 +276,7 @@
           "url_options": {
             "body_content_type": "application/json",
             "body_type": "raw",
-            "data": "{\n  \"set\": \"HOT\",\n  \"sql\": \"SELECT state, COUNT(*) AS shots, CASE WHEN state = 'missed' THEN '#E02F44' ELSE '#73BF69' END AS color FROM shots GROUP BY state ORDER BY shots DESC\",\n  \"index\": true\n}",
+            "data": "{\n  \"set\": \"UNIFIED\",\n  \"sql\": \"SELECT state, COUNT(*) AS shots, CASE WHEN state = 'missed' THEN '#E02F44' ELSE '#73BF69' END AS color FROM shots GROUP BY state ORDER BY shots DESC\",\n  \"index\": true\n}",
             "method": "POST"
           }
         }
@@ -289,7 +289,7 @@
         "type": "yesoreyeram-infinity-datasource",
         "uid": "infinity"
       },
-      "description": "The setup.json data intentionally shifts from low hit rate in the early stage to high hit rate in the late stage.",
+      "description": "Hit rate trend grouped by event hour using millisecond timestamps.",
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -341,7 +341,7 @@
           "mode": "single",
           "sort": "none"
         },
-        "xField": "stage",
+        "xField": "hour_bucket",
         "xTickLabelRotation": 0,
         "xTickLabelSpacing": 0
       },
@@ -350,8 +350,8 @@
         {
           "columns": [
             {
-              "selector": "stage",
-              "text": "stage",
+              "selector": "hour_bucket",
+              "text": "hour_bucket",
               "type": "string"
             },
             {
@@ -374,12 +374,12 @@
           "url_options": {
             "body_content_type": "application/json",
             "body_type": "raw",
-            "data": "{\n  \"set\": \"HOT\",\n  \"sql\": \"SELECT CASE WHEN timestamp < 1776086400 THEN 'early' WHEN timestamp < 1776172800 THEN 'mid' ELSE 'late' END AS stage, ROUND(100.0 * SUM(CASE WHEN state = 'hit' THEN 1 ELSE 0 END) / COUNT(*), 2) AS hit_rate_pct FROM shots GROUP BY 1 ORDER BY 1\",\n  \"index\": true\n}",
+            "data": "{\n  \"set\": \"UNIFIED\",\n  \"sql\": \"SELECT date_format(from_unixtime(CAST(timestamp / 1000 AS BIGINT)), 'yyyy-MM-dd HH:00') AS hour_bucket, ROUND(100.0 * SUM(CASE WHEN state = 'hit' THEN 1 ELSE 0 END) / NULLIF(COUNT(*), 0), 2) AS hit_rate_pct FROM shots GROUP BY 1 ORDER BY 1\",\n  \"index\": true\n}",
             "method": "POST"
           }
         }
       ],
-      "title": "Hit Rate By Stage",
+      "title": "Hit Rate By Hour",
       "type": "barchart"
     }
   ],

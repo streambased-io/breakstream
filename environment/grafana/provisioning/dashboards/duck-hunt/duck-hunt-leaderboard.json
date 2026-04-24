@@ -25,7 +25,7 @@
         "type": "yesoreyeram-infinity-datasource",
         "uid": "infinity"
       },
-      "description": "Leaderboard derived from control events by pairing each session's name with its numeric score.",
+      "description": "Leaderboard derived from score control events that carry name and score in JSON payloads.",
       "fieldConfig": {
         "defaults": {
           "custom": {
@@ -90,7 +90,7 @@
           "url_options": {
             "body_content_type": "application/json",
             "body_type": "raw",
-            "data": "{\n  \"set\": \"HOT\",\n  \"sql\": \"SELECT name, score FROM (SELECT sessionId, MAX(CASE WHEN event_type = 'name' THEN data END) AS name, MAX(CASE WHEN event_type = 'score' AND data RLIKE '^[0-9]+$' THEN CAST(data AS INT) END) AS score FROM control_events GROUP BY sessionId) leaderboard WHERE name IS NOT NULL AND score IS NOT NULL ORDER BY score DESC, name ASC\",\n  \"index\": true\n}",
+            "data": "{\n  \"set\": \"UNIFIED\",\n  \"sql\": \"SELECT name, score FROM (SELECT sessionId, MAX(get_json_object(data, '$.name')) AS name, MAX(CAST(get_json_object(data, '$.score') AS INT)) AS score FROM control_events WHERE event_type = 'score' GROUP BY sessionId) leaderboard WHERE name IS NOT NULL AND score IS NOT NULL ORDER BY score DESC, name ASC\",\n  \"index\": true\n}",
             "method": "POST"
           }
         }

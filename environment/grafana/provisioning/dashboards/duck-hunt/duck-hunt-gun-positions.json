@@ -87,7 +87,7 @@
           "url_options": {
             "body_content_type": "application/json",
             "body_type": "raw",
-            "data": "{\n  \"set\": \"HOT\",\n  \"sql\": \"SELECT COUNT(DISTINCT sessionId) AS active_sessions FROM gun_positions\",\n  \"index\": true\n}",
+            "data": "{\n  \"set\": \"UNIFIED\",\n  \"sql\": \"SELECT COUNT(DISTINCT sessionId) AS active_sessions FROM gun_positions\",\n  \"index\": true\n}",
             "method": "POST"
           }
         }
@@ -169,7 +169,7 @@
           "url_options": {
             "body_content_type": "application/json",
             "body_type": "raw",
-            "data": "{\n  \"set\": \"HOT\",\n  \"sql\": \"SELECT MIN(x) AS x_min, MAX(x) AS x_max, MIN(y) AS y_min, MAX(y) AS y_max FROM gun_positions\",\n  \"index\": true\n}",
+            "data": "{\n  \"set\": \"UNIFIED\",\n  \"sql\": \"SELECT MIN(x) AS x_min, MAX(x) AS x_max, MIN(y) AS y_min, MAX(y) AS y_max FROM gun_positions\",\n  \"index\": true\n}",
             "method": "POST"
           }
         }
@@ -232,8 +232,8 @@
               "type": "string"
             },
             {
-              "selector": "timestamp",
-              "text": "timestamp",
+              "selector": "event_time",
+              "text": "event_time",
               "type": "timestamp_epoch_s"
             },
             {
@@ -261,7 +261,7 @@
           "url_options": {
             "body_content_type": "application/json",
             "body_type": "raw",
-            "data": "{\n  \"set\": \"HOT\",\n  \"sql\": \"SELECT kafka_offset, sessionId, timestamp, x, y FROM gun_positions ORDER BY kafka_offset DESC LIMIT 50\",\n  \"index\": true\n}",
+            "data": "{\n  \"set\": \"UNIFIED\",\n  \"sql\": \"SELECT kafka_offset, sessionId, CAST(timestamp / 1000 AS BIGINT) AS event_time, x, y FROM gun_positions ORDER BY kafka_offset DESC LIMIT 50\",\n  \"index\": true\n}",
             "method": "POST"
           }
         }
