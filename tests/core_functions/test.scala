@@ -66,13 +66,14 @@ class CoreFunctionsSuite extends AnyFunSuite {
 }
 
 // run tests
+val reporter = new TestReporter
 try {
-   (new CoreFunctionsSuite).run(None, new Args(reporter = new TestReporter))
+   (new CoreFunctionsSuite).run(None, new Args(reporter = reporter))
 } catch {
     case e: Throwable => {
         println(e)
-        System.exit(1)
     }
 } finally {
-    System.exit(0)
+    reporter.printSummary()
+    if (reporter.failed > 0) System.exit(1) else System.exit(0)
 }

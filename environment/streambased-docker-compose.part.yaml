@@ -49,6 +49,7 @@
       - AUTH_ENABLED=true
       - SLIPSTREAM_URL=http://slipstream:3000
       - INDEX_CACHE_DURATION_SECONDS=600
+      - LOG4J_HYPERSTREAM_LEVEL=DEBUG
 
   ksi:
     #image: local/ksi:latest
@@ -59,25 +60,26 @@
     depends_on:
       schema-registry:
         condition: service_healthy
-      spark-iceberg:
-        condition: service_healthy
       rest:
         condition: service_started
     ports:
       - "9192:9192"
+    volumes:
+      - ./ksi-reordered-groups.yaml:/opt/kroxylicious/config/reordered-groups.yaml:ro
     environment:
       - KSI_BOOTSTRAP_SERVERS=kafka1:9092
       - KSI_GATEWAY_BOOTSTRAP_ADDRESS=ksi:9192
       - KSI_COLD_STORAGE_TYPE=spark-connect
       - KSI_MAX_COLD_STORAGE_RECORDS_PER_FETCH=1000
       - KSI_COLD_STORAGE_TIMEOUT_MS=30000
-      - KSI_ALWAYS_RETURN_MINUS_ONE_START_OFFSET=true
       - KSI_ICEBERG_NAMESPACE=coldset
       - KSI_SPARK_CONNECT_URL=sc://spark-iceberg:15002
       - KSI_SPARK_CATALOG_NAME=direct
       - KSI_OFFSET_RANGE_CACHE_TTL_MS=300000
       - KSI_OFFSET_RANGE_CACHE_REFRESH_MS=60000
       - KSI_SCHEMA_REGISTRY_URL=http://schema-registry:8081
+      - KSI_REORDERED_GROUP_CONFIG_PATH=/opt/kroxylicious/config/reordered-groups.yaml
+      - STREAMBASED_LOG_LEVEL=DEBUG
     command: [ "-c", "/opt/kroxylicious/config.yaml" ]
 
   slipstream:

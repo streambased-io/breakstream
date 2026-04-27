@@ -195,6 +195,62 @@
       }
     },
     {
+      "name": "stores_cold",
+      "topic": "stores",
+      "value": {
+        "StoreID": {
+          "_gen": "string",
+          "expr": "#{Number.numberBetween '1000','9999'}"
+        },
+        "StoreName": {
+          "_gen": "string",
+          "expr": "#{Company.name}"
+        },
+        "City": {
+          "_gen": "string",
+          "expr": "#{Address.city}"
+        },
+        "State": {
+          "_gen": "string",
+          "expr": "#{Address.state}"
+        },
+        "StoreType": {
+          "_gen": "oneOf",
+          "choices": ["Premium", "Standard", "Outlet"]
+        }
+      },
+      "localConfigs": {
+        "events": {
+          "exactly": 999950
+        }
+      }
+    },
+    {
+      "name": "stores_cold_nyc",
+      "topic": "stores",
+      "value": {
+        "StoreID": {
+          "_gen": "string",
+          "expr": "NYC_COLD_#{Number.numberBetween '1','50'}"
+        },
+        "StoreName": {
+          "_gen": "oneOf",
+          "choices": ["Manhattan Flagship", "Brooklyn Standard", "SoHo Outlet", "Times Square Premium", "Harlem Standard", "Queens Center", "Bronx Plaza", "Upper East Store", "Chelsea Market", "Wall Street Express"]
+        },
+        "City": "New York",
+        "State": "New York",
+        "StoreType": {
+          "_gen": "oneOf",
+          "choices": ["Premium", "Standard", "Outlet"]
+        }
+      },
+      "localConfigs": {
+        "events": {
+          "exactly": 50
+        }
+      }
+    },
+    {
       "name": "transactions",
       "topic": "transactions",
       "vars": {
@@ -320,6 +376,12 @@
       },
       {
         "generators": ["customers_batch_3"]
+      },
+      {
+        "generators": ["stores_cold"]
+      },
+      {
+        "generators": ["stores_cold_nyc"]
       },
       {
         "generators": ["branches", "accounts", "transactions"]
