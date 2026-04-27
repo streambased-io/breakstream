@@ -335,19 +335,130 @@ then
   echo ""
 fi
 
+if [ "$PARAGRAPH" = "cdc_hotset_to_coldset" ]
+then
+  echo "Moving the initial CDC orders from Kafka (hotset) to Iceberg (coldset)."
+  echo ""
+  echo "I.S.K. reads the CDC-aware hotset - which shows the current state per key,"
+  echo "with duplicates removed and deletes applied - and writes it into Iceberg."
+  echo ""
+  echo "You can see the Spark script used here:"
+  echo "  ./datasets/demo_cdc/scala/post_setup.scala"
+  echo ""
+fi
+
+if [ "$PARAGRAPH" = "cdc_intro" ]
+then
+  echo -e "${GREEN}"
+  echo "In this demo we will explore how Streambased handles Change Data Capture (CDC) streams."
+  echo ""
+  echo "CDC is a common pattern for replicating database changes into a data platform."
+  echo "Each Kafka message contains an operation type (create/update/delete) and the record payload"
+  echo "in Debezium envelope format."
+  echo ""
+  echo "The challenge: a raw CDC stream is not directly queryable as a table - it contains"
+  echo "duplicate keys (updates), ghost rows (records followed by deletes), and envelope metadata."
+  echo ""
+  echo "Streambased I.S.K. handles this automatically:"
+  echo "  * Envelope is unwrapped - the topic looks like a regular Iceberg table"
+  echo "  * Updates are applied in-place - no duplicate rows"
+  echo "  * Deletes are propagated - deleted records disappear from all views"
+  echo "  * Merged view combines hotset and coldset with CDC-aware conflict resolution"
+  echo ""
+  echo " _          _       _____       _ "
+  echo "| |        | |     |  __ \     | |"
+  echo "| |     ___| |_ ___| |  \/ ___ | |"
+  echo "| |    / _ \ __/ __| | __ / _ \| |"
+  echo "| |___|  __/ |_\__ \ |_\ \ (_) |_|"
+  echo "\_____/\___|\__|___/\____/\___/(_)"
+  echo -e "${NC}"
+  echo ""
+fi
+
+if [ "$PARAGRAPH" = "cdc_1_header" ]
+then
+  echo -e "${GREEN}"
+  echo "Demo Part 1: Environment Exploration"
+  echo " _____           _                                      _   "
+  echo "|  ___|         (_)                                    | |  "
+  echo "| |__ _ ____   ___ _ __ ___  _ __  _ __ ___   ___ _ __ | |_ "
+  echo "|  __| '_ \ \ / / | '__/ _ \| '_ \| '_ \` _ \ / _ \ '_ \| __|"
+  echo "| |__| | | \ V /| | | | (_) | | | | | | | | |  __/ | | | |_ "
+  echo "\____/_| |_|\_/ |_|_|  \___/|_| |_|_| |_| |_|\___|_| |_|\__|"
+  echo ""
+  echo "We will explore the hotset, coldset, and merged views of the orders CDC topic."
+  echo -e "${NC}"
+  echo ""
+fi
+
+if [ "$PARAGRAPH" = "cdc_2_header" ]
+then
+  echo -e "${GREEN}"
+  echo "Demo Part 2: CDC Awareness - Updates and Deduplication"
+  echo "______         _             _ _           _   _             ";
+  echo "|  _  \       | |           | (_)         | | (_)            ";
+  echo "| | | |___  __| |_   _ _ __ | |_  ___ __ _| |_ _  ___  _ __  ";
+  echo "| | | / _ \/ _\` | | | | '_ \| | |/ __/ _\` | __| |/ _ \| '_ \ ";
+  echo "| |/ /  __/ (_| | |_| | |_) | | | (_| (_| | |_| | (_) | | | |";
+  echo "|___/ \___|\__,_|\__,_| .__/|_|_|\___\__,_|\__|_|\___/|_| |_|";
+  echo "                      | |                                    ";
+  echo "                      |_|                                    ";
+  echo ""
+  echo "Background is generating status UPDATES to existing orders."
+  echo "Let's see how I.S.K. handles this without creating duplicates."
+  echo -e "${NC}"
+  echo ""
+fi
+
+if [ "$PARAGRAPH" = "cdc_delete_header" ]
+then
+  echo -e "${GREEN}"
+  echo "Demo Part 2b: CDC Delete Propagation"
+  echo "______     _      _            ";
+  echo "|  _  \   | |    | |           ";
+  echo "| | | |___| | ___| |_ ___  ___ ";
+  echo "| | | / _ \ |/ _ \ __/ _ \/ __|";
+  echo "| |/ /  __/ |  __/ ||  __/\__ \\";
+  echo "|___/ \___|_|\___|\__\___||___/";
+  echo ""
+  echo "We are now injecting 100 DELETE events for orders 1-100 into the Kafka CDC stream."
+  echo "I.S.K. will propagate these deletes across hotset, coldset, and merged views."
+  echo -e "${NC}"
+  echo ""
+fi
+
+if [ "$PARAGRAPH" = "cdc_roll_header" ]
+then
+  echo -e "${GREEN}"
+  echo "Demo Part 3: Rolling Hotset to Coldset"
+  echo "______      _ _ "
+  echo "| ___ \    | | |"
+  echo "| |_/ /___ | | |"
+  echo "|    // _ \| | |"
+  echo "| |\ \ (_) | | |"
+  echo "\_| \_\___/|_|_|"
+  echo ""
+  echo "Rolling the hotset into coldset with a single atomic MERGE INTO."
+  echo ""
+  echo "The MERGE source unions isk.hotset.orders (live records) with isk.cdc_deletes.orders (tombstones),"
+  echo "so one commit handles inserts, updates, and deletes together."
+  echo -e "${NC}"
+  echo ""
+fi
+
 if [ "$PARAGRAPH" = "complete" ]
 then
   echo ""
   echo -e ""
   echo -e "${GREEN}"
-  echo "______                       _____                       _      _       "
-  echo "|  _  \                     /  __ \                     | |    | |      "
-  echo "| | | |___ _ __ ___   ___   | /  \/ ___  _ __ ___  _ __ | | ___| |_ ___ "
-  echo "| | | / _ \ '_ \` _ \ / _ \  | |    / _ \| '_ \` _ \| '_ \| |/ _ \ __/ _ \ "
-  echo "| |/ /  __/ | | | | | (_) | | \__/\ (_) | | | | | | |_) | |  __/ ||  __/"
-  echo "|___/ \___|_| |_| |_|\___/   \____/\___/|_| |_| |_| .__/|_|\___|\__\___|"
-  echo "                                                  | |                   "
-  echo "                                                  |_|                   "
+  echo "______                       _____                       _      _       ";
+  echo "|  _  \                     /  __ \                     | |    | |      ";
+  echo "| | | |___ _ __ ___   ___   | /  \/ ___  _ __ ___  _ __ | | ___| |_ ___ ";
+  echo "| | | / _ \ '_ \` _ \ / _ \  | |    / _ \| '_ \` _ \| '_ \| |/ _ \ __/ _ \\";
+  echo "| |/ /  __/ | | | | | (_) | | \__/\ (_) | | | | | | |_) | |  __/ ||  __/";
+  echo "|___/ \___|_| |_| |_|\___/   \____/\___/|_| |_| |_| .__/|_|\___|\__\___|";
+  echo "                                                  | |                   ";
+  echo "                                                  |_|                   ";
   echo -e "${NC}"
   echo ""
 fi

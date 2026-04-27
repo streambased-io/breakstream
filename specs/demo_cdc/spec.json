@@ -1,0 +1,17 @@
+{
+  "components": [
+    "kafka",
+    "iceberg",
+    "datagen-setup",
+    "datagen-background",
+    "datagen-cdc-deletes",
+    "streambased"
+  ],
+  "setup_datasets": [
+    "demo_cdc"
+  ],
+  "background_dataset": "demo_cdc",
+  "tests": [
+    "demo_cdc"
+  ]
+}
