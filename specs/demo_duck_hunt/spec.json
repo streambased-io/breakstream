@@ -5,6 +5,7 @@
     "datagen-setup",
     "datagen-background",
     "streambased",
+    "jupyter",
     "observability",
     "debug"
   ],

@@ -17,9 +17,30 @@ alter_topic_if_exists() {
 }
 
 echo ""
-echo "Running Datagen"
+echo "Running Datagen (in compose network)"
 echo ""
-python3 $SCRIPT_DIR/../../../duck-hunt-demo/datagen.py
+DATAGEN_DIR=$SCRIPT_DIR/../../../duck-hunt-demo
+DATAGEN_TMP=$(mktemp -d)
+trap "rm -rf $DATAGEN_TMP" EXIT
+cp "$DATAGEN_DIR/datagen.py" "$DATAGEN_DIR/telemetry.py" "$DATAGEN_DIR/config.py" "$DATAGEN_TMP/"
+cat > "$DATAGEN_TMP/duck-hunt.properties" <<'EOF'
+[display]
+scale_x=3
+scale_y=2.5
+[telemetry]
+enabled=true
+[kafka]
+bootstrap.servers=kafka1:9092
+[schema_registry]
+url=http://schema-registry:8081
+EOF
+
+docker run --rm \
+	--network environment_default \
+	-v "$DATAGEN_TMP:/work" \
+	-w /work \
+	python:3.11-slim \
+	bash -c "pip install --quiet 'confluent-kafka[avro,schemaregistry]' && python datagen.py"
 
 echo ""
 echo "Copying post setup steps to container"
