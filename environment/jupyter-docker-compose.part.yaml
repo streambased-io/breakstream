@@ -1,0 +1,44 @@
+
+  jupyter:
+    image: streambased/spark-iceberg:latest
+    container_name: jupyter
+    hostname: jupyter
+    platform: linux/amd64
+    depends_on:
+      - directstream
+      - rest
+    environment:
+      - AWS_REGION=us-east-1
+      - AWS_ACCESS_KEY_ID=sbpk_12345678
+      - AWS_SECRET_ACCESS_KEY=sbsk_12345678
+      - DIRECTSTREAM_CATALOG_URI=http:\/\/directstream:11001
+      - DIRECTSTREAM_S3_ENDPOINT=http:\/\/directstream:11000
+      - BREAKSTREAM_HOST_DIR=${BREAKSTREAM_HOST_DIR:-/home/roman/code/breakstream}
+    ports:
+      - 8889:8888
+    volumes:
+      - ../datasets:/home/iceberg/notebooks
+      - /var/run/docker.sock:/var/run/docker.sock
+      - ${BREAKSTREAM_HOST_DIR:-/home/roman/code/breakstream}:${BREAKSTREAM_HOST_DIR:-/home/roman/code/breakstream}:ro
+    entrypoint:
+      - /bin/bash
+      - -c
+      - |
+        set -e
+        cat /opt/spark/conf/spark-defaults-orig.conf \
+          | sed -e "s/{{DIRECTSTREAM_CATALOG_URI}}/$$DIRECTSTREAM_CATALOG_URI/g" \
+          | sed -e "s/{{DIRECTSTREAM_S3_ENDPOINT}}/$$DIRECTSTREAM_S3_ENDPOINT/g" \
+          > /opt/spark/conf/spark-defaults.conf
+        if ! command -v docker >/dev/null 2>&1; then
+          echo "Installing docker CLI + compose plugin..."
+          curl -fsSL https://download.docker.com/linux/static/stable/x86_64/docker-24.0.7.tgz -o /tmp/docker.tgz
+          tar -xzf /tmp/docker.tgz -C /tmp
+          cp /tmp/docker/docker /usr/local/bin/
+          chmod +x /usr/local/bin/docker
+          mkdir -p /usr/local/lib/docker/cli-plugins
+          curl -SL https://github.com/docker/compose/releases/download/v2.24.0/docker-compose-linux-x86_64 -o /usr/local/lib/docker/cli-plugins/docker-compose
+          chmod +x /usr/local/lib/docker/cli-plugins/docker-compose
+          rm -rf /tmp/docker /tmp/docker.tgz
+        fi
+        pip install --quiet seaborn plotly
+        exec pyspark-notebook
