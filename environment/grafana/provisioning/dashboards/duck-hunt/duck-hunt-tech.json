@@ -1,0 +1,476 @@
+{
+  "annotations": {
+    "list": [
+      {
+        "builtIn": 1,
+        "datasource": {
+          "type": "grafana",
+          "uid": "-- Grafana --"
+        },
+        "enable": true,
+        "hide": true,
+        "iconColor": "rgba(0, 211, 255, 1)",
+        "name": "Annotations & Alerts",
+        "type": "dashboard"
+      }
+    ]
+  },
+  "editable": true,
+  "fiscalYearStartMonth": 0,
+  "graphTooltip": 0,
+  "links": [],
+  "panels": [
+    {
+      "gridPos": {
+        "h": 7,
+        "w": 24,
+        "x": 0,
+        "y": 0
+      },
+      "id": 2,
+      "options": {
+        "content": "```sql\nSELECT game_start.sessionId,\n       get_json_object(score.data, '$.name') AS name,\n       from_unixtime(game_start.timestamp / 1000, 'yyyy-MM-dd HH:mm:ss') AS timestamp\nFROM control_events game_start\nJOIN control_events score\n  ON game_start.sessionId = score.sessionId\n AND score.event_type = 'score'\nWHERE game_start.event_type = 'game_start'\nORDER BY game_start.timestamp DESC\nLIMIT 10\n```",
+        "mode": "markdown"
+      },
+      "pluginVersion": "12.0.0",
+      "type": "text"
+    },
+    {
+      "datasource": {
+        "type": "yesoreyeram-infinity-datasource",
+        "uid": "infinity"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "custom": {
+            "align": "auto",
+            "cellOptions": {
+              "type": "auto"
+            },
+            "inspect": false
+          }
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 13,
+        "w": 24,
+        "x": 0,
+        "y": 7
+      },
+      "id": 1,
+      "options": {
+        "cellHeight": "sm",
+        "footer": {
+          "countRows": false,
+          "fields": "",
+          "reducer": ["sum"],
+          "show": false
+        },
+        "showHeader": true,
+        "sortBy": [
+          {
+            "desc": true,
+            "displayName": "timestamp"
+          }
+        ]
+      },
+      "pluginVersion": "12.0.0",
+      "targets": [
+        {
+          "columns": [
+            {
+              "selector": "sessionId",
+              "text": "sessionId",
+              "type": "string"
+            },
+            {
+              "selector": "name",
+              "text": "name",
+              "type": "string"
+            },
+            {
+              "selector": "timestamp",
+              "text": "timestamp",
+              "type": "string"
+            }
+          ],
+          "datasource": {
+            "type": "yesoreyeram-infinity-datasource",
+            "uid": "infinity"
+          },
+          "format": "table",
+          "parser": "backend",
+          "refId": "A",
+          "root_selector": "$.rows",
+          "source": "url",
+          "type": "json",
+          "url": "/api/query",
+          "url_options": {
+            "body_content_type": "application/json",
+            "body_type": "raw",
+            "data": "{\n  \"set\": \"HOT\",\n  \"sql\": \"SELECT game_start.sessionId, get_json_object(score.data, '$.name') AS name, from_unixtime(game_start.timestamp / 1000, 'yyyy-MM-dd HH:mm:ss') AS timestamp FROM control_events game_start JOIN control_events score ON game_start.sessionId = score.sessionId AND score.event_type = 'score' WHERE game_start.event_type = 'game_start' ORDER BY game_start.timestamp DESC LIMIT 10\",\n  \"index\": true\n}",
+            "method": "POST"
+          }
+        }
+      ],
+      "transformations": [
+        {
+          "id": "organize",
+          "options": {
+            "excludeByName": {},
+            "indexByName": {
+              "sessionId": 0,
+              "name": 1,
+              "timestamp": 2
+            },
+            "renameByName": {}
+          }
+        }
+      ],
+      "title": "Last 10 Sessions",
+      "type": "table"
+    },
+    {
+      "datasource": {
+        "type": "yesoreyeram-infinity-datasource",
+        "uid": "infinity"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "custom": {
+            "align": "auto",
+            "cellOptions": {
+              "type": "auto"
+            },
+            "inspect": false
+          }
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 12,
+        "w": 12,
+        "x": 0,
+        "y": 30
+      },
+      "id": 4,
+      "options": {
+        "cellHeight": "sm",
+        "footer": {
+          "countRows": false,
+          "fields": "",
+          "reducer": ["sum"],
+          "show": false
+        },
+        "showHeader": true,
+        "sortBy": [
+          {
+            "desc": true,
+            "displayName": "timestamp"
+          }
+        ]
+      },
+      "pluginVersion": "12.0.0",
+      "targets": [
+        {
+          "columns": [
+            {
+              "selector": "sessionId",
+              "text": "sessionId",
+              "type": "string"
+            },
+            {
+              "selector": "name",
+              "text": "name",
+              "type": "string"
+            },
+            {
+              "selector": "timestamp",
+              "text": "timestamp",
+              "type": "string"
+            }
+          ],
+          "datasource": {
+            "type": "yesoreyeram-infinity-datasource",
+            "uid": "infinity"
+          },
+          "format": "table",
+          "parser": "backend",
+          "refId": "A",
+          "root_selector": "$.rows",
+          "source": "url",
+          "type": "json",
+          "url": "/api/query",
+          "url_options": {
+            "body_content_type": "application/json",
+            "body_type": "raw",
+            "data": "{\n  \"set\": \"UNIFIED\",\n  \"sql\": \"SELECT game_start.sessionId, get_json_object(score.data, '$.name') AS name, from_unixtime(game_start.timestamp / 1000, 'yyyy-MM-dd HH:mm:ss') AS timestamp FROM control_events game_start JOIN control_events score ON game_start.sessionId = score.sessionId AND score.event_type = 'score' WHERE game_start.event_type = 'game_start' AND get_json_object(score.data, '$.name') = '${playerName}' ORDER BY game_start.timestamp DESC\",\n  \"index\": true\n}",
+            "method": "POST"
+          }
+        }
+      ],
+      "transformations": [
+        {
+          "id": "organize",
+          "options": {
+            "excludeByName": {},
+            "indexByName": {
+              "sessionId": 0,
+              "name": 1,
+              "timestamp": 2
+            },
+            "renameByName": {}
+          }
+        }
+      ],
+      "title": "Sessions for ${playerName}",
+      "type": "table"
+    },
+    {
+      "datasource": {
+        "type": "yesoreyeram-infinity-datasource",
+        "uid": "infinity"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "custom": {},
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 12,
+        "w": 12,
+        "x": 12,
+        "y": 30
+      },
+      "id": 5,
+      "options": {
+        "cellHeight": "sm",
+        "footer": {
+          "countRows": false,
+          "fields": "",
+          "reducer": ["sum"],
+          "show": false
+        },
+        "showHeader": true
+      },
+      "pluginVersion": "12.0.0",
+      "targets": [
+        {
+          "columns": [
+            {
+              "selector": "player_status",
+              "text": "player_status",
+              "type": "string"
+            },
+            {
+              "selector": "total_games",
+              "text": "total_games",
+              "type": "number"
+            }
+          ],
+          "datasource": {
+            "type": "yesoreyeram-infinity-datasource",
+            "uid": "infinity"
+          },
+          "format": "table",
+          "parser": "backend",
+          "refId": "A",
+          "root_selector": "$.rows",
+          "source": "url",
+          "type": "json",
+          "url": "/api/query",
+          "url_options": {
+            "body_content_type": "application/json",
+            "body_type": "raw",
+            "data": "{\n  \"set\": \"UNIFIED\",\n  \"sql\": \"SELECT DISTINCT COUNT(*) OVER (PARTITION BY get_json_object(score.data, '$.name')) AS total_games, CASE WHEN COUNT(*) OVER (PARTITION BY get_json_object(score.data, '$.name')) = 1 THEN 'New Player' ELSE 'Returning Player' END AS player_status FROM control_events game_start JOIN control_events score ON game_start.sessionId = score.sessionId AND score.event_type = 'score' WHERE game_start.event_type = 'game_start' AND get_json_object(score.data, '$.name') = '${playerName}' LIMIT 1\",\n  \"index\": true\n}",
+            "method": "POST"
+          }
+        }
+      ],
+      "transformations": [
+        {
+          "id": "organize",
+          "options": {
+            "excludeByName": {},
+            "indexByName": {
+              "player_status": 0,
+              "total_games": 1
+            },
+            "renameByName": {}
+          }
+        }
+      ],
+      "title": "Player Info",
+      "type": "table"
+    },
+    {
+      "datasource": {
+        "type": "yesoreyeram-infinity-datasource",
+        "uid": "infinity"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "custom": {
+            "align": "auto",
+            "cellOptions": {
+              "type": "auto"
+            },
+            "inspect": false
+          }
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 10,
+        "w": 24,
+        "x": 0,
+        "y": 42
+      },
+      "id": 6,
+      "options": {
+        "cellHeight": "sm",
+        "footer": {
+          "countRows": false,
+          "fields": "",
+          "reducer": ["sum"],
+          "show": false
+        },
+        "showHeader": true,
+        "sortBy": [
+          {
+            "desc": true,
+            "displayName": "total_shots"
+          }
+        ]
+      },
+      "pluginVersion": "12.0.0",
+      "targets": [
+        {
+          "columns": [
+            {
+              "selector": "name",
+              "text": "name",
+              "type": "string"
+            },
+            {
+              "selector": "total_shots",
+              "text": "total_shots",
+              "type": "number"
+            }
+          ],
+          "datasource": {
+            "type": "yesoreyeram-infinity-datasource",
+            "uid": "infinity"
+          },
+          "format": "table",
+          "parser": "backend",
+          "refId": "A",
+          "root_selector": "$.rows",
+          "source": "url",
+          "type": "json",
+          "url": "/api/query",
+          "url_options": {
+            "body_content_type": "application/json",
+            "body_type": "raw",
+            "data": "{\n  \"set\": \"UNIFIED\",\n  \"sql\": \"SELECT get_json_object(score.data, '$.name') AS name, SUM(CAST(get_json_object(score.data, '$.shots') AS LONG)) AS total_shots FROM control_events game_start JOIN control_events score ON game_start.sessionId = score.sessionId AND score.event_type = 'score' WHERE game_start.event_type = 'game_start' GROUP BY get_json_object(score.data, '$.name') HAVING SUM(CAST(get_json_object(score.data, '$.shots') AS LONG)) >= ${total_shot_bonus} ORDER BY total_shots DESC\",\n  \"index\": true\n}",
+            "method": "POST"
+          }
+        }
+      ],
+      "transformations": [
+        {
+          "id": "organize",
+          "options": {
+            "excludeByName": {},
+            "indexByName": {
+              "name": 0,
+              "total_shots": 1
+            },
+            "renameByName": {}
+          }
+        }
+      ],
+      "title": "Players with ${total_shot_bonus}+ Total Shots",
+      "type": "table"
+    }
+  ],
+  "preload": false,
+  "refresh": "30s",
+  "schemaVersion": 41,
+  "tags": ["duck-hunt"],
+  "templating": {
+    "list": [
+      {
+        "current": {
+          "selected": false,
+          "text": "",
+          "value": ""
+        },
+        "hide": 0,
+        "includeAll": false,
+        "label": "Player Name",
+        "multi": false,
+        "name": "playerName",
+        "options": [
+          {
+            "selected": true,
+            "text": "",
+            "value": ""
+          }
+        ],
+        "query": "",
+        "refresh": 0,
+        "sort": 0,
+        "type": "custom"
+      },
+      {
+        "current": {
+          "selected": true,
+          "text": "1000",
+          "value": "1000"
+        },
+        "hide": 0,
+        "includeAll": false,
+        "label": "Total Shot Bonus",
+        "multi": false,
+        "name": "total_shot_bonus",
+        "options": [
+          {
+            "selected": true,
+            "text": "1000",
+            "value": "1000"
+          }
+        ],
+        "query": "1000",
+        "refresh": 0,
+        "sort": 0,
+        "type": "custom"
+      }
+    ]
+  },
+  "time": {
+    "from": "now-1d",
+    "to": "now"
+  },
+  "timepicker": {},
+  "timezone": "browser",
+  "title": "00 Tech",
+  "uid": "duck-hunt-tech",
+  "version": 1,
+  "weekStart": ""
+}
