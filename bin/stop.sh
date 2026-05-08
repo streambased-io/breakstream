@@ -3,18 +3,18 @@
 SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )/../
 cd $SCRIPT_DIR/environment
 
-docker --log-level ERROR compose stop
-docker --log-level ERROR compose rm -f
-
-# have to stop profiled containers separately as compose may not track them
-docker --log-level ERROR compose stop shadowtraffic_background shadowtraffic_setup shadowtraffic_cdc_deletes 2>/dev/null
-docker --log-level ERROR compose rm -f shadowtraffic_background shadowtraffic_setup shadowtraffic_cdc_deletes 2>/dev/null
+# --profile activates profile-gated services so they fall into scope for stop/rm.
+# Listing all defined profiles here is harmless — unknown profiles are silently ignored.
+# Non-profiled services are always in scope, so one sweep covers everything.
+PROFILES=(--profile background --profile prepopulate --profile cdc_deletes)
+docker --log-level ERROR compose "${PROFILES[@]}" stop
+docker --log-level ERROR compose "${PROFILES[@]}" rm -f
 
 if [ -d "$SCRIPT_DIR/environment/shadowtraffic" ]
 then
-  rm -rf $SCRIPT_DIR/environment/shadowtraffic
+  rm -rf "$SCRIPT_DIR/environment/shadowtraffic"
 fi
 
 sleep 3
-clear
+#clear
 echo "Environment stopped."

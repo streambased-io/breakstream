@@ -1,0 +1,14 @@
+{
+  "components": [
+    "kafka",
+    "iceberg",
+    "datagen-setup",
+    "datagen-background",
+    "datagen-setup-evolved",
+    "datagen-background-evolved",
+    "streambased",
+    "jupyter",
+    "debug"
+  ],
+  "setup_datasets": ["demo"]
+}
