@@ -13,10 +13,11 @@
       - AWS_SECRET_ACCESS_KEY=sbsk_12345678
       - DIRECTSTREAM_CATALOG_URI=http:\/\/directstream:11001
       - DIRECTSTREAM_S3_ENDPOINT=http:\/\/directstream:11000
+      - OPENAI_API_KEY=${OPENAI_API_KEY:-}
     ports:
       - 8889:8888
     volumes:
-      - ../datasets/duck_hunt/notebooks:/home/iceberg/notebooks
+      - ./notebooks:/home/iceberg/notebooks
     entrypoint:
       - /bin/bash
       - -c
@@ -26,5 +27,5 @@
           | sed -e "s/{{DIRECTSTREAM_CATALOG_URI}}/$$DIRECTSTREAM_CATALOG_URI/g" \
           | sed -e "s/{{DIRECTSTREAM_S3_ENDPOINT}}/$$DIRECTSTREAM_S3_ENDPOINT/g" \
           > /opt/spark/conf/spark-defaults.conf
-        pip install --quiet seaborn plotly
+        pip install --quiet seaborn plotly openai scipy
         exec pyspark-notebook
