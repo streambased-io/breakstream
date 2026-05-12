@@ -26,7 +26,11 @@ replay_pid*
 # intellij
 .idea
 
+# jupyter
+**/.ipynb_checkpoints/
+
 # generated environment files
 environment/shadowtraffic/**
+environment/notebooks/**
 environment/docker-compose.yaml
 environment/shadowtraffic_license.env

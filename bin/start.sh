@@ -54,6 +54,20 @@ do
   cat $SCRIPT_DIR/environment/$COMPONENT-docker-compose.part.yaml >> $SCRIPT_DIR/environment/docker-compose.yaml
 done
 
+# stage notebooks from each setup dataset into environment/notebooks
+if [ -d "$SCRIPT_DIR/environment/notebooks" ]
+then
+    rm -rf $SCRIPT_DIR/environment/notebooks
+fi
+mkdir -p $SCRIPT_DIR/environment/notebooks
+for DATASET in $(cat $SCRIPT_DIR/specs/$SPEC_NAME/spec.json | jq .setup_datasets[] | sed -e 's/"//g')
+do
+  if [ -d "$SCRIPT_DIR/datasets/$DATASET/notebooks" ]
+  then
+    cp -R $SCRIPT_DIR/datasets/$DATASET/notebooks/. $SCRIPT_DIR/environment/notebooks/
+  fi
+done
+
 # start services
 cd $SCRIPT_DIR/environment
 docker --log-level ERROR compose pull

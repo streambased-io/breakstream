@@ -15,6 +15,11 @@ then
   rm -rf $SCRIPT_DIR/environment/shadowtraffic
 fi
 
+if [ -d "$SCRIPT_DIR/environment/notebooks" ]
+then
+  rm -rf $SCRIPT_DIR/environment/notebooks
+fi
+
 sleep 3
 clear
 echo "Environment stopped."
