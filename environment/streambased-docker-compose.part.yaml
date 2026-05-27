@@ -31,6 +31,7 @@
       - ISK_COLDSET_CLIENT_S3_REGION=us-east-1
       - ISK_CDC_ENABLED=true
       - ISK_CDC_TOPICS=orders
+      - ISK_FILEIO_PROACTIVE_REFRESH_INTERVAL_SECONDS=5
       - ISK_CDC_COLDSET_INITIAL_SCAN=true
 
   hyperstream:

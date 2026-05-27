@@ -8,7 +8,7 @@ demo_paragraph() {
     then
       ${BASE_DIR}/bin/demo_script.sh $1
       echo "Press any key to continue"
-      read -s -t${SLEEP_TIME} -n1 key
+      #read -s -t${SLEEP_TIME} -n1 key
       if [ "$DEBUG_MODE" != "true" ]
       then
         clear
