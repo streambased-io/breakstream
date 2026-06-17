@@ -1,0 +1,7 @@
+services:
+  ksi:
+    environment:
+      - KSI_BATCH_SIZE=${KSI_BATCH_SIZE:-50000}
+      - KSI_COLD_STORAGE_TIMEOUT_MS=${KSI_COLD_STORAGE_TIMEOUT_MS:-120000}
+      - KSI_SPARK_CATALOG_NAME=isk
+      - KSI_ICEBERG_NAMESPACE=hotset

@@ -22,7 +22,8 @@ val resumeGroup = "reordered-e2e-resume"
 val firstConsumeClient = "consumer-reordered-e2e-first-consume"
 val resumeClient = "consumer-reordered-e2e-resume"
 val normalClient = "consumer-normal-reordered-check"
-val pollTimeoutSeconds = 15
+val pollTimeoutSeconds = sys.env.get("REORDERED_POLL_TIMEOUT_SECONDS").map(_.toInt).getOrElse(15)
+val expectedMatchRecords = sys.env.get("REORDERED_EXPECTED_MATCH_RECORDS").map(_.toInt).getOrElse(4)
 
 def createConsumer(
   bootstrapServers: String,
@@ -108,7 +109,7 @@ class ReorderedKsiSuite extends AnyFunSuite {
     deleteConsumerGroup(firstConsumeGroup)
     val consumer = createConsumer("ksi:9192", firstConsumeGroup, firstConsumeClient, maxPollRecords = 10)
     consumer.subscribe(Collections.singletonList(reorderedTopic))
-    val records = collectAtMostTopicRecords(consumer, reorderedTopic, expectedMaxRecords = 4)
+    val records = collectAtMostTopicRecords(consumer, reorderedTopic, expectedMaxRecords = expectedMatchRecords)
     consumer.close()
 
     assert(records.nonEmpty, "Expected reordered consumer to receive filtered records")
@@ -118,7 +119,8 @@ class ReorderedKsiSuite extends AnyFunSuite {
     val offsets = records.map(_.offset())
     assert(offsets == offsets.indices.map(_.toLong).toList,
       s"Expected synthetic monotonic offsets starting at 0, got: $offsets")
-    assert(records.length == 4, s"Expected 4 filtered reordered records, got ${records.length}")
+    assert(records.length == expectedMatchRecords,
+      s"Expected $expectedMatchRecords filtered reordered records, got ${records.length}")
   }
 
   test("reordered group commit and resume continues from the next synthetic offset without duplicates") {

@@ -11,6 +11,6 @@
   ],
   "background_dataset": "ksi_reordered_hot",
   "tests": [
-    "ksi_reordered"
+    "ksi_iceberg_reader_topic_reordering"
   ]
 }

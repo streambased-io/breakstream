@@ -26,7 +26,7 @@ reorderedGroups:
     orderBy: "kafka_timestamp ASC"
 EOF
 
-echo "Using reordered groups:"
+echo "Using Spark-only reordered groups:"
 echo "  first consume: $REORDERED_FIRST_GROUP"
 echo "  resume:        $REORDERED_RESUME_GROUP"
 echo "  catalog:       KSI_SPARK_CATALOG_NAME=isk"

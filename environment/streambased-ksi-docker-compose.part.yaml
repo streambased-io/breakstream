@@ -33,24 +33,6 @@
       - ISK_CDC_TOPICS=orders
       - ISK_CDC_COLDSET_INITIAL_SCAN=true
 
-  hyperstream:
-    image: local/hyperstream:chris1
-    #    image: streambased/dev-hyperstream:latest
-    container_name: hyperstream
-    pull_policy: never
-
-    ports:
-      - 9088:9088
-    environment:
-      - SPARK_CONNECT_URL=sc://spark-iceberg:15002
-      - COLD_SET_SCHEMA=direct.coldset
-      - HOT_SET_SCHEMA=isk.hotset
-      - UNIFIED_SET_SCHEMA=isk.merged
-      - AUTH_ENABLED=true
-      - SLIPSTREAM_URL=http://slipstream:3000
-      - INDEX_CACHE_DURATION_SECONDS=600
-      - LOG4J_HYPERSTREAM_LEVEL=DEBUG
-
   ksi:
     #image: local/ksi:latest
     image: streambased/ksi:latest
@@ -62,6 +44,8 @@
         condition: service_healthy
       rest:
         condition: service_started
+      directstream:
+        condition: service_started
     ports:
       - "9192:9192"
       - "9190:9190"
@@ -70,11 +54,11 @@
     environment:
       - KSI_BOOTSTRAP_SERVERS=kafka1:9092
       - KSI_GATEWAY_BOOTSTRAP_ADDRESS=ksi:9192
-      - KSI_BATCH_SIZE=${KSI_BATCH_SIZE:-10000}
-      - KSI_COLD_STORAGE_TIMEOUT_MS=30000
-      - KSI_ICEBERG_NAMESPACE=coldset
+      - KSI_BATCH_SIZE=${KSI_BATCH_SIZE:-1000}
+      - KSI_COLD_STORAGE_TIMEOUT_MS=${KSI_COLD_STORAGE_TIMEOUT_MS:-30000}
+      - KSI_ICEBERG_NAMESPACE=${KSI_ICEBERG_NAMESPACE:-merged}
       - KSI_SPARK_CONNECT_URL=sc://spark-iceberg:15002
-      - KSI_SPARK_CATALOG_NAME=direct
+      - KSI_SPARK_CATALOG_NAME=${KSI_SPARK_CATALOG_NAME:-isk}
       - KSI_OFFSET_RANGE_CACHE_TTL_MS=300000
       - KSI_OFFSET_RANGE_CACHE_REFRESH_MS=60000
       - KSI_SCHEMA_REGISTRY_URL=http://schema-registry:8081
@@ -87,6 +71,7 @@
     image: streambased/dev-slipstream:latest
     hostname: slipstream
     container_name: slipstream
+    platform: linux/amd64
 
     ports:
       - "3000:3000"
