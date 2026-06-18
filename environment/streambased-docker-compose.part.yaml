@@ -37,7 +37,6 @@
     image: local/hyperstream:chris1
     #    image: streambased/dev-hyperstream:latest
     container_name: hyperstream
-    pull_policy: never
 
     ports:
       - 9088:9088
