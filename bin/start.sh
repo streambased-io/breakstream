@@ -331,18 +331,18 @@ do
   fi
 done
 
-## tear down
-#demo_paragraph "finish"
-#if [ "$DEMO_MODE" != "true" ]
-#then
-#  $SCRIPT_DIR/bin/stop.sh
-#
-#  if [[ $EXITCODE != 0 ]]
-#  then
-#    echo "TESTS FAILED"
-#  else
-#    echo "TESTS PASSED"
-#  fi
-#fi
+# tear down
+demo_paragraph "finish"
+if [ "$DEMO_MODE" != "true" ]
+then
+  $SCRIPT_DIR/bin/stop.sh
+
+  if [[ $EXITCODE != 0 ]]
+  then
+    echo "TESTS FAILED"
+  else
+    echo "TESTS PASSED"
+  fi
+fi
 
 exit $EXITCODE

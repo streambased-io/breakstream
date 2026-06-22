@@ -34,8 +34,8 @@
       - ISK_CDC_COLDSET_INITIAL_SCAN=true
 
   hyperstream:
-    image: local/hyperstream:chris1
-    #    image: streambased/dev-hyperstream:latest
+    #image: local/hyperstream:local
+    image: streambased/dev-hyperstream:latest
     container_name: hyperstream
 
     ports:
