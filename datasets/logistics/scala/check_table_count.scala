@@ -3,7 +3,7 @@ import scala.util.control.Breaks._
 // give it a head start
 Thread.sleep(20000)
 
-val tables = Seq("shots", "gun_positions", "control_events")
+val tables = Seq("stops", "truck_positions", "delivery_control_events")
 val tries : Range = 1 to 10;
 
 breakable { for (t <- tries) {

@@ -90,7 +90,7 @@
           "url_options": {
             "body_content_type": "application/json",
             "body_type": "raw",
-            "data": "{\n  \"set\": \"UNIFIED\",\n  \"sql\": \"SELECT name, score FROM (SELECT sessionId, MAX(get_json_object(data, '$.name')) AS name, MAX(CAST(get_json_object(data, '$.score') AS INT)) AS score FROM control_events WHERE event_type = 'score' GROUP BY sessionId) leaderboard WHERE name IS NOT NULL AND score IS NOT NULL ORDER BY score DESC, name ASC\",\n  \"index\": true\n}",
+            "data": "{\n  \"set\": \"UNIFIED\",\n  \"sql\": \"SELECT name, score FROM (SELECT routeId, MAX(get_json_object(data, '$.name')) AS name, MAX(CAST(get_json_object(data, '$.score') AS INT)) AS score FROM delivery_control_events WHERE event_type = 'route_summary' GROUP BY routeId) leaderboard WHERE name IS NOT NULL AND score IS NOT NULL ORDER BY score DESC, name ASC\",\n  \"index\": true\n}",
             "method": "POST"
           }
         }
@@ -102,7 +102,7 @@
   "preload": false,
   "refresh": "30s",
   "schemaVersion": 41,
-  "tags": ["duck-hunt"],
+  "tags": ["logistics"],
   "templating": {
     "list": []
   },
@@ -113,7 +113,7 @@
   "timepicker": {},
   "timezone": "browser",
   "title": "02 Leaderboard",
-  "uid": "duck-hunt-leaderboard",
+  "uid": "logistics-leaderboard",
   "version": 1,
   "weekStart": ""
 }

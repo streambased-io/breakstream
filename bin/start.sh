@@ -3,6 +3,7 @@
 export SLEEP_TIME=20
 DEMO_MODE=false
 SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )/../
+export BREAKSTREAM_HOST_DIR=$(realpath "$SCRIPT_DIR")
 
 die () {
     echo >&2 "$@"
@@ -14,7 +15,7 @@ demo_paragraph() {
     then
       $SCRIPT_DIR/bin/demo_script.sh $1
       echo "Press any key to continue"
-      read -s -t$SLEEP_TIME -n1 key
+      #read -s -t$SLEEP_TIME -n1 key
       if [ "$DEBUG_MODE" != "true" ]
       then
         clear

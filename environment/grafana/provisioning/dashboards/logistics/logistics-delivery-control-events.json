@@ -84,7 +84,7 @@
           "url_options": {
             "body_content_type": "application/json",
             "body_type": "raw",
-            "data": "{\n  \"set\": \"UNIFIED\",\n  \"sql\": \"SELECT event_type, COUNT(*) AS events FROM control_events GROUP BY 1 ORDER BY 1\",\n  \"index\": true\n}",
+            "data": "{\n  \"set\": \"UNIFIED\",\n  \"sql\": \"SELECT event_type, COUNT(*) AS events FROM delivery_control_events GROUP BY 1 ORDER BY 1\",\n  \"index\": true\n}",
             "method": "POST"
           }
         }
@@ -142,8 +142,8 @@
               "type": "number"
             },
             {
-              "selector": "sessionId",
-              "text": "sessionId",
+              "selector": "routeId",
+              "text": "routeId",
               "type": "string"
             },
             {
@@ -171,19 +171,19 @@
           "url_options": {
             "body_content_type": "application/json",
             "body_type": "raw",
-            "data": "{\n  \"set\": \"UNIFIED\",\n  \"sql\": \"SELECT kafka_offset, sessionId, event_type, data FROM control_events ORDER BY kafka_offset DESC LIMIT 100\",\n  \"index\": true\n}",
+            "data": "{\n  \"set\": \"UNIFIED\",\n  \"sql\": \"SELECT kafka_offset, routeId, event_type, data FROM delivery_control_events ORDER BY kafka_offset DESC LIMIT 100\",\n  \"index\": true\n}",
             "method": "POST"
           }
         }
       ],
-      "title": "Recent Control Events",
+      "title": "Recent Delivery Control Events",
       "type": "table"
     }
   ],
   "preload": false,
   "refresh": "30s",
   "schemaVersion": 41,
-  "tags": ["duck-hunt"],
+  "tags": ["logistics"],
   "templating": {
     "list": []
   },
@@ -193,8 +193,8 @@
   },
   "timepicker": {},
   "timezone": "browser",
-  "title": "05 Control Events",
-  "uid": "duck-hunt-control-events",
+  "title": "05 Delivery Control Events",
+  "uid": "logistics-delivery-control-events",
   "version": 1,
   "weekStart": ""
 }

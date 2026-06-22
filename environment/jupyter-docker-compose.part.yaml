@@ -13,10 +13,13 @@
       - AWS_SECRET_ACCESS_KEY=sbsk_12345678
       - DIRECTSTREAM_CATALOG_URI=http:\/\/directstream:11001
       - DIRECTSTREAM_S3_ENDPOINT=http:\/\/directstream:11000
+      - BREAKSTREAM_HOST_DIR=${BREAKSTREAM_HOST_DIR:-/home/thomaskwscott/Projects/breakstream}
     ports:
       - 8889:8888
     volumes:
-      - ../datasets/duck_hunt/notebooks:/home/iceberg/notebooks
+      - ../datasets/logistics/notebooks:/home/iceberg/notebooks
+      - /var/run/docker.sock:/var/run/docker.sock
+      - ${BREAKSTREAM_HOST_DIR:-/home/thomaskwscott/Projects/breakstream}:${BREAKSTREAM_HOST_DIR:-/home/thomaskwscott/Projects/breakstream}:ro
     entrypoint:
       - /bin/bash
       - -c
@@ -26,5 +29,16 @@
           | sed -e "s/{{DIRECTSTREAM_CATALOG_URI}}/$$DIRECTSTREAM_CATALOG_URI/g" \
           | sed -e "s/{{DIRECTSTREAM_S3_ENDPOINT}}/$$DIRECTSTREAM_S3_ENDPOINT/g" \
           > /opt/spark/conf/spark-defaults.conf
+        if ! command -v docker >/dev/null 2>&1; then
+          echo "Installing docker CLI + compose plugin..."
+          curl -fsSL https://download.docker.com/linux/static/stable/x86_64/docker-24.0.7.tgz -o /tmp/docker.tgz
+          tar -xzf /tmp/docker.tgz -C /tmp
+          cp /tmp/docker/docker /usr/local/bin/
+          chmod +x /usr/local/bin/docker
+          mkdir -p /usr/local/lib/docker/cli-plugins
+          curl -SL https://github.com/docker/compose/releases/download/v2.24.0/docker-compose-linux-x86_64 -o /usr/local/lib/docker/cli-plugins/docker-compose
+          chmod +x /usr/local/lib/docker/cli-plugins/docker-compose
+          rm -rf /tmp/docker /tmp/docker.tgz
+        fi
         pip install --quiet seaborn plotly
         exec pyspark-notebook
