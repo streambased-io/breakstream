@@ -17,7 +17,7 @@
     ports:
       - 8889:8888
     volumes:
-      - ../datasets/logistics/notebooks:/home/iceberg/notebooks
+      - ../datasets/logistics/notebooks:/home/iceberg/notebooks:ro
       - /var/run/docker.sock:/var/run/docker.sock
       - ${BREAKSTREAM_HOST_DIR:-/home/thomaskwscott/Projects/breakstream}:${BREAKSTREAM_HOST_DIR:-/home/thomaskwscott/Projects/breakstream}:ro
     entrypoint:
