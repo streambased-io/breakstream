@@ -164,6 +164,39 @@ do
   fi
 done
 
+# launch notebook for logistics demo
+if [ "$SPEC_NAME" = "demo_logistics" ]
+then
+  echo "Waiting for Jupyter notebook server..."
+  NOTEBOOK_URL=""
+  ATTEMPTS=0
+  while [ -z "$NOTEBOOK_URL" ] && [ $ATTEMPTS -lt 30 ]
+  do
+    NOTEBOOK_URL=$(docker --log-level ERROR compose logs jupyter 2>/dev/null \
+      | grep -o 'http://127\.0\.0\.1:8888[^[:space:]]*' | head -1 \
+      | sed 's/:8888/:8889/')
+    if [ -z "$NOTEBOOK_URL" ]; then
+      sleep 2
+      ATTEMPTS=$((ATTEMPTS + 1))
+    fi
+  done
+
+  echo ""
+  echo "================================================"
+  echo "  Logistics demo notebook is ready"
+  echo ""
+  if [ -n "$NOTEBOOK_URL" ]; then
+    echo "  Open: $NOTEBOOK_URL"
+  else
+    echo "  Open: http://localhost:8889"
+  fi
+  echo ""
+  echo "  Navigate to logistics_demo.ipynb and run"
+  echo "  cells from top to bottom."
+  echo "================================================"
+  echo ""
+fi
+
 # tear down
 demo_paragraph "finish"
 if [ "$DEMO_MODE" != "true" ]
