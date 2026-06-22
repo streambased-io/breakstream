@@ -2,6 +2,7 @@
 
 export SLEEP_TIME=20
 DEMO_MODE=false
+INTERACTIVE_MODE=${INTERACTIVE_MODE:-false}
 SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )/../
 export BREAKSTREAM_HOST_DIR=$(realpath "$SCRIPT_DIR")
 
@@ -15,7 +16,9 @@ demo_paragraph() {
     then
       $SCRIPT_DIR/bin/demo_script.sh $1
       echo "Press any key to continue"
-      #read -s -t$SLEEP_TIME -n1 key
+      if [ "${INTERACTIVE_MODE}" = "true" ]; then
+        read -s -t${SLEEP_TIME} -n1 key
+      fi
       if [ "$DEBUG_MODE" != "true" ]
       then
         clear
@@ -34,7 +37,7 @@ then
   ls $SCRIPT_DIR/specs/$1 > /dev/null 2>&1  || die "Test case not found, $1 provided"
   SPEC_NAME=$1
 else
-  SPEC_NAME="demo_core"
+  SPEC_NAME="demo_logistics"
 fi
 
 # are we running a demo?

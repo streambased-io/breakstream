@@ -1,102 +1,79 @@
-# BreakStream
+# Streambased Logistics Demo
 
-Docker-based demo and testing environment for Streambased components.
+An interactive Jupyter notebook that shows how Streambased unifies live Kafka streams and historical Iceberg data into a single SQL interface — no pipelines required.
 
-## What is Streambased?
-
-Streambased unifies Apache Kafka and Apache Iceberg, enabling real-time analytics across streaming and historical data without traditional batch pipelines. See [Streambased Overview](docs/STREAMBASED_OVERVIEW.md) for details.
-
-## Running in github Codespaces
-
-The easiest way to try out BreakStream and Streambased is via GitHub [Codespaces](https://docs.github.com/en/codespaces/about-codespaces/what-are-codespaces).
-
-1. Click the green **Code** button above and select **Open with Codespaces** > **New codespace**.
-   ![Start Codespace](docs/images/codespaces_1.png)
-2. Wait for the Codespace to initialize (this may take a few minutes).
-3. Open a terminal in the Codespace and run:
-   ```bash
-   ./bin/start.sh
-   ```
-   ![Start Breakstream](docs/images/codespaces_2.png)
-   
-
-## Demo Quickstart
-
-Run the interactive demo to see Streambased in action:
-
-```bash
-./bin/start.sh
-```
-
-This starts the full stack and walks through:
-1. **Unified data views** - Query streaming (hotset) and historical (coldset) data with SQL
-2. **Data tiering** - Move data from Kafka to Iceberg
-3. **Extended retention** - Kafka consumers reading historical data via KSI
-
-See [Demo Quickstart Guide](docs/QUICKSTART.md) for the full walkthrough.
-
-## Documentation
-
-- [Streambased Overview](docs/STREAMBASED_OVERVIEW.md) - Product introduction and concepts
-- [Architecture](docs/ARCHITECTURE.md) - Component diagram and interactions
-- [Demo Quickstart](docs/QUICKSTART.md) - Hands-on walkthrough
-
-## Requirements
+## Prerequisites
 
 - Docker and Docker Compose
-- jq
-- Java 11+
-- ~8GB RAM available for Docker
+- `jq`
+- ~8 GB RAM available to Docker
 
-## Commands
+## Starting the environment
 
 ```bash
-# Run interactive demo
 ./bin/start.sh
-
-# Run automated tests
-./bin/start.sh core_functions
-
-# Run all test specs
-./bin/run_all.sh
-
-# Stop environment
-./bin/stop.sh
-
-# Setup mode (start environment, skip tests)
-SETUP_MODE=true ./bin/start.sh core_functions
 ```
 
----
+This builds and starts the full stack: Kafka, Iceberg (MinIO + REST catalog), the Streambased ISK layer, and a Jupyter server. Data is pre-loaded automatically; startup takes 3–5 minutes.
 
-## Test Framework
+Once the environment is running, open the notebook:
 
-BreakStream also serves as a black-box testing framework for Streambased components.
+```
+http://localhost:8889
+```
 
-### Test Structure
+Navigate to `logistics_demo.ipynb` and open it.
 
-A test consists of 3 components:
+## Working through the notebook
 
-1. **Spec** (`specs/<name>/spec.json`) - Defines Docker components, datasets, and tests to run:
-   ```json
-   {
-       "components": ["kafka", "iceberg", "datagen-setup", "datagen-background", "streambased"],
-       "setup_datasets": ["core"],
-       "background_dataset": "core",
-       "tests": ["core_functions"]
-   }
-   ```
+The notebook tells a single self-contained story. Run cells top to bottom — each section builds on the one before.
 
-2. **Datasets** (`datasets/<name>/`) - ShadowTraffic configs for data generation:
-   - `setup.json` - One-shot data prepopulation
-   - `background.json` - Continuous background traffic
-   - `post_setup.sh` - Post-load actions (e.g., copy to Iceberg)
+### Part 1 — The problem
 
-3. **Test Cases** (`tests/<name>/run.sh`) - Shell script returning 0 for success
+Introduces Brian, a data scientist trying to analyse truck delivery efficiency. He needs live route data but hits the standard wall: Iceberg only holds cold history, Kafka isn't queryable by his tools. The first few cells demonstrate this gap directly — querying Iceberg for today's data comes back empty.
 
-### Demo Specs
+### Part 2 — Enter Streambased
 
-Specs prefixed with `demo_` are interactive demonstrations that:
-- Expect user interaction (press key to continue)
-- Leave environment running after completion
-- Don't verify correctness, just demonstrate features
+Shows the same query rewritten against the Streambased `hotset` and `merged` namespaces. Live Kafka events appear as Iceberg tables with no commit lag. Brian can now join today's live routes against historical baselines in a single SQL statement.
+
+### Part 3 — Under the hood: composable views
+
+Walks through the three logical namespaces exposed by Streambased:
+
+| Namespace | Source | Contents |
+|-----------|--------|----------|
+| `isk.hotset` | Kafka | Live events, always current |
+| `isk.coldset` | Iceberg | Archived historical data |
+| `isk.merged` | Both | Automatic union, no duplicates |
+
+Cells query each namespace and show the offset distributions so the boundary between hot and cold data is visible.
+
+### Part 4 — Hot-to-cold transfer
+
+Demonstrates moving data from Kafka to Iceberg with a plain `INSERT INTO coldset SELECT * FROM hotset` statement. Because Kafka is always available as a live view, you choose when it is efficient to archive — there is no forced commit interval.
+
+### Part 5 — Kafka consumers reading archived data (Slipstream)
+
+Simulates Kafka retention expiring so that the topic's earliest offsets are gone. A standard Kafka consumer is shown failing, then reconnecting through the Streambased Slipstream proxy — which transparently serves the missing offsets from Iceberg. Existing consumers require no code changes.
+
+## Supporting UIs
+
+| Tool | URL | Purpose |
+|------|-----|---------|
+| Jupyter | http://localhost:8889 | The notebook |
+| AKHQ | http://localhost:9090 | Kafka topic browser |
+| Grafana | http://localhost:7070 | Cluster observability |
+
+## Stopping the environment
+
+```bash
+./bin/stop.sh
+```
+
+## Running non-interactively (automated / CI)
+
+By default `./bin/start.sh` runs without waiting for keypresses. To add interactive pause-at-each-step behaviour, set `INTERACTIVE_MODE=true`:
+
+```bash
+INTERACTIVE_MODE=true ./bin/start.sh
+```
