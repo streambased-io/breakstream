@@ -164,6 +164,9 @@ do
   fi
 done
 
+# tear down
+demo_paragraph "finish"
+
 # launch notebook for logistics demo
 if [ "$SPEC_NAME" = "demo_logistics" ]
 then
@@ -181,24 +184,25 @@ then
     fi
   done
 
+  OPEN_URL="${NOTEBOOK_URL:-http://localhost:8889}"
+
   echo ""
   echo "================================================"
   echo "  Logistics demo notebook is ready"
   echo ""
-  if [ -n "$NOTEBOOK_URL" ]; then
-    echo "  Open: $NOTEBOOK_URL"
-  else
-    echo "  Open: http://localhost:8889"
-  fi
+  echo "  Open: $OPEN_URL"
   echo ""
   echo "  Navigate to logistics_demo.ipynb and run"
   echo "  cells from top to bottom."
   echo "================================================"
   echo ""
-fi
 
-# tear down
-demo_paragraph "finish"
+  if command -v xdg-open > /dev/null 2>&1; then
+    xdg-open "$OPEN_URL"
+  elif command -v open > /dev/null 2>&1; then
+    open "$OPEN_URL"
+  fi
+fi
 if [ "$DEMO_MODE" != "true" ]
 then
   $SCRIPT_DIR/bin/stop.sh
