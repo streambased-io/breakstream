@@ -194,6 +194,8 @@ then
   echo ""
   echo "  Navigate to logistics_demo.ipynb and run"
   echo "  cells from top to bottom."
+  echo ""
+  echo "  When finished, run: ./bin/stop.sh"
   echo "================================================"
   echo ""
 
