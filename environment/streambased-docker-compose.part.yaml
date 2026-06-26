@@ -50,11 +50,10 @@
       - INDEX_CACHE_DURATION_SECONDS=600
 
   ksi:
-    #image: local/ksi:latest
     image: streambased/ksi:latest
     hostname: ksi
     container_name: ksi
-
+    platform: linux/amd64
     depends_on:
       schema-registry:
         condition: service_healthy

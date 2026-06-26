@@ -8,7 +8,9 @@ demo_paragraph() {
     then
       $BASE_DIR/bin/demo_script.sh $1
       echo "Press any key to continue"
-      read -s -t$SLEEP_TIME -n1 key
+      if [ "${INTERACTIVE_MODE}" = "true" ]; then
+        read -s -t${SLEEP_TIME} -n1 key
+      fi
     fi
 }
 

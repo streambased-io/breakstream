@@ -5,9 +5,9 @@
     "datagen-setup",
     "datagen-background",
     "streambased",
-    "observability"
+    "jupyter",
+    "observability",
+    "debug"
   ],
-  "setup_datasets": ["core"],
-  "background_dataset": "core",
-  "tests": ["core_functions"]
+  "setup_datasets": ["logistics"]
 }
