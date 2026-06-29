@@ -48,14 +48,12 @@
       - AUTH_ENABLED=true
       - SLIPSTREAM_URL=http://slipstream:3000
       - INDEX_CACHE_DURATION_SECONDS=600
-      - LOG4J_HYPERSTREAM_LEVEL=DEBUG
 
   ksi:
-    #image: local/ksi:latest
     image: streambased/ksi:latest
     hostname: ksi
     container_name: ksi
-    pull_policy: never
+    platform: linux/amd64
     depends_on:
       schema-registry:
         condition: service_healthy
@@ -78,7 +76,6 @@
       - KSI_OFFSET_RANGE_CACHE_REFRESH_MS=60000
       - KSI_SCHEMA_REGISTRY_URL=http://schema-registry:8081
       - KSI_REORDERED_GROUP_CONFIG_PATH=/opt/kroxylicious/config/reordered-groups.yaml
-      - STREAMBASED_LOG_LEVEL=DEBUG
     command: [ "-c", "/opt/kroxylicious/config.yaml" ]
 
   slipstream:

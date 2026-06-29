@@ -2,7 +2,9 @@
 
 export SLEEP_TIME=20
 DEMO_MODE=false
+INTERACTIVE_MODE=${INTERACTIVE_MODE:-false}
 SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )/../
+export BREAKSTREAM_HOST_DIR=$(realpath "$SCRIPT_DIR")
 
 die () {
     echo >&2 "$@"
@@ -14,7 +16,9 @@ demo_paragraph() {
     then
       $SCRIPT_DIR/bin/demo_script.sh $1
       echo "Press any key to continue"
-      read -s -t$SLEEP_TIME -n1 key
+      if [ "${INTERACTIVE_MODE}" = "true" ]; then
+        read -s -t${SLEEP_TIME} -n1 key
+      fi
       if [ "$DEBUG_MODE" != "true" ]
       then
         clear
@@ -144,7 +148,7 @@ then
   ls $SCRIPT_DIR/specs/$1 > /dev/null 2>&1  || die "Test case not found, $1 provided"
   SPEC_NAME=$1
 else
-  SPEC_NAME="demo_core"
+  SPEC_NAME="demo_logistics"
 fi
 
 # are we running a demo?
@@ -333,6 +337,45 @@ done
 
 # tear down
 demo_paragraph "finish"
+
+# launch notebook for logistics demo
+if [ "$SPEC_NAME" = "demo_logistics" ]
+then
+  echo "Waiting for Jupyter notebook server..."
+  NOTEBOOK_URL=""
+  ATTEMPTS=0
+  while [ -z "$NOTEBOOK_URL" ] && [ $ATTEMPTS -lt 30 ]
+  do
+    NOTEBOOK_URL=$(docker --log-level ERROR compose logs jupyter 2>/dev/null \
+      | grep -o 'http://127\.0\.0\.1:8888[^[:space:]]*' | head -1 \
+      | sed 's/:8888/:8889/')
+    if [ -z "$NOTEBOOK_URL" ]; then
+      sleep 2
+      ATTEMPTS=$((ATTEMPTS + 1))
+    fi
+  done
+
+  OPEN_URL="${NOTEBOOK_URL:-http://localhost:8889}"
+
+  echo ""
+  echo "================================================"
+  echo "  Logistics demo notebook is ready"
+  echo ""
+  echo "  Open: $OPEN_URL"
+  echo ""
+  echo "  Navigate to logistics_demo.ipynb and run"
+  echo "  cells from top to bottom."
+  echo ""
+  echo "  When finished, run: ./bin/stop.sh"
+  echo "================================================"
+  echo ""
+
+  if command -v xdg-open > /dev/null 2>&1; then
+    xdg-open "$OPEN_URL"
+  elif command -v open > /dev/null 2>&1; then
+    open "$OPEN_URL"
+  fi
+fi
 if [ "$DEMO_MODE" != "true" ]
 then
   $SCRIPT_DIR/bin/stop.sh

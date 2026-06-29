@@ -1,6 +1,6 @@
 
   spark-iceberg:
-    image: local/spark-iceberg:latest
+    image: streambased/spark-iceberg:latest
 #    image: streambased/spark-iceberg:latest
     hostname: spark
 

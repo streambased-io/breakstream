@@ -2,11 +2,8 @@
 
 This document describes how to run every KSI reordered performance test in this repository, what each spec measures, and which variables tune the run.
 
-Run commands from the repository root unless a command explicitly says otherwise:
+Run commands from the repository root unless a command explicitly.
 
-```bash
-cd /Users/lemanhcuong/Project/Java/breakstream
-```
 
 ## What The Perf Test Measures
 
