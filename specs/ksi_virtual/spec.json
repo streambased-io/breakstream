@@ -1,0 +1,17 @@
+{
+  "components": [
+    "kafka",
+    "iceberg",
+    "datagen-setup",
+    "datagen-background",
+    "streambased"
+  ],
+  "setup_datasets": [
+    "core",
+    "core_hotset"
+  ],
+  "background_dataset" : "core",
+  "tests" : [
+    "ksi_virtual"
+  ]
+}

@@ -1,0 +1,77 @@
+{
+  "generators": [
+    {
+      "name": "stores_hot",
+      "topic": "stores",
+      "value": {
+        "StoreID": {
+          "_gen": "string",
+          "expr": "#{Number.numberBetween '1000','9999'}"
+        },
+        "StoreName": {
+          "_gen": "string",
+          "expr": "#{Company.name}"
+        },
+        "City": {
+          "_gen": "string",
+          "expr": "#{Address.city}"
+        },
+        "State": {
+          "_gen": "string",
+          "expr": "#{Address.state}"
+        },
+        "StoreType": {
+          "_gen": "oneOf",
+          "choices": ["Premium", "Standard", "Outlet"]
+        }
+      },
+      "localConfigs": {
+        "events": {
+          "exactly": 999950
+        }
+      }
+    },
+    {
+      "name": "stores_hot_nyc",
+      "topic": "stores",
+      "value": {
+        "StoreID": {
+          "_gen": "string",
+          "expr": "NYC_HOT_#{Number.numberBetween '1','50'}"
+        },
+        "StoreName": {
+          "_gen": "oneOf",
+          "choices": ["Queens Hot Store", "Bronx Premium", "Staten Island Outlet", "East Village Express", "Midtown Standard", "Greenwich Hub", "Tribeca Center", "Williamsburg Spot", "Astoria Place", "Flushing Market"]
+        },
+        "City": "New York",
+        "State": "New York",
+        "StoreType": {
+          "_gen": "oneOf",
+          "choices": ["Premium", "Standard", "Outlet"]
+        }
+      },
+      "localConfigs": {
+        "events": {
+          "exactly": 50
+        }
+      }
+    }
+  ],
+  "schedule": {
+    "stages": [
+      { "generators": ["stores_hot"] },
+      { "generators": ["stores_hot_nyc"] }
+    ]
+  },
+  "connections": {
+    "kafka": {
+      "kind": "kafka",
+      "producerConfigs": {
+        "bootstrap.servers": "kafka1:9092",
+        "key.serializer": "io.confluent.kafka.serializers.KafkaAvroSerializer",
+        "value.serializer": "io.confluent.kafka.serializers.KafkaAvroSerializer",
+        "schema.registry.url": "http://schema-registry:8081"
+      }
+    }
+  }
+}

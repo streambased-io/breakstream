@@ -1,0 +1,9 @@
+reorderedGroups:
+  - groupId: "reordered-e2e-performance"
+    clientId: "consumer-reordered-e2e-performance"
+    sourceTopic: "reordered_perf_customers"
+    orderBy: "kafka_timestamp ASC"
+  - groupId: "reordered-e2e-performance-ordered"
+    clientId: "consumer-reordered-e2e-performance-ordered"
+    sourceTopic: "reordered_perf_customers_ordered"
+    orderBy: "kafka_timestamp ASC"

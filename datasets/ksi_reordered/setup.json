@@ -1,0 +1,172 @@
+{
+  "generators": [
+    {
+      "name": "reordered_customers_batch_1",
+      "topic": "reordered_customers",
+      "value": {
+        "CustomerID": {
+          "_gen": "string",
+          "expr": "RC_PRE_#{Number.numberBetween '1000','9999'}"
+        },
+        "Name": {
+          "_gen": "string",
+          "expr": "#{Name.full_name}"
+        },
+        "Address": {
+          "_gen": "string",
+          "expr": "#{Address.full_address}"
+        },
+        "Email": {
+          "_gen": "string",
+          "expr": "#{Internet.email_address}"
+        },
+        "PhoneNo": {
+          "_gen": "string",
+          "expr": "#{PhoneNumber.phone_number}"
+        }
+      },
+      "localConfigs": {
+        "events": {
+          "exactly": 20
+        }
+      }
+    },
+    {
+      "name": "reordered_match_1",
+      "topic": "reordered_customers",
+      "value": {
+        "CustomerID": "REORDERED_MATCH_1",
+        "Name": "Reordered Match",
+        "Address": "1 Reordered Way",
+        "Email": "reordered1@test.com",
+        "PhoneNo": "000-100-0001"
+      },
+      "localConfigs": {
+        "events": {
+          "exactly": 1
+        }
+      }
+    },
+    {
+      "name": "reordered_customers_batch_2",
+      "topic": "reordered_customers",
+      "value": {
+        "CustomerID": {
+          "_gen": "string",
+          "expr": "RC_MID_#{Number.numberBetween '1000','9999'}"
+        },
+        "Name": {
+          "_gen": "string",
+          "expr": "#{Name.full_name}"
+        },
+        "Address": {
+          "_gen": "string",
+          "expr": "#{Address.full_address}"
+        },
+        "Email": {
+          "_gen": "string",
+          "expr": "#{Internet.email_address}"
+        },
+        "PhoneNo": {
+          "_gen": "string",
+          "expr": "#{PhoneNumber.phone_number}"
+        }
+      },
+      "localConfigs": {
+        "events": {
+          "exactly": 15
+        }
+      }
+    },
+    {
+      "name": "reordered_match_2",
+      "topic": "reordered_customers",
+      "value": {
+        "CustomerID": "REORDERED_MATCH_2",
+        "Name": "Reordered Match",
+        "Address": "2 Reordered Way",
+        "Email": "reordered2@test.com",
+        "PhoneNo": "000-100-0002"
+      },
+      "localConfigs": {
+        "events": {
+          "exactly": 1
+        }
+      }
+    },
+    {
+      "name": "reordered_customers_batch_3",
+      "topic": "reordered_customers",
+      "value": {
+        "CustomerID": {
+          "_gen": "string",
+          "expr": "RC_POST_#{Number.numberBetween '1000','9999'}"
+        },
+        "Name": {
+          "_gen": "string",
+          "expr": "#{Name.full_name}"
+        },
+        "Address": {
+          "_gen": "string",
+          "expr": "#{Address.full_address}"
+        },
+        "Email": {
+          "_gen": "string",
+          "expr": "#{Internet.email_address}"
+        },
+        "PhoneNo": {
+          "_gen": "string",
+          "expr": "#{PhoneNumber.phone_number}"
+        }
+      },
+      "localConfigs": {
+        "events": {
+          "exactly": 10
+        }
+      }
+    },
+    {
+      "name": "reordered_match_3",
+      "topic": "reordered_customers",
+      "value": {
+        "CustomerID": "REORDERED_MATCH_3",
+        "Name": "Reordered Match",
+        "Address": "3 Reordered Way",
+        "Email": "reordered3@test.com",
+        "PhoneNo": "000-100-0003"
+      },
+      "localConfigs": {
+        "events": {
+          "exactly": 1
+        }
+      }
+    },
+    {
+      "name": "reordered_match_4",
+      "topic": "reordered_customers",
+      "value": {
+        "CustomerID": "REORDERED_MATCH_4",
+        "Name": "Reordered Match",
+        "Address": "4 Reordered Way",
+        "Email": "reordered4@test.com",
+        "PhoneNo": "000-100-0004"
+      },
+      "localConfigs": {
+        "events": {
+          "exactly": 1
+        }
+      }
+    }
+  ],
+  "connections": {
+    "kafka": {
+      "kind": "kafka",
+      "producerConfigs": {
+        "bootstrap.servers": "kafka1:9092",
+        "key.serializer": "io.confluent.kafka.serializers.KafkaAvroSerializer",
+        "value.serializer": "io.confluent.kafka.serializers.KafkaAvroSerializer",
+        "schema.registry.url": "http://schema-registry:8081"
+      }
+    }
+  }
+}

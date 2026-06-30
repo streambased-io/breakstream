@@ -29,7 +29,7 @@ chmod 777 /opt/derby
 
 start-master.sh -p 7077
 start-worker.sh spark://spark-iceberg:7077
-start-history-server.sh --conf "-spark.driver.extraJavaOptions=-Dderby.system.home=/opt/derby"
+#start-history-server.sh
 
 # thrift
 start-thriftserver.sh

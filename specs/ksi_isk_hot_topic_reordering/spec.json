@@ -1,0 +1,14 @@
+{
+  "components": [
+    "kafka",
+    "iceberg",
+    "datagen-setup",
+    "streambased-ksi"
+  ],
+  "setup_datasets": [
+    "ksi_reordered_perf_isk_hot"
+  ],
+  "tests": [
+    "ksi_isk_hot_topic_reordering"
+  ]
+}

@@ -1,0 +1,44 @@
+{
+  "generators": [
+    {
+      "name": "reordered_perf_customers",
+      "topic": "reordered_perf_customers",
+      "value": {
+        "CustomerID": "RPC_PERF",
+        "Name": "Reordered Perf Match",
+        "Address": {
+          "_gen": "string",
+          "expr": "#{Address.full_address}"
+        },
+        "Email": {
+          "_gen": "string",
+          "expr": "#{Internet.email_address}"
+        },
+        "PhoneNo": {
+          "_gen": "string",
+          "expr": "#{PhoneNumber.phone_number}"
+        },
+        "Sequence": {
+          "_gen": "sequentialInteger",
+          "startingFrom": 0
+        }
+      },
+      "localConfigs": {
+        "events": {
+          "exactly": 2000000
+        }
+      }
+    }
+  ],
+  "connections": {
+    "kafka": {
+      "kind": "kafka",
+      "producerConfigs": {
+        "bootstrap.servers": "kafka1:9092",
+        "key.serializer": "io.confluent.kafka.serializers.KafkaAvroSerializer",
+        "value.serializer": "io.confluent.kafka.serializers.KafkaAvroSerializer",
+        "schema.registry.url": "http://schema-registry:8081"
+      }
+    }
+  }
+}

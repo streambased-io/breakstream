@@ -5,7 +5,7 @@
     depends_on:
       schema-registry:
         condition: service_healthy
-    platform: linux/amd64
+    
     environment:
       AKHQ_CONFIGURATION: |
         akhq:
