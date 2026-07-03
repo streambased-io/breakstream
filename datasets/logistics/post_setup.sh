@@ -70,16 +70,18 @@ docker --log-level ERROR compose exec spark-iceberg sh -c 'cat /tmp/post_setup.s
 echo ""
 echo "Draining hotset data from Kafka (truck_positions — high volume, AI training data lives in coldset)"
 echo ""
-alter_topic_if_exists truck_positions retention.ms=500,segment.ms=500
-alter_topic_if_exists stops retention.ms=500,segment.ms=500
-alter_topic_if_exists delivery_control_events retention.ms=500,segment.ms=500
+alter_topic_if_exists truck_positions retention.ms=500,segment.ms=500 &
+alter_topic_if_exists stops retention.ms=500,segment.ms=500 &
+alter_topic_if_exists delivery_control_events retention.ms=500,segment.ms=500 &
+wait
 
 docker --log-level ERROR compose cp $SCRIPT_DIR/scala/check_table_count.scala spark-iceberg:/tmp/check_table_count.scala 2>&1 >/dev/null
 docker --log-level ERROR compose exec spark-iceberg sh -c 'cat /tmp/check_table_count.scala | spark-shell --driver-memory 8g --conf spark.ui.enabled=false   2>&1 >/dev/null'
 
-alter_topic_if_exists truck_positions retention.ms=604800000,segment.ms=604800000
-alter_topic_if_exists stops retention.ms=604800000,segment.ms=604800000
-alter_topic_if_exists delivery_control_events retention.ms=604800000,segment.ms=604800000
+alter_topic_if_exists truck_positions retention.ms=604800000,segment.ms=604800000 &
+alter_topic_if_exists stops retention.ms=604800000,segment.ms=604800000 &
+alter_topic_if_exists delivery_control_events retention.ms=604800000,segment.ms=604800000 &
+wait
 
 echo ""
 echo "Starting live datagen (one route every 30s)"
@@ -95,4 +97,4 @@ docker run -d \
 echo ""
 echo "Post setup complete"
 echo ""
-sleep 3
+if [ "${INTERACTIVE_MODE}" = "true" ]; then sleep 3; fi

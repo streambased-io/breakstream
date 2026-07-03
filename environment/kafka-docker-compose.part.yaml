@@ -42,9 +42,9 @@
     ports:
       - "8081:8081"
     healthcheck:
-      start_period: 10s
-      interval: 10s
-      retries: 20
+      start_period: 2s
+      interval: 2s
+      retries: 100
       test: curl --fail --silent http://schema-registry:8081/subjects --output /dev/null || exit 1
     environment:
       SCHEMA_REGISTRY_HOST_NAME: schema-registry
