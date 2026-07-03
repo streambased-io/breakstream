@@ -125,7 +125,7 @@ done
 
 # load background datasets
 demo_paragraph "new_data"
-sleep 3
+if [ "${INTERACTIVE_MODE}" = "true" ]; then sleep 3; fi
 clear
 if [[ "$(cat $SCRIPT_DIR/specs/$SPEC_NAME/spec.json | jq '.background_dataset')" = "null" ]];
 then
@@ -142,7 +142,7 @@ else
     docker --log-level ERROR compose up -d shadowtraffic_background
   fi
 fi
-sleep 3
+if [ "${INTERACTIVE_MODE}" = "true" ]; then sleep 3; fi
 
 # exit if setup mode
 if [ "$SETUP_MODE" = "true" ]

@@ -8,9 +8,9 @@ topic_exists() {
 
 alter_topic_if_exists() {
 	local topic=$1
-	local config=$2
+	local configs=$2
 	if topic_exists "$topic"; then
-		docker --log-level ERROR compose exec kafka1 kafka-configs --bootstrap-server kafka1:9092 --alter --topic "$topic" --add-config "$config" 2>&1 >/dev/null
+		docker --log-level ERROR compose exec kafka1 kafka-configs --bootstrap-server kafka1:9092 --alter --topic "$topic" --add-config "$configs" 2>&1 >/dev/null
 	else
 		echo "Skipping config update for missing topic: $topic"
 	fi
@@ -27,7 +27,7 @@ echo ""
 for topic in truck_positions stops delivery_control_events; do
 	docker --log-level ERROR compose exec kafka1 kafka-topics --bootstrap-server kafka1:9092 --delete --topic "$topic" 2>/dev/null || true
 done
-sleep 5
+sleep 2
 
 echo ""
 echo "Creating clickstream Kafka topic"
@@ -70,22 +70,16 @@ docker --log-level ERROR compose exec spark-iceberg sh -c 'cat /tmp/post_setup.s
 echo ""
 echo "Draining hotset data from Kafka (truck_positions — high volume, AI training data lives in coldset)"
 echo ""
-alter_topic_if_exists truck_positions retention.ms=500
-alter_topic_if_exists truck_positions segment.ms=500
-alter_topic_if_exists stops retention.ms=500
-alter_topic_if_exists stops segment.ms=500
-alter_topic_if_exists delivery_control_events retention.ms=500
-alter_topic_if_exists delivery_control_events segment.ms=500
+alter_topic_if_exists truck_positions retention.ms=500,segment.ms=500
+alter_topic_if_exists stops retention.ms=500,segment.ms=500
+alter_topic_if_exists delivery_control_events retention.ms=500,segment.ms=500
 
 docker --log-level ERROR compose cp $SCRIPT_DIR/scala/check_table_count.scala spark-iceberg:/tmp/check_table_count.scala 2>&1 >/dev/null
 docker --log-level ERROR compose exec spark-iceberg sh -c 'cat /tmp/check_table_count.scala | spark-shell --driver-memory 8g --conf spark.ui.enabled=false   2>&1 >/dev/null'
 
-alter_topic_if_exists truck_positions retention.ms=604800000
-alter_topic_if_exists truck_positions segment.ms=604800000
-alter_topic_if_exists stops retention.ms=604800000
-alter_topic_if_exists stops segment.ms=604800000
-alter_topic_if_exists delivery_control_events retention.ms=604800000
-alter_topic_if_exists delivery_control_events segment.ms=604800000
+alter_topic_if_exists truck_positions retention.ms=604800000,segment.ms=604800000
+alter_topic_if_exists stops retention.ms=604800000,segment.ms=604800000
+alter_topic_if_exists delivery_control_events retention.ms=604800000,segment.ms=604800000
 
 echo ""
 echo "Starting live datagen (one route every 30s)"
