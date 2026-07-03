@@ -2,11 +2,8 @@
   "components": [
     "kafka",
     "iceberg",
-    "datagen-setup",
-    "datagen-background",
     "streambased",
     "jupyter",
-    "observability",
     "debug"
   ],
   "setup_datasets": ["logistics"]

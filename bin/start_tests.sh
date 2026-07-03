@@ -26,6 +26,117 @@ demo_paragraph() {
     fi
 }
 
+compose_has_service() {
+  docker --log-level ERROR compose config --services | grep -qx "$1"
+}
+
+container_id_for_service() {
+  docker --log-level ERROR compose ps -q "$1"
+}
+
+service_state() {
+  docker --log-level ERROR inspect -f '{{.State.Status}}' "$1"
+}
+
+service_health() {
+  docker --log-level ERROR inspect -f '{{if .State.Health}}{{.State.Health.Status}}{{else}}none{{end}}' "$1"
+}
+
+wait_for_service() {
+  SERVICE=$1
+  echo "Waiting for $SERVICE"
+
+  for _ in {1..120}
+  do
+    CONTAINER_ID=$(container_id_for_service "$SERVICE")
+    if [ -n "$CONTAINER_ID" ]
+    then
+      STATE=$(service_state "$CONTAINER_ID")
+      HEALTH=$(service_health "$CONTAINER_ID")
+      if [ "$STATE" = "running" ] && { [ "$SERVICE" != "schema-registry" ] || [ "$HEALTH" = "healthy" ]; }
+      then
+        return 0
+      fi
+    fi
+    sleep 2
+  done
+
+  echo "Service $SERVICE did not become ready"
+  docker --log-level ERROR compose ps -a "$SERVICE"
+  return 1
+}
+
+wait_for_services() {
+  for SERVICE in kafka1 schema-registry minio rest spark-iceberg directstream slipstream ksi
+  do
+    if compose_has_service "$SERVICE"
+    then
+      wait_for_service "$SERVICE"
+    fi
+  done
+}
+
+perf_cases_include() {
+  CASE_ID=$1
+  RAW_CASES="${REORDERED_PERF_CASES:-ordered,baseline,kafka}"
+
+  if [ -z "$RAW_CASES" ]
+  then
+    return 0
+  fi
+
+  IFS=',' read -ra TOKENS <<< "$RAW_CASES"
+  for TOKEN in "${TOKENS[@]}"
+  do
+    TOKEN=$(echo "$TOKEN" | tr '[:upper:]' '[:lower:]' | xargs)
+    if [ "$TOKEN" = "all" ]
+    then
+      return 0
+    fi
+
+    case "$CASE_ID:$TOKEN" in
+      ordered:ordered|ordered:ksi-ordered|ordered:ordered-ksi|ordered:reordered_perf_customers_ordered|ordered:${REORDERED_PERF_ORDERED_LABEL:-ksi-ordered-coldset})
+        return 0
+        ;;
+      baseline:baseline|baseline:ksi-baseline|baseline:normal|baseline:reordered|baseline:reordered_perf_customers|baseline:${REORDERED_PERF_BASELINE_LABEL:-ksi-baseline})
+        return 0
+        ;;
+      kafka:kafka|kafka:normal-kafka|kafka:reordered_perf_customers_kafka)
+        return 0
+        ;;
+    esac
+  done
+
+  return 1
+}
+
+perf_setup_file_selected() {
+  DATASET_NAME=$1
+  SETUP_FILE_NAME=$2
+
+  case "$DATASET_NAME" in
+    ksi_reordered_perf|ksi_reordered_perf_isk_hot)
+      case "$SETUP_FILE_NAME" in
+        setup-ordered.json)
+          perf_cases_include ordered
+          ;;
+        setup-baseline.json)
+          perf_cases_include baseline
+          ;;
+        setup-kafka.json)
+          perf_cases_include kafka
+          ;;
+        *)
+          return 0
+          ;;
+      esac
+      ;;
+    *)
+      return 0
+      ;;
+  esac
+}
+
 # check for prerequisites
 command -v curl > /dev/null 2>&1 || die "curl is required but not installed"
 command -v jq > /dev/null 2>&1 || die "jq is required but not installed"
@@ -59,10 +170,14 @@ do
 done
 
 # start services
+echo "starting service"
 cd $SCRIPT_DIR/environment
+docker --log-level ERROR compose build
 docker --log-level ERROR compose pull
 docker --log-level ERROR compose up -d
+wait_for_services
 clear
+echo "done starting service"
 
 # prepare shadowtraffic
 if [ -d "$SCRIPT_DIR/environment/shadowtraffic" ]
@@ -89,13 +204,58 @@ do
       rm -rf $SCRIPT_DIR/environment/shadowtraffic/*
   fi
   cp -R $SCRIPT_DIR/datasets/$DATASET/* $SCRIPT_DIR/environment/shadowtraffic
-  if [ -f $SCRIPT_DIR/environment/shadowtraffic/setup.json ]
+  SETUP_CONTAINERS=()
+  ALL_SETUP_CONTAINERS=()
+  SETUP_FILES=()
+  if compgen -G "$SCRIPT_DIR/environment/shadowtraffic/setup-*.json" > /dev/null
   then
-    docker --log-level ERROR compose up -d shadowtraffic_setup
+    for SETUP_PATH in $SCRIPT_DIR/environment/shadowtraffic/setup-*.json
+    do
+      SETUP_FILE=$(basename "$SETUP_PATH")
+      if perf_setup_file_selected "$DATASET" "$SETUP_FILE"
+      then
+        SETUP_FILES+=("$SETUP_FILE")
+      else
+        echo "Skipping $SETUP_FILE for REORDERED_PERF_CASES=${REORDERED_PERF_CASES:-ordered,baseline,kafka}"
+      fi
+    done
+  elif [ -f $SCRIPT_DIR/environment/shadowtraffic/setup.json ]
+  then
+    SETUP_FILES+=("setup.json")
+  fi
+
+  if [ ${#SETUP_FILES[@]} -eq 0 ]
+  then
+    echo "No setup files selected for dataset $DATASET"
+    exit 111
+  fi
+
+  for SETUP_FILE in "${SETUP_FILES[@]}"
+  do
+    SETUP_NAME=$(echo "$SETUP_FILE" | sed -e 's/\.json$//' -e 's/[^a-zA-Z0-9_-]/_/g')
+    CONTAINER_NAME="shadowtraffic_${DATASET}_${SETUP_NAME}_${RANDOM}"
+    CONTAINER_ID=$(docker --log-level ERROR compose run -d --name "$CONTAINER_NAME" shadowtraffic_setup --config "/etc/shadowtraffic/$SETUP_FILE" --seed 1234)
+    SETUP_CONTAINERS+=("$CONTAINER_ID")
+    ALL_SETUP_CONTAINERS+=("$CONTAINER_ID")
+  done
+
+  if [ ${#SETUP_CONTAINERS[@]} -gt 0 ]
+  then
     clear
   fi
-  while [ ! -z "$(docker --log-level ERROR compose ps -q shadowtraffic_setup)" ]
+
+  while [ ${#SETUP_CONTAINERS[@]} -gt 0 ]
   do
+    RUNNING_CONTAINERS=()
+    for CONTAINER_ID in "${SETUP_CONTAINERS[@]}"
+    do
+      if [ "$(docker --log-level ERROR inspect -f '{{.State.Running}}' "$CONTAINER_ID")" = "true" ]
+      then
+        RUNNING_CONTAINERS+=("$CONTAINER_ID")
+      fi
+    done
+    SETUP_CONTAINERS=("${RUNNING_CONTAINERS[@]}")
+
     echo "Loading data to topics:"
     for topic in $(docker --log-level ERROR compose exec kafka1 kafka-topics --bootstrap-server kafka1:9092 --list | grep -v __consumer_offsets | grep -v _schemas)
     do
@@ -108,6 +268,17 @@ do
     echo "..."
     sleep 1
     clear
+  done
+
+  for CONTAINER_ID in "${ALL_SETUP_CONTAINERS[@]}"
+  do
+    EXIT_CODE=$(docker --log-level ERROR inspect -f '{{.State.ExitCode}}' "$CONTAINER_ID")
+    if [ "$EXIT_CODE" != "0" ]
+    then
+      echo "ShadowTraffic setup container $CONTAINER_ID failed with exit code $EXIT_CODE"
+      docker --log-level ERROR logs "$CONTAINER_ID"
+      exit 112
+    fi
   done
 
   demo_paragraph "kafka_to_iceberg"
