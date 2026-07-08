@@ -1,4 +1,4 @@
 #!/bin/bash
 
 SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
-$SCRIPT_DIR/../ksi/isk_hot_reordered_perf_fresh.sh
+$SCRIPT_DIR/../ksi/reordered_perf_fresh.sh isk-hot

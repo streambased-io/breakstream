@@ -1,6 +1,7 @@
 #!/bin/bash
 
 SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
+source $SCRIPT_DIR/../common/spark_packages.sh
 TEST_FILE=test_$RANDOM.scala
 SUITE_FILE=suite_$RANDOM.scala
 COMMON_FILE=common_$RANDOM.scala
@@ -18,4 +19,4 @@ docker --log-level ERROR compose exec \
   -e REORDERED_PERF_CASES="${REORDERED_PERF_CASES:-ordered,baseline,kafka}" \
   -e REORDERED_PERF_BASELINE_LABEL="${REORDERED_PERF_BASELINE_LABEL:-ksi-baseline}" \
   -e REORDERED_PERF_ORDERED_LABEL="${REORDERED_PERF_ORDERED_LABEL:-ksi-ordered-coldset}" \
-  spark-iceberg sh -c "cat /tmp/$TEST_FILE | spark-shell --driver-memory 8g --repositories https://packages.confluent.io/maven/ --packages org.scalatest:scalatest_2.13:3.2.19,org.apache.kafka:kafka-clients:4.1.0,io.confluent:kafka-avro-serializer:7.5.0"
+  spark-iceberg sh -c "cat /tmp/$TEST_FILE | spark-shell --driver-memory 8g --repositories $SPARK_REPOSITORIES --packages $SPARK_PACKAGES"

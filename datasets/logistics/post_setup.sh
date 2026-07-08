@@ -1,20 +1,8 @@
 #! /bin/bash
 SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
+BASE_DIR=$( cd -- "$SCRIPT_DIR/../../" &> /dev/null && pwd )
 
-topic_exists() {
-	local topic=$1
-	docker --log-level ERROR compose exec kafka1 kafka-topics --bootstrap-server kafka1:9092 --list | grep -qx "$topic"
-}
-
-alter_topic_if_exists() {
-	local topic=$1
-	local configs=$2
-	if topic_exists "$topic"; then
-		docker --log-level ERROR compose exec kafka1 kafka-configs --bootstrap-server kafka1:9092 --alter --topic "$topic" --add-config "$configs" 2>&1 >/dev/null
-	else
-		echo "Skipping config update for missing topic: $topic"
-	fi
-}
+source $BASE_DIR/bin/lib/kafka_topic_config.sh
 
 echo ""
 echo "Stopping any previously running live datagen"
@@ -52,6 +40,7 @@ cp "$DATAGEN_DIR/datagen.py" "$DATAGEN_DIR/telemetry.py" "$DATAGEN_DIR/config.py
 
 docker run --rm \
 	--network environment_default \
+	-e PYTHONDONTWRITEBYTECODE=1 \
 	-v "$DATAGEN_TMP:/work" \
 	-w /work \
 	python:3.11-slim \
@@ -89,6 +78,7 @@ echo ""
 docker run -d \
 	--name logistics_live_datagen \
 	--network environment_default \
+	-e PYTHONDONTWRITEBYTECODE=1 \
 	-v "$SCRIPT_DIR:/work" \
 	-w /work \
 	python:3.11-slim \

@@ -11,20 +11,7 @@ die () {
     exit 1
 }
 
-demo_paragraph() {
-    if [ "$DEMO_MODE" = "true" ]
-    then
-      $SCRIPT_DIR/bin/demo_script.sh $1
-      echo "Press any key to continue"
-      if [ "${INTERACTIVE_MODE}" = "true" ]; then
-        read -s -t${SLEEP_TIME} -n1 key
-      fi
-      if [ "$DEBUG_MODE" != "true" ]
-      then
-        clear
-      fi
-    fi
-}
+source $SCRIPT_DIR/bin/lib/demo_common.sh
 
 # check for prerequisites
 command -v curl > /dev/null 2>&1 || die "curl is required but not installed"
@@ -44,6 +31,13 @@ fi
 if [[  $SPEC_NAME == demo_* ]]
 then
   export DEMO_MODE=true
+fi
+
+# start.sh is only for specs flagged for it; everything else runs via start_tests.sh
+LAUNCHER=$(cat $SCRIPT_DIR/specs/$SPEC_NAME/spec.json | jq -r '.launcher // "start_tests"')
+if [ "$LAUNCHER" != "start" ]
+then
+  die "Spec '$SPEC_NAME' is configured to run via bin/start_tests.sh, not bin/start.sh. Run: ./bin/start_tests.sh $SPEC_NAME"
 fi
 
 demo_paragraph "header"

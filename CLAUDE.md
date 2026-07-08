@@ -9,15 +9,19 @@ BreakStream is a Docker-based black-box testing framework for Streambased compon
 ## Commands
 
 ### Run a single spec
-```bash
-./bin/start.sh <spec_name>
-```
-Example: `./bin/start.sh core_functions`
+Each `specs/<spec_name>/spec.json` has a `"launcher"` field (`"start"` or `"start_tests"`, defaulting to `"start_tests"` if absent) that determines which script must launch it; the wrong script exits immediately with a pointer to the right one.
 
-### Run all specs (excludes demo specs)
+```bash
+./bin/start.sh <spec_name>        # for specs with "launcher": "start" - the non-asserting demo specs (demo_logistics, demo_core, demo_cdc)
+./bin/start_tests.sh <spec_name>  # for everything else - real ScalaTest-asserting specs, with healthcheck waits and multi-file dataset setup support
+```
+Example: `./bin/start_tests.sh core_functions`
+
+### Run all specs
 ```bash
 ./bin/run_all.sh
 ```
+Runs every spec whose `launcher` resolves to `start_tests` (i.e. everything except the non-asserting demo specs).
 
 ### Stop environment
 ```bash
@@ -26,7 +30,7 @@ Example: `./bin/start.sh core_functions`
 
 ### Setup mode (prepopulate data, skip tests, leave environment running)
 ```bash
-SETUP_MODE=true ./bin/start.sh <spec_name>
+SETUP_MODE=true ./bin/start_tests.sh <spec_name>
 ```
 
 ## Architecture
@@ -110,7 +114,7 @@ try {
 | Slipstream | 3000 |
 
 ### Demo Specs
-Specs prefixed with `demo_` are interactive demonstrations. They run a "test" expecting user interaction (via `tests/common/runner_utils.py`) and leave the environment running afterward.
+Specs prefixed with `demo_` are interactive demonstrations with no automated assertions - they narrate/print results for a human to read rather than pass/fail a test. They leave the environment running afterward and are launched with `./bin/start.sh` (see `"launcher"` above), not `./bin/start_tests.sh`.
 
 ## Requirements
 - Docker

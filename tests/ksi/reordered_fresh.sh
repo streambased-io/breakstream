@@ -1,6 +1,10 @@
 #!/bin/bash
+# Recreates KSI and reruns the reordered e2e consumers against already-loaded data.
+# Usage: reordered_fresh.sh [spark-only]  (default: kafka-backed reordered groups)
 
 set -euo pipefail
+
+MODE="${1:-default}"
 
 SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
 BASE_DIR=$( cd -- "$SCRIPT_DIR/../../" &> /dev/null && pwd )
@@ -26,7 +30,12 @@ reorderedGroups:
     orderBy: "kafka_timestamp ASC"
 EOF
 
-echo "Using reordered groups:"
+if [ "$MODE" = "spark-only" ]
+then
+  echo "Using Spark-only reordered groups:"
+else
+  echo "Using reordered groups:"
+fi
 echo "  first consume: $REORDERED_FIRST_GROUP"
 echo "  resume:        $REORDERED_RESUME_GROUP"
 echo "  catalog:       KSI_SPARK_CATALOG_NAME=isk"

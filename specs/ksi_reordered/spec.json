@@ -3,13 +3,11 @@
     "kafka",
     "iceberg",
     "datagen-setup",
-    "datagen-background",
     "streambased-ksi"
   ],
   "setup_datasets": [
     "ksi_reordered"
   ],
-  "background_dataset": "ksi_reordered_hot",
   "tests": [
     "ksi_reordered"
   ]

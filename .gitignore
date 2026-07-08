@@ -30,3 +30,6 @@ replay_pid*
 environment/shadowtraffic/**
 environment/docker-compose.yaml
 environment/shadowtraffic_license.env
+
+# jupyter autosave artifacts
+.ipynb_checkpoints/

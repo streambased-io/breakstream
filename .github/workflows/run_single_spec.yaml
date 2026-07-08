@@ -118,4 +118,10 @@ jobs:
       # 8. Run black box test
       - name: Run Black Box test
         run: |
-          bin/start.sh ${{ inputs.spec }}
+          SPEC="${{ inputs.spec }}"
+          LAUNCHER=$(jq -r '.launcher // "start_tests"' specs/$SPEC/spec.json)
+          if [ "$LAUNCHER" = "start" ]; then
+            bin/start.sh "$SPEC"
+          else
+            bin/start_tests.sh "$SPEC"
+          fi
