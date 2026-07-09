@@ -1,4 +1,5 @@
 {
+  "launcher": "start",
   "components": [
     "kafka",
     "iceberg",

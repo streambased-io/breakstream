@@ -257,4 +257,4 @@ User                    Spark               ISK         Iceberg REST
 ## Related Documentation
 
 - [Streambased Overview](./STREAMBASED_OVERVIEW.md) - Product introduction
-- [Demo Quickstart](./QUICKSTART.md) - Hands-on walkthrough
+- [Demo Quickstart](../README.md) - Hands-on walkthrough

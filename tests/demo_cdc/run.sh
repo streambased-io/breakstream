@@ -3,20 +3,7 @@
 SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
 BASE_DIR=$( cd -- "$SCRIPT_DIR/../../" &> /dev/null && pwd )
 
-demo_paragraph() {
-    if [ "$DEMO_MODE" = "true" ]
-    then
-      ${BASE_DIR}/bin/demo_script.sh $1
-      echo "Press any key to continue"
-      if [ "${INTERACTIVE_MODE}" = "true" ]; then
-        read -s -t${SLEEP_TIME} -n1 key
-      fi
-      if [ "$DEBUG_MODE" != "true" ]
-      then
-        clear
-      fi
-    fi
-}
+source ${BASE_DIR}/bin/lib/demo_common.sh
 
 # --- setup ---
 docker --log-level ERROR compose cp $SCRIPT_DIR/../common/runner_utils.py spark-iceberg:/tmp/runner_utils.py 2>&1 >/dev/null

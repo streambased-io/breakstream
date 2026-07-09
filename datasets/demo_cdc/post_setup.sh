@@ -3,16 +3,7 @@
 SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
 BASE_DIR=$( cd -- "$SCRIPT_DIR/../../" &> /dev/null && pwd )
 
-demo_paragraph() {
-    if [ "$DEMO_MODE" = "true" ]
-    then
-      $BASE_DIR/bin/demo_script.sh $1
-      echo "Press any key to continue"
-      if [ "${INTERACTIVE_MODE}" = "true" ]; then
-        read -s -t${SLEEP_TIME} -n1 key
-      fi
-    fi
-}
+source $BASE_DIR/bin/lib/demo_common.sh
 
 # copy initial CDC orders from hotset to coldset
 demo_paragraph "cdc_hotset_to_coldset"

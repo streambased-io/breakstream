@@ -1,29 +1,11 @@
 #! /bin/bash
 
-export SLEEP_TIME=20
-DEMO_MODE=false
-INTERACTIVE_MODE=${INTERACTIVE_MODE:-false}
 SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )/../
 export BREAKSTREAM_HOST_DIR=$(realpath "$SCRIPT_DIR")
 
 die () {
     echo >&2 "$@"
     exit 1
-}
-
-demo_paragraph() {
-    if [ "$DEMO_MODE" = "true" ]
-    then
-      $SCRIPT_DIR/bin/demo_script.sh $1
-      echo "Press any key to continue"
-      if [ "${INTERACTIVE_MODE}" = "true" ]; then
-        read -s -t${SLEEP_TIME} -n1 key
-      fi
-      if [ "$DEBUG_MODE" != "true" ]
-      then
-        clear
-      fi
-    fi
 }
 
 compose_has_service() {
@@ -76,39 +58,7 @@ wait_for_services() {
   done
 }
 
-perf_cases_include() {
-  CASE_ID=$1
-  RAW_CASES="${REORDERED_PERF_CASES:-ordered,baseline,kafka}"
-
-  if [ -z "$RAW_CASES" ]
-  then
-    return 0
-  fi
-
-  IFS=',' read -ra TOKENS <<< "$RAW_CASES"
-  for TOKEN in "${TOKENS[@]}"
-  do
-    TOKEN=$(echo "$TOKEN" | tr '[:upper:]' '[:lower:]' | xargs)
-    if [ "$TOKEN" = "all" ]
-    then
-      return 0
-    fi
-
-    case "$CASE_ID:$TOKEN" in
-      ordered:ordered|ordered:ksi-ordered|ordered:ordered-ksi|ordered:reordered_perf_customers_ordered|ordered:${REORDERED_PERF_ORDERED_LABEL:-ksi-ordered-coldset})
-        return 0
-        ;;
-      baseline:baseline|baseline:ksi-baseline|baseline:normal|baseline:reordered|baseline:reordered_perf_customers|baseline:${REORDERED_PERF_BASELINE_LABEL:-ksi-baseline})
-        return 0
-        ;;
-      kafka:kafka|kafka:normal-kafka|kafka:reordered_perf_customers_kafka)
-        return 0
-        ;;
-    esac
-  done
-
-  return 1
-}
+source $SCRIPT_DIR/bin/lib/reordered_perf_cases.sh
 
 perf_setup_file_selected() {
   DATASET_NAME=$1
@@ -151,16 +101,12 @@ else
   SPEC_NAME="demo_logistics"
 fi
 
-# are we running a demo?
-if [[  $SPEC_NAME == demo_* ]]
+# start_tests.sh is for every spec except the ones flagged for bin/start.sh
+LAUNCHER=$(cat $SCRIPT_DIR/specs/$SPEC_NAME/spec.json | jq -r '.launcher // "start_tests"')
+if [ "$LAUNCHER" = "start" ]
 then
-  export DEMO_MODE=true
+  die "Spec '$SPEC_NAME' is configured to run via bin/start.sh, not bin/start_tests.sh. Run: ./bin/start.sh $SPEC_NAME"
 fi
-
-demo_paragraph "header"
-demo_paragraph "architecture"
-demo_paragraph "deep_dive"
-demo_paragraph "environment"
 
 # make docker compose
 cat $SCRIPT_DIR/environment/header-docker-compose.part.yaml > $SCRIPT_DIR/environment/docker-compose.yaml
@@ -188,15 +134,10 @@ mkdir -p $SCRIPT_DIR/environment/shadowtraffic
 curl  https://raw.githubusercontent.com/ShadowTraffic/shadowtraffic-examples/refs/heads/master/free-trial-license.env > $SCRIPT_DIR/environment/shadowtraffic_license.env
 clear
 
-demo_paragraph "containers"
-
 # load datasets
 
 for DATASET in $(cat $SCRIPT_DIR/specs/$SPEC_NAME/spec.json | jq .setup_datasets[] | sed -e 's/"//g')
 do
-
-  demo_paragraph "setup_intro"
-  demo_paragraph "data_to_kafka"
 
   # run setup
   if [ -d "$SCRIPT_DIR/environment/shadowtraffic" ]
@@ -206,8 +147,19 @@ do
   cp -R $SCRIPT_DIR/datasets/$DATASET/* $SCRIPT_DIR/environment/shadowtraffic
   SETUP_CONTAINERS=()
   ALL_SETUP_CONTAINERS=()
+  # setup.json is the canonical single-file setup and takes priority when present
+  # (e.g. datasets/demo has both setup.json and setup-evolved.json, the latter is
+  # not part of initial setup - it's loaded later by tests/demo_core/run.sh).
+  # setup-*.json is a fallback for datasets that split setup into multiple files
+  # (ksi_reordered_perf, ksi_reordered_perf_isk_hot), which have no setup.json.
+  # Neither file is required - a dataset may load its own data some other way
+  # (e.g. datasets/logistics does this in post_setup.sh), so finding none here
+  # just skips the shadowtraffic setup step rather than failing.
   SETUP_FILES=()
-  if compgen -G "$SCRIPT_DIR/environment/shadowtraffic/setup-*.json" > /dev/null
+  if [ -f $SCRIPT_DIR/environment/shadowtraffic/setup.json ]
+  then
+    SETUP_FILES+=("setup.json")
+  elif compgen -G "$SCRIPT_DIR/environment/shadowtraffic/setup-*.json" > /dev/null
   then
     for SETUP_PATH in $SCRIPT_DIR/environment/shadowtraffic/setup-*.json
     do
@@ -219,15 +171,11 @@ do
         echo "Skipping $SETUP_FILE for REORDERED_PERF_CASES=${REORDERED_PERF_CASES:-ordered,baseline,kafka}"
       fi
     done
-  elif [ -f $SCRIPT_DIR/environment/shadowtraffic/setup.json ]
-  then
-    SETUP_FILES+=("setup.json")
   fi
 
   if [ ${#SETUP_FILES[@]} -eq 0 ]
   then
-    echo "No setup files selected for dataset $DATASET"
-    exit 111
+    echo "No setup files found for dataset $DATASET, skipping shadowtraffic setup step"
   fi
 
   for SETUP_FILE in "${SETUP_FILES[@]}"
@@ -281,7 +229,6 @@ do
     fi
   done
 
-  demo_paragraph "kafka_to_iceberg"
   if [ -f $SCRIPT_DIR/environment/shadowtraffic/post_setup.sh ]
   then
     $SCRIPT_DIR/environment/shadowtraffic/post_setup.sh
@@ -295,7 +242,6 @@ do
 done
 
 # load background datasets
-demo_paragraph "new_data"
 sleep 3
 clear
 if [[ "$(cat $SCRIPT_DIR/specs/$SPEC_NAME/spec.json | jq '.background_dataset')" = "null" ]];
@@ -336,56 +282,13 @@ do
 done
 
 # tear down
-demo_paragraph "finish"
+$SCRIPT_DIR/bin/stop.sh
 
-# launch notebook for logistics demo
-if [ "$SPEC_NAME" = "demo_logistics" ]
+if [[ $EXITCODE != 0 ]]
 then
-  echo "Waiting for Jupyter notebook server..."
-  NOTEBOOK_URL=""
-  ATTEMPTS=0
-  while [ -z "$NOTEBOOK_URL" ] && [ $ATTEMPTS -lt 30 ]
-  do
-    NOTEBOOK_URL=$(docker --log-level ERROR compose logs jupyter 2>/dev/null \
-      | grep -o 'http://127\.0\.0\.1:8888[^[:space:]]*' | head -1 \
-      | sed 's/:8888/:8889/')
-    if [ -z "$NOTEBOOK_URL" ]; then
-      sleep 2
-      ATTEMPTS=$((ATTEMPTS + 1))
-    fi
-  done
-
-  OPEN_URL="${NOTEBOOK_URL:-http://localhost:8889}"
-
-  echo ""
-  echo "================================================"
-  echo "  Logistics demo notebook is ready"
-  echo ""
-  echo "  Open: $OPEN_URL"
-  echo ""
-  echo "  Navigate to logistics_demo.ipynb and run"
-  echo "  cells from top to bottom."
-  echo ""
-  echo "  When finished, run: ./bin/stop.sh"
-  echo "================================================"
-  echo ""
-
-  if command -v xdg-open > /dev/null 2>&1; then
-    xdg-open "$OPEN_URL"
-  elif command -v open > /dev/null 2>&1; then
-    open "$OPEN_URL"
-  fi
-fi
-if [ "$DEMO_MODE" != "true" ]
-then
-  $SCRIPT_DIR/bin/stop.sh
-
-  if [[ $EXITCODE != 0 ]]
-  then
-    echo "TESTS FAILED"
-  else
-    echo "TESTS PASSED"
-  fi
+  echo "TESTS FAILED"
+else
+  echo "TESTS PASSED"
 fi
 
 exit $EXITCODE

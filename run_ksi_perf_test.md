@@ -31,14 +31,14 @@ For split reordered perf datasets, `REORDERED_PERF_CASES` is also honored during
 
 | Spec | Full setup command | Rerun existing data | KSI source | Preload |
 | --- | --- | --- | --- | --- |
-| `ksi_reordered_perf` | `./bin/start.sh ksi_reordered_perf` | `./tests/ksi_reordered_perf/run.sh` | `direct.coldset` | Off |
-| `ksi_reordered_perf_preload` | `./bin/start.sh ksi_reordered_perf_preload` | `./tests/ksi_reordered_perf_preload/run.sh` | `direct.coldset` | On |
-| `ksi_reordered_perf_streaming_reader` | `./bin/start.sh ksi_reordered_perf_streaming_reader` | `./tests/ksi_reordered_perf_streaming_reader/run.sh` | `direct.coldset` | On, plus streaming cursor |
-| `ksi_isk_hot_topic_reordering` | `./bin/start.sh ksi_isk_hot_topic_reordering` | `./tests/ksi_isk_hot_topic_reordering/run.sh` | `isk.hotset` | Off |
-| `ksi_isk_hot_topic_reordering_preload` | `./bin/start.sh ksi_isk_hot_topic_reordering_preload` | `./tests/ksi_isk_hot_topic_reordering_preload/run.sh` | `isk.hotset` | On |
-| `ksi_isk_hot_topic_reordering_streaming_reader` | `./bin/start.sh ksi_isk_hot_topic_reordering_streaming_reader` | `./tests/ksi_isk_hot_topic_reordering_streaming_reader/run.sh` | `isk.hotset` | On, plus streaming cursor |
+| `ksi_reordered_perf` | `./bin/start_tests.sh ksi_reordered_perf` | `./tests/ksi_reordered_perf/run.sh` | `direct.coldset` | Off |
+| `ksi_reordered_perf_preload` | `./bin/start_tests.sh ksi_reordered_perf_preload` | `./tests/ksi_reordered_perf_preload/run.sh` | `direct.coldset` | On |
+| `ksi_reordered_perf_streaming_reader` | `./bin/start_tests.sh ksi_reordered_perf_streaming_reader` | `./tests/ksi_reordered_perf_streaming_reader/run.sh` | `direct.coldset` | On, plus streaming cursor |
+| `ksi_isk_hot_topic_reordering` | `./bin/start_tests.sh ksi_isk_hot_topic_reordering` | `./tests/ksi_isk_hot_topic_reordering/run.sh` | `isk.hotset` | Off |
+| `ksi_isk_hot_topic_reordering_preload` | `./bin/start_tests.sh ksi_isk_hot_topic_reordering_preload` | `./tests/ksi_isk_hot_topic_reordering_preload/run.sh` | `isk.hotset` | On |
+| `ksi_isk_hot_topic_reordering_streaming_reader` | `./bin/start_tests.sh ksi_isk_hot_topic_reordering_streaming_reader` | `./tests/ksi_isk_hot_topic_reordering_streaming_reader/run.sh` | `isk.hotset` | On, plus streaming cursor |
 
-Use `./bin/start.sh ...` when data is not loaded yet. Use the test runner directly when data is already loaded and you only want to recreate KSI and rerun consumers.
+Use `./bin/start_tests.sh ...` when data is not loaded yet. Use the test runner directly when data is already loaded and you only want to recreate KSI and rerun consumers.
 
 ## Quick Run: Direct Coldset Streaming Reader
 
@@ -53,7 +53,7 @@ Full setup, including data load:
 ```bash
 REORDERED_PERF_TARGET_RECORDS=1990000 \
 REORDERED_PERF_KSI_MAX_POLL_RECORDS=100000 \
-./bin/start.sh ksi_reordered_perf_streaming_reader
+./bin/start_tests.sh ksi_reordered_perf_streaming_reader
 ```
 
 Rerun against existing loaded data:
@@ -82,37 +82,37 @@ This runner recreates `ksi` with `direct.coldset`, preload enabled, and `KSI_STR
 Cold-storage KSI:
 
 ```bash
-./bin/start.sh ksi_reordered_perf
+./bin/start_tests.sh ksi_reordered_perf
 ```
 
 Cold-storage KSI with preload:
 
 ```bash
-./bin/start.sh ksi_reordered_perf_preload
+./bin/start_tests.sh ksi_reordered_perf_preload
 ```
 
 Cold-storage KSI with preload and streaming reader:
 
 ```bash
-./bin/start.sh ksi_reordered_perf_streaming_reader
+./bin/start_tests.sh ksi_reordered_perf_streaming_reader
 ```
 
 ISK hotset KSI:
 
 ```bash
-./bin/start.sh ksi_isk_hot_topic_reordering
+./bin/start_tests.sh ksi_isk_hot_topic_reordering
 ```
 
 ISK hotset KSI with preload:
 
 ```bash
-./bin/start.sh ksi_isk_hot_topic_reordering_preload
+./bin/start_tests.sh ksi_isk_hot_topic_reordering_preload
 ```
 
 ISK hotset KSI with preload and streaming reader:
 
 ```bash
-./bin/start.sh ksi_isk_hot_topic_reordering_streaming_reader
+./bin/start_tests.sh ksi_isk_hot_topic_reordering_streaming_reader
 ```
 
 The cold-storage specs load `datasets/ksi_reordered_perf`, copy `reordered_perf_customers` and `reordered_perf_customers_ordered` from `isk.hotset` to `direct.coldset`, then drain those two KSI topics from Kafka.
@@ -182,7 +182,7 @@ Example full run with a larger target and KSI consumer poll size:
 ```bash
 REORDERED_PERF_TARGET_RECORDS=1990000 \
 REORDERED_PERF_KSI_MAX_POLL_RECORDS=100000 \
-./bin/start.sh ksi_isk_hot_topic_reordering_preload
+./bin/start_tests.sh ksi_isk_hot_topic_reordering_preload
 ```
 
 Example quick rerun:
@@ -206,7 +206,7 @@ The same selector works on full setup:
 ```bash
 REORDERED_PERF_CASES=baseline,kafka \
 REORDERED_PERF_TARGET_RECORDS=1990000 \
-./bin/start.sh ksi_isk_hot_topic_reordering_streaming_reader
+./bin/start_tests.sh ksi_isk_hot_topic_reordering_streaming_reader
 ```
 
 This loads only the baseline KSI topic and direct Kafka topic for `ksi_reordered_perf_isk_hot`.
@@ -252,8 +252,8 @@ REORDERED_PERF_KSI_MAX_POLL_RECORDS=100000 \
 Preload means KSI record cache plus prefetch. These variables are applied by:
 
 - `environment/docker-compose.preload.yaml`
-- `tests/ksi/reordered_perf_preload_fresh.sh`
-- `tests/ksi/isk_hot_reordered_perf_preload_fresh.sh`
+- `tests/ksi/reordered_perf_preload_fresh.sh` (`coldset` mode, the default)
+- `tests/ksi/reordered_perf_preload_fresh.sh isk-hot`
 
 | Variable | Default in preload runners | Meaning |
 | --- | --- | --- |
@@ -282,14 +282,14 @@ The direct.coldset streaming-reader spec applies:
 
 - `environment/docker-compose.preload.yaml`
 - `environment/docker-compose.streaming-reader.yaml`
-- `tests/ksi/reordered_perf_streaming_reader_fresh.sh`
+- `tests/ksi/reordered_perf_streaming_reader_fresh.sh` (`coldset` mode, the default)
 
 The ISK-hot streaming-reader spec applies:
 
 - `environment/docker-compose.isk-hot.yaml`
 - `environment/docker-compose.preload.yaml`
 - `environment/docker-compose.streaming-reader.yaml`
-- `tests/ksi/isk_hot_reordered_perf_streaming_reader_fresh.sh`
+- `tests/ksi/reordered_perf_streaming_reader_fresh.sh isk-hot`
 
 | Variable | Default in streaming-reader runner | Meaning |
 | --- | --- | --- |
@@ -304,7 +304,7 @@ Full setup:
 ```bash
 REORDERED_PERF_TARGET_RECORDS=1990000 \
 REORDERED_PERF_KSI_MAX_POLL_RECORDS=100000 \
-./bin/start.sh ksi_reordered_perf_streaming_reader
+./bin/start_tests.sh ksi_reordered_perf_streaming_reader
 ```
 
 Rerun existing data:
