@@ -4,9 +4,7 @@
     "kafka",
     "iceberg",
     "streambased",
-    "jupyter",
-    "debug",
-    "observability"
+    "jupyter"
   ],
   "setup_datasets": ["logistics"],
   "tests": []
