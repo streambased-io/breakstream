@@ -142,4 +142,4 @@ Configuration and management service with web UI. Uses HyperStream to execute SQ
 ## Related Documentation
 
 - [Architecture Diagram](./ARCHITECTURE.md) - Detailed component interactions
-- [Demo Quickstart](./QUICKSTART.md) - Hands-on walkthrough
+- [Demo Quickstart](../README.md) - Hands-on walkthrough

@@ -7,9 +7,9 @@
     container_name: spark-iceberg
     pull_policy: never
     healthcheck:
-      start_period: 5s
-      interval: 5s
-      retries: 20
+      start_period: 2s
+      interval: 2s
+      retries: 60
       test: "grep 'Spark Connect server started at: 0:0:0:0:0:0:0:0:15002' /opt/spark/logs/spark-*-org.apache.spark.sql.connect.service.SparkConnectServer-1-spark.out"
     environment:
       - AWS_REGION=us-east-1

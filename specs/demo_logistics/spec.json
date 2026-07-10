@@ -1,10 +1,11 @@
 {
+  "launcher": "start",
   "components": [
     "kafka",
     "iceberg",
     "streambased",
-    "jupyter",
-    "debug"
+    "jupyter"
   ],
-  "setup_datasets": ["logistics"]
+  "setup_datasets": ["logistics"],
+  "tests": []
 }

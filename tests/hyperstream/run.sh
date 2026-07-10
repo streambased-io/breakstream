@@ -2,7 +2,7 @@
 
 # this just runs scala
 SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
-PACKAGES="org.scalatest:scalatest_2.13:3.2.19,net.liftweb:lift-json_2.13:3.5.0"
+source $SCRIPT_DIR/../common/spark_packages.sh
 
 # Step 1: Run SUBSTRING transformer tests
 echo "Running SUBSTRING transformer tests"
@@ -14,7 +14,7 @@ docker --log-level ERROR compose cp $SCRIPT_DIR/test_substring.scala spark-icebe
 docker --log-level ERROR compose cp $SCRIPT_DIR/../common/scalatest_common.scala spark-iceberg:/tmp/$COMMON_FILE
 docker --log-level ERROR compose cp $SCRIPT_DIR/../common/hyperstream_client.scala spark-iceberg:/tmp/$CLIENT_FILE
 docker --log-level ERROR compose exec spark-iceberg sh -c "cat /tmp/$COMMON_FILE /tmp/$CLIENT_FILE /tmp/$SUBSTR_SUITE_FILE > /tmp/$SUBSTR_TEST_FILE"
-docker --log-level ERROR compose exec spark-iceberg sh -c "cat /tmp/$SUBSTR_TEST_FILE | spark-shell --driver-memory 8g --conf spark.ui.enabled=false --packages $PACKAGES"
+docker --log-level ERROR compose exec spark-iceberg sh -c "cat /tmp/$SUBSTR_TEST_FILE | spark-shell --driver-memory 8g --conf spark.ui.enabled=false --repositories $SPARK_REPOSITORIES --packages $SPARK_PACKAGES"
 if [ $? -ne 0 ]; then
   echo "SUBSTRING transformer tests FAILED"
   exit 1
@@ -35,4 +35,4 @@ docker --log-level ERROR compose cp $SCRIPT_DIR/test.scala spark-iceberg:/tmp/$S
 docker --log-level ERROR compose cp $SCRIPT_DIR/../common/scalatest_common.scala spark-iceberg:/tmp/$COMMON_FILE
 docker --log-level ERROR compose cp $SCRIPT_DIR/../common/hyperstream_client.scala spark-iceberg:/tmp/$CLIENT_FILE
 docker --log-level ERROR compose exec spark-iceberg sh -c "cat /tmp/$COMMON_FILE /tmp/$CLIENT_FILE /tmp/$SUITE_FILE > /tmp/$TEST_FILE"
-docker --log-level ERROR compose exec spark-iceberg sh -c "cat /tmp/$TEST_FILE | spark-shell --driver-memory 8g --conf spark.ui.enabled=false --packages $PACKAGES"
+docker --log-level ERROR compose exec spark-iceberg sh -c "cat /tmp/$TEST_FILE | spark-shell --driver-memory 8g --conf spark.ui.enabled=false --repositories $SPARK_REPOSITORIES --packages $SPARK_PACKAGES"

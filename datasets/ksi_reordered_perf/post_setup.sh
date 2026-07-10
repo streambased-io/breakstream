@@ -4,36 +4,8 @@ SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
 BASE_DIR=$( cd -- "$SCRIPT_DIR/../.." &> /dev/null && pwd )
 cd "$BASE_DIR/environment"
 
-perf_cases_include() {
-  CASE_ID=$1
-  RAW_CASES="${REORDERED_PERF_CASES:-ordered,baseline,kafka}"
-
-  if [ -z "$RAW_CASES" ]
-  then
-    return 0
-  fi
-
-  IFS=',' read -ra TOKENS <<< "$RAW_CASES"
-  for TOKEN in "${TOKENS[@]}"
-  do
-    TOKEN=$(echo "$TOKEN" | tr '[:upper:]' '[:lower:]' | xargs)
-    if [ "$TOKEN" = "all" ]
-    then
-      return 0
-    fi
-
-    case "$CASE_ID:$TOKEN" in
-      ordered:ordered|ordered:ksi-ordered|ordered:ordered-ksi|ordered:reordered_perf_customers_ordered|ordered:${REORDERED_PERF_ORDERED_LABEL:-ksi-ordered-coldset})
-        return 0
-        ;;
-      baseline:baseline|baseline:ksi-baseline|baseline:normal|baseline:reordered|baseline:reordered_perf_customers|baseline:${REORDERED_PERF_BASELINE_LABEL:-ksi-baseline})
-        return 0
-        ;;
-    esac
-  done
-
-  return 1
-}
+source $BASE_DIR/bin/lib/kafka_topic_config.sh
+source $BASE_DIR/bin/lib/reordered_perf_cases.sh
 
 echo ""
 echo "Copying reordered performance post setup steps to container"
@@ -52,29 +24,35 @@ echo "Draining reordered performance topics from Kafka"
 echo ""
 if perf_cases_include baseline
 then
-  docker --log-level ERROR compose exec kafka1 kafka-configs --bootstrap-server kafka1:9092 --alter --topic reordered_perf_customers --add-config retention.ms=500 2>&1 >/dev/null
-  docker --log-level ERROR compose exec kafka1 kafka-configs --bootstrap-server kafka1:9092 --alter --topic reordered_perf_customers --add-config segment.ms=500 2>&1 >/dev/null
+  alter_topic_if_exists reordered_perf_customers retention.ms=500,segment.ms=500 &
 else
   echo "Skipping drain for reordered_perf_customers"
 fi
 if perf_cases_include ordered
 then
-  docker --log-level ERROR compose exec kafka1 kafka-configs --bootstrap-server kafka1:9092 --alter --topic reordered_perf_customers_ordered --add-config retention.ms=500 2>&1 >/dev/null
-  docker --log-level ERROR compose exec kafka1 kafka-configs --bootstrap-server kafka1:9092 --alter --topic reordered_perf_customers_ordered --add-config segment.ms=500 2>&1 >/dev/null
+  alter_topic_if_exists reordered_perf_customers_ordered retention.ms=500,segment.ms=500 &
 else
   echo "Skipping drain for reordered_perf_customers_ordered"
 fi
-sleep 3
+wait
 if perf_cases_include baseline
 then
-  docker --log-level ERROR compose exec kafka1 kafka-configs --bootstrap-server kafka1:9092 --alter --topic reordered_perf_customers --add-config retention.ms=604800000 2>&1 >/dev/null
-  docker --log-level ERROR compose exec kafka1 kafka-configs --bootstrap-server kafka1:9092 --alter --topic reordered_perf_customers --add-config segment.ms=604800000 2>&1 >/dev/null
+  wait_for_start_offset reordered_perf_customers &
 fi
 if perf_cases_include ordered
 then
-  docker --log-level ERROR compose exec kafka1 kafka-configs --bootstrap-server kafka1:9092 --alter --topic reordered_perf_customers_ordered --add-config retention.ms=604800000 2>&1 >/dev/null
-  docker --log-level ERROR compose exec kafka1 kafka-configs --bootstrap-server kafka1:9092 --alter --topic reordered_perf_customers_ordered --add-config segment.ms=604800000 2>&1 >/dev/null
+  wait_for_start_offset reordered_perf_customers_ordered &
 fi
+wait
+if perf_cases_include baseline
+then
+  alter_topic_if_exists reordered_perf_customers retention.ms=604800000,segment.ms=604800000 &
+fi
+if perf_cases_include ordered
+then
+  alter_topic_if_exists reordered_perf_customers_ordered retention.ms=604800000,segment.ms=604800000 &
+fi
+wait
 
 echo ""
 echo "Reordered performance topic post setup complete"

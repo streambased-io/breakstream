@@ -1,6 +1,7 @@
   shadowtraffic_setup_evolved:
     image: shadowtraffic/shadowtraffic:latest
     hostname: shadowtraffic_run
+    profiles: [ prepopulate ]
     depends_on:
       schema-registry:
         condition: service_healthy
