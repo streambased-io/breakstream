@@ -44,6 +44,9 @@
         condition: service_healthy
       directstream:
         condition: service_started
+      slipstream:
+        condition: service_started
+    restart: on-failure
     ports:
       - "9192:9192"
     volumes:
@@ -52,25 +55,16 @@
       - KSI_BOOTSTRAP_SERVERS=kafka1:9092
       - KSI_GATEWAY_BOOTSTRAP_ADDRESS=ksi:9192
       - KSI_COLD_STORAGE_TYPE=iceberg
-      - KSI_MAX_COLD_STORAGE_RECORDS_PER_FETCH=1000
+      - KSI_BATCH_SIZE=${KSI_BATCH_SIZE:-1000}
       - KSI_COLD_STORAGE_TIMEOUT_MS=30000
-      - KSI_ICEBERG_WAREHOUSE_PATH=s3://
       - KSI_ICEBERG_NAMESPACE=merged
+      - KSI_SPARK_CONNECT_URL=sc://spark-iceberg:15002
+      - KSI_SPARK_CATALOG_NAME=isk
       - KSI_OFFSET_RANGE_CACHE_TTL_MS=300000
       - KSI_OFFSET_RANGE_CACHE_REFRESH_MS=60000
-      - KSI_SCHEMA_REGISTRY_URL=http://schema-registry:8081
+      - KSI_SLIPSTREAM_URL=http://slipstream:3000
+      - KSI_SLIPSTREAM_API_KEY=${KSI_SLIPSTREAM_API_KEY:-sbpk_12345678}
       - KSI_REORDERED_GROUP_CONFIG_PATH=/opt/kroxylicious/config/reordered-groups.yaml
-      - ICEBERG_REST_URI=http://directstream:11001
-      - ICEBERG_REST_SIGV4_ENABLED=true
-      - ICEBERG_REST_SIGV4_DELEGATE_AUTH_TYPE=none
-      - ICEBERG_REST_ACCESS_KEY_ID=sbpk_12345678
-      - ICEBERG_REST_SECRET_ACCESS_KEY=sbsk_12345678
-      - AWS_ACCESS_KEY_ID=sbpk_12345678
-      - AWS_SECRET_ACCESS_KEY=sbsk_12345678
-
-      - ICEBERG_REST_SIGNING_REGION=us-east-1
-      - ICEBERG_S3_ENDPOINT=http://directstream:11000
-      - AWS_REGION=us-east-1
       - STREAMBASED_LOG_LEVEL=DEBUG
     command: [ "-c", "/opt/kroxylicious/config.yaml" ]
 

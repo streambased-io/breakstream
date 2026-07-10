@@ -24,11 +24,13 @@ echo "  baseline: reordered-e2e-performance -> reordered_perf_customers"
 echo "  ordered:  reordered-e2e-performance-ordered -> reordered_perf_customers_ordered"
 echo "  catalog:  KSI_SPARK_CATALOG_NAME=isk"
 echo "  namespace: KSI_ICEBERG_NAMESPACE=hotset"
+500 cecho "  compose file: docker-compose.yaml:docker-compose.isk-hot.yaml"
 echo "  batch size: KSI_BATCH_SIZE=${KSI_BATCH_SIZE:-50000}"
 echo "  read timeout: KSI_COLD_STORAGE_TIMEOUT_MS=120000"
 echo "Performance target records: ${REORDERED_PERF_TARGET_RECORDS:-1000000}"
 
 cd "$ENV_DIR"
+export COMPOSE_FILE=docker-compose.yaml:docker-compose.isk-hot.yaml
 KSI_BATCH_SIZE="${KSI_BATCH_SIZE:-50000}" \
 KSI_COLD_STORAGE_TIMEOUT_MS=120000 \
 KSI_SPARK_CATALOG_NAME=isk \

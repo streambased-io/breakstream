@@ -11,6 +11,58 @@ die () {
     exit 1
 }
 
+valid_env_file() {
+    ENV_FILE=$1
+    VALID_LINE_COUNT=0
+
+    [ -s "$ENV_FILE" ] || return 1
+
+    while IFS= read -r LINE || [ -n "$LINE" ]
+    do
+      LINE=${LINE%$'\r'}
+      if [[ -z "$LINE" || "$LINE" =~ ^[[:space:]]*# ]]
+      then
+        continue
+      fi
+      [[ "$LINE" =~ ^([[:space:]]*export[[:space:]]+)?[A-Za-z_][A-Za-z0-9_]*= ]] || return 1
+      VALID_LINE_COUNT=$((VALID_LINE_COUNT + 1))
+    done < "$ENV_FILE"
+
+    [ "$VALID_LINE_COUNT" -gt 0 ]
+}
+
+prepare_shadowtraffic_license() {
+    LICENSE_FILE="$SCRIPT_DIR/environment/shadowtraffic_license.env"
+    LICENSE_URL="https://raw.githubusercontent.com/ShadowTraffic/shadowtraffic-examples/refs/heads/master/free-trial-license.env"
+    TMP_LICENSE_FILE="$LICENSE_FILE.tmp"
+
+    if valid_env_file "$LICENSE_FILE"
+    then
+      return 0
+    fi
+
+    if [ -f "$LICENSE_FILE" ]
+    then
+      echo "Ignoring invalid ShadowTraffic license env file at $LICENSE_FILE"
+    fi
+
+    if ! curl -fsSL "$LICENSE_URL" -o "$TMP_LICENSE_FILE"
+    then
+      rm -f "$TMP_LICENSE_FILE"
+      die "Failed to download ShadowTraffic license env file from $LICENSE_URL. Create $LICENSE_FILE with valid KEY=value entries and rerun."
+    fi
+
+    if ! valid_env_file "$TMP_LICENSE_FILE"
+    then
+      echo "Downloaded ShadowTraffic license env file is not valid:"
+      sed -n '1,5p' "$TMP_LICENSE_FILE"
+      rm -f "$TMP_LICENSE_FILE"
+      die "Refusing to use invalid ShadowTraffic license env file. Create $LICENSE_FILE with valid KEY=value entries and rerun."
+    fi
+
+    mv "$TMP_LICENSE_FILE" "$LICENSE_FILE"
+}
+
 demo_paragraph() {
     if [ "$DEMO_MODE" = "true" ]
     then
@@ -70,7 +122,7 @@ then
     rm -rf $SCRIPT_DIR/environment/shadowtraffic
 fi
 mkdir -p $SCRIPT_DIR/environment/shadowtraffic
-curl  https://raw.githubusercontent.com/ShadowTraffic/shadowtraffic-examples/refs/heads/master/free-trial-license.env > $SCRIPT_DIR/environment/shadowtraffic_license.env
+prepare_shadowtraffic_license
 clear
 
 demo_paragraph "containers"
@@ -207,7 +259,12 @@ then
 fi
 if [ "$DEMO_MODE" != "true" ]
 then
-  $SCRIPT_DIR/bin/stop.sh
+  if [ "${CLEAN_ENV_AFTER_TESTS:-false}" = "true" ]
+  then
+    $SCRIPT_DIR/bin/stop.sh
+  else
+    echo "Leaving the environment running. Run ./bin/stop.sh when finished."
+  fi
 
   if [[ $EXITCODE != 0 ]]
   then
