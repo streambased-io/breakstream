@@ -41,4 +41,15 @@
           rm -rf /tmp/docker /tmp/docker.tgz
         fi
         pip install --quiet seaborn plotly
+        if [ ! -f /root/.jupyter/jupyter_server_config.py ]; then
+          mkdir -p /root/.jupyter
+          cat > /root/.jupyter/jupyter_server_config.py <<'PYEOF'
+        c = get_config()  # noqa: F821
+        c.ServerApp.tornado_settings = {
+            "headers": {
+                "Content-Security-Policy": "frame-ancestors 'self' http://localhost:* http://127.0.0.1:* https://localhost:* https://127.0.0.1:* ${SLIPSTREAM_ORIGIN:-}"
+            }
+        }
+        PYEOF
+        fi
         exec pyspark-notebook

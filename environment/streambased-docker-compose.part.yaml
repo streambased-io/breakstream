@@ -37,7 +37,7 @@
     #image: local/hyperstream:local
     image: streambased/dev-hyperstream:latest
     container_name: hyperstream
-
+    platform: linux/amd64
     ports:
       - 9088:9088
     environment:
