@@ -1,4 +1,6 @@
+import bisect
 import json
+import math
 import random
 import string
 import time
@@ -34,6 +36,19 @@ STOPS_MAX = 12
 DELIVERED_RATIO_MIN = 0.80
 DELIVERED_RATIO_MAX = 0.95
 
+# Stops are anchored near wherever the truck's path actually is at that
+# timestamp (see generate_stops), rather than a fully independent random
+# point on the map, so no two consecutive positions are ever more than this
+# fraction of the screen's diagonal apart.
+MAX_JUMP_FRACTION = 0.10
+MAP_DIAGONAL = math.hypot(MAP_W, MAP_H)
+MAX_JUMP_DIST = MAX_JUMP_FRACTION * MAP_DIAGONAL
+# Two stops landing close together in time can anchor near the same path
+# point and each jitter independently in opposite directions — halving the
+# per-stop radius keeps the worst-case gap between any two positions
+# within MAX_JUMP_DIST rather than up to double it.
+STOP_JITTER_RADIUS = MAX_JUMP_DIST / 2
+
 
 def random_score_data(name: str, route_start_ts: int, route_end_ts: int) -> str:
     delivered = random.randint(0, 10)
@@ -51,7 +66,7 @@ def random_score_data(name: str, route_start_ts: int, route_end_ts: int) -> str:
     })
 
 
-def generate_stops(route_id: str, route_start_ts: int, route_end_ts: int, telemetry: Telemetry):
+def generate_stops(route_id: str, route_start_ts: int, route_end_ts: int, telemetry: Telemetry, truck_path):
     num_stops = random.randint(STOPS_MIN, STOPS_MAX)
     num_delivered = round(num_stops * random.uniform(DELIVERED_RATIO_MIN, DELIVERED_RATIO_MAX))
 
@@ -64,9 +79,24 @@ def generate_stops(route_id: str, route_start_ts: int, route_end_ts: int, teleme
     desired = ['delivered'] * num_delivered + ['undelivered'] * (num_stops - num_delivered)
     random.shuffle(desired)
 
+    path_timestamps = [p[0] for p in truck_path]
+
     for stop_ts, state in zip(stop_times, desired):
-        x = random.randint(0, MAP_W)
-        y = random.randint(0, MAP_H)
+        # Anchor the stop near wherever the truck's path actually is at this
+        # timestamp, with a small jitter, rather than a fully independent
+        # random point on the map — keeps the route looking like a
+        # continuous path instead of teleporting to the stop and back.
+        if truck_path:
+            idx = min(bisect.bisect_left(path_timestamps, stop_ts), len(truck_path) - 1)
+            _, anchor_x, anchor_y = truck_path[idx]
+        else:
+            anchor_x, anchor_y = random.randint(0, MAP_W), random.randint(0, MAP_H)
+
+        angle = random.uniform(0, 2 * math.pi)
+        radius = random.uniform(0, STOP_JITTER_RADIUS)
+        x = int(max(0, min(MAP_W, anchor_x + radius * math.cos(angle))))
+        y = int(max(0, min(MAP_H, anchor_y + radius * math.sin(angle))))
+
         # Every stop also records a truck position at that location
         telemetry.record_truck_position_event(route_id, stop_ts, x, y)
         telemetry.record_stop_event(route_id, stop_ts, state, x, y)
@@ -92,6 +122,7 @@ def generate_truck_positions(route_id: str, route_start_ts: int, route_end_ts: i
     vx = random.uniform(-5, 5)
     vy = random.uniform(-5, 5)
     prev_x, prev_y = None, None
+    path = []
 
     for t in timestamps:
         vx += random.uniform(-TRUCK_ACCEL, TRUCK_ACCEL)
@@ -116,6 +147,9 @@ def generate_truck_positions(route_id: str, route_start_ts: int, route_end_ts: i
         prev_x, prev_y = x, y
 
         telemetry.record_truck_position_event(route_id, t, x, y)
+        path.append((t, x, y))
+
+    return path
 
 
 def generate_routes(telemetry: Telemetry):
@@ -135,8 +169,8 @@ def generate_routes(telemetry: Telemetry):
         score_ts = int(route_end_ts + score_delay_ms)
 
         telemetry.record_control_event(route_id, route_start_ts, "route_start", "")
-        generate_truck_positions(route_id, route_start_ts, route_end_ts, telemetry)
-        generate_stops(route_id, route_start_ts, route_end_ts, telemetry)
+        truck_path = generate_truck_positions(route_id, route_start_ts, route_end_ts, telemetry)
+        generate_stops(route_id, route_start_ts, route_end_ts, telemetry, truck_path)
         telemetry.record_control_event(route_id, route_end_ts, "route_end", "")
         telemetry.record_control_event(
             route_id, score_ts, "route_summary",
