@@ -171,14 +171,14 @@ then
   do
     NOTEBOOK_URL=$(docker --log-level ERROR compose logs jupyter 2>/dev/null \
       | grep -o 'http://127\.0\.0\.1:8888[^[:space:]]*' | head -1 \
-      | sed 's/:8888/:8889/')
+      | sed -e 's/:8888/:8889/' -e 's#/tree#/notebooks/logistics_demo.ipynb#')
     if [ -z "$NOTEBOOK_URL" ]; then
       sleep 2
       ATTEMPTS=$((ATTEMPTS + 1))
     fi
   done
 
-  OPEN_URL="${NOTEBOOK_URL:-http://localhost:8889}"
+  OPEN_URL="${NOTEBOOK_URL:-http://localhost:8889/notebooks/logistics_demo.ipynb}"
 
   echo ""
   echo "================================================"
@@ -186,8 +186,7 @@ then
   echo ""
   echo "  Open: $OPEN_URL"
   echo ""
-  echo "  Navigate to logistics_demo.ipynb and run"
-  echo "  cells from top to bottom."
+  echo "  Run cells from top to bottom."
   echo ""
   echo "  When finished, run: ./bin/stop.sh"
   echo "================================================"

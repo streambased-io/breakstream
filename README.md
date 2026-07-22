@@ -61,8 +61,6 @@ Simulates Kafka retention expiring so that the topic's earliest offsets are gone
 | Tool | URL | Purpose |
 |------|-----|---------|
 | Jupyter | http://localhost:8889 | The notebook |
-| AKHQ | http://localhost:9090 | Kafka topic browser |
-| Grafana | http://localhost:7070 | Cluster observability |
 
 ## Stopping the environment
 
