@@ -20,8 +20,8 @@ def emit_route(telemetry: Telemetry):
     score_ts = route_end_ts + score_delay_ms
 
     telemetry.record_control_event(route_id, route_start_ts, "route_start", "")
-    datagen.generate_truck_positions(route_id, route_start_ts, route_end_ts, telemetry)
-    datagen.generate_stops(route_id, route_start_ts, route_end_ts, telemetry)
+    truck_path = datagen.generate_truck_positions(route_id, route_start_ts, route_end_ts, telemetry)
+    datagen.generate_stops(route_id, route_start_ts, route_end_ts, telemetry, truck_path)
     telemetry.record_control_event(route_id, route_end_ts, "route_end", "")
     telemetry.record_control_event(route_id, score_ts, "route_summary",
                                    datagen.random_score_data(name, route_start_ts, route_end_ts))

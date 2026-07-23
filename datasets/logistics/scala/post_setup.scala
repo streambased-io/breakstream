@@ -11,7 +11,8 @@ try {
     spark.sql("CREATE TABLE direct.coldset.truck_positions USING iceberg TBLPROPERTIES('format-version'='2') PARTITIONED BY (kafka_partition, truncate(1000, kafka_offset)) AS SELECT * FROM isk.hotset.truck_positions;")
     spark.sql("CREATE TABLE direct.coldset.delivery_control_events USING iceberg TBLPROPERTIES('format-version'='2') PARTITIONED BY (kafka_partition, truncate(1000, kafka_offset)) AS SELECT * FROM isk.hotset.delivery_control_events;")
     spark.sql("DROP TABLE IF EXISTS direct.coldset.tax_reporting PURGE;")
-    spark.sql("CREATE TABLE direct.coldset.tax_reporting USING iceberg TBLPROPERTIES('format-version'='2') AS SELECT routeId, state, timestamp FROM direct.coldset.stops WHERE state = 'delivered';")
+    // Create a tax_reporting table with 100 randomly sourced rows
+    spark.sql("CREATE TABLE direct.coldset.tax_reporting USING iceberg TBLPROPERTIES('format-version'='2') AS SELECT uuid() as taxId, state, kafka_partition, kafka_offset, kafka_timestamp timestamp FROM direct.coldset.stops ORDER BY kafka_offset LIMIT 100;")
     spark.sql("CREATE NAMESPACE IF NOT EXISTS direct.today;")
 } catch {
     case e : Throwable => println("Failed to create coldset from hotset tables")
