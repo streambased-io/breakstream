@@ -19,6 +19,13 @@ class ControlEvent(object):
         self.event_type = event_type
         self.data = data
 
+class OrderCdcEvent(object):
+
+    def __init__(self, op, before, after):
+        self.op = op
+        self.before = before
+        self.after = after
+
 class StopEvent(object):
 
     def __init__(self, routeId, timestamp, state, x, y):
@@ -112,6 +119,52 @@ class Telemetry(object):
     }
     """
 
+    # Debezium-style CDC envelope (op/before/after) over a tiny 5-key order table,
+    # matching the shape used by datasets/demo_cdc.
+    order_topic = "orders"
+    order_key_str = """
+    {
+        "type": "record",
+        "name": "OrderKey",
+        "namespace": "io.streambased.demo",
+        "fields": [
+            {"name": "OrderID", "type": "int"}
+        ]
+    }
+    """
+    order_value_str = """
+    {
+        "type": "record",
+        "name": "Envelope",
+        "namespace": "io.streambased.demo",
+        "fields": [
+            {"name": "op", "type": "string"},
+            {
+                "name": "before",
+                "type": [
+                    "null",
+                    {
+                        "type": "record",
+                        "name": "OrderValue",
+                        "fields": [
+                            {"name": "OrderID", "type": "int"},
+                            {"name": "CustomerID", "type": "int"},
+                            {"name": "Status", "type": "string"},
+                            {"name": "Amount", "type": "double"}
+                        ]
+                    }
+                ],
+                "default": null
+            },
+            {
+                "name": "after",
+                "type": ["null", "io.streambased.demo.OrderValue"],
+                "default": null
+            }
+        ]
+    }
+    """
+
     def __init__(self, kafka_config, schema_registry_config, enabled=True):
         self.enabled = enabled
         self._last_x = None
@@ -123,6 +176,8 @@ class Telemetry(object):
         self.truck_position_serializer = AvroSerializer(self.schema_registry_client, self.truck_position_str, Telemetry.truck_position_to_dict)
         self.stop_serializer = AvroSerializer(self.schema_registry_client, self.stop_str, Telemetry.stop_to_dict)
         self.control_event_serializer = AvroSerializer(self.schema_registry_client, self.control_event_str, Telemetry.control_event_to_dict)
+        self.order_key_serializer = AvroSerializer(self.schema_registry_client, self.order_key_str, Telemetry.order_key_to_dict)
+        self.order_value_serializer = AvroSerializer(self.schema_registry_client, self.order_value_str, Telemetry.order_value_to_dict)
 
     @staticmethod
     def truck_position_to_dict(event, ctx):
@@ -160,3 +215,20 @@ class Telemetry(object):
         print(f"Recording stop event: routeId={routeId}, timestamp={timestamp}, state={state}, x={x}, y={y}")
         event = StopEvent(routeId, timestamp, state, x, y)
         self.producer.produce(self.stop_topic, value=self.stop_serializer(event, SerializationContext(self.stop_topic, MessageField.VALUE)))
+
+    @staticmethod
+    def order_key_to_dict(orderId, ctx):
+        return dict(OrderID=orderId)
+
+    @staticmethod
+    def order_value_to_dict(event, ctx):
+        return dict(op=event.op, before=event.before, after=event.after)
+
+    def record_order_event(self, orderId, op, before, after):
+        if not self.enabled:
+            return
+        print(f"Recording order CDC event: OrderID={orderId}, op={op}")
+        event = OrderCdcEvent(op, before, after)
+        key_bytes = self.order_key_serializer(orderId, SerializationContext(self.order_topic, MessageField.KEY))
+        value_bytes = self.order_value_serializer(event, SerializationContext(self.order_topic, MessageField.VALUE))
+        self.producer.produce(self.order_topic, key=key_bytes, value=value_bytes)

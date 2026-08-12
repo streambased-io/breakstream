@@ -18,7 +18,7 @@ docker rm -f logistics_live_datagen 2>/dev/null || true
 echo ""
 log_step "Deleting Kafka topics to clear any leftover data from previous sessions"
 echo ""
-for topic in truck_positions stops delivery_control_events; do
+for topic in truck_positions stops delivery_control_events orders; do
 	docker --log-level ERROR compose exec kafka1 kafka-topics --bootstrap-server kafka1:9092 --delete --topic "$topic" >/dev/null 2>&1 || true
 done
 sleep 2
