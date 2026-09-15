@@ -169,15 +169,24 @@ class Telemetry(object):
         self.enabled = enabled
         self._last_x = None
         self._last_y = None
+        self._truck_position_seq = 0
+        self._control_event_seq = 0
+        self._stop_seq = 0
         if not self.enabled:
             return
         self.producer = Producer(kafka_config)
         self.schema_registry_client = SchemaRegistryClient(schema_registry_config)
+        self.key_serializer = StringSerializer('utf_8')
         self.truck_position_serializer = AvroSerializer(self.schema_registry_client, self.truck_position_str, Telemetry.truck_position_to_dict)
         self.stop_serializer = AvroSerializer(self.schema_registry_client, self.stop_str, Telemetry.stop_to_dict)
         self.control_event_serializer = AvroSerializer(self.schema_registry_client, self.control_event_str, Telemetry.control_event_to_dict)
         self.order_key_serializer = AvroSerializer(self.schema_registry_client, self.order_key_str, Telemetry.order_key_to_dict)
         self.order_value_serializer = AvroSerializer(self.schema_registry_client, self.order_value_str, Telemetry.order_value_to_dict)
+
+    def _next_key(self, topic, counter_attr):
+        seq = getattr(self, counter_attr)
+        setattr(self, counter_attr, seq + 1)
+        return self.key_serializer(f"key{seq}", SerializationContext(topic, MessageField.KEY))
 
     @staticmethod
     def truck_position_to_dict(event, ctx):
@@ -192,7 +201,8 @@ class Telemetry(object):
         self._last_y = y
         print(f"Recording truck position event: routeId={routeId}, timestamp={timestamp}, x={x}, y={y}")
         event = TruckPositionEvent(routeId, timestamp, x, y)
-        self.producer.produce(self.truck_position_topic, value=self.truck_position_serializer(event, SerializationContext(self.truck_position_topic, MessageField.VALUE)))
+        key = self._next_key(self.truck_position_topic, "_truck_position_seq")
+        self.producer.produce(self.truck_position_topic, key=key, value=self.truck_position_serializer(event, SerializationContext(self.truck_position_topic, MessageField.VALUE)))
 
     @staticmethod
     def control_event_to_dict(event, ctx):
@@ -203,7 +213,8 @@ class Telemetry(object):
             return
         print(f"Recording control event: routeId={routeId}, timestamp={timestamp}, event_type={event_type}, data={data}")
         event = ControlEvent(routeId, timestamp, event_type, data)
-        self.producer.produce(self.control_event_topic, value=self.control_event_serializer(event, SerializationContext(self.control_event_topic, MessageField.VALUE)))
+        key = self._next_key(self.control_event_topic, "_control_event_seq")
+        self.producer.produce(self.control_event_topic, key=key, value=self.control_event_serializer(event, SerializationContext(self.control_event_topic, MessageField.VALUE)))
 
     @staticmethod
     def stop_to_dict(event, ctx):
@@ -214,7 +225,8 @@ class Telemetry(object):
             return
         print(f"Recording stop event: routeId={routeId}, timestamp={timestamp}, state={state}, x={x}, y={y}")
         event = StopEvent(routeId, timestamp, state, x, y)
-        self.producer.produce(self.stop_topic, value=self.stop_serializer(event, SerializationContext(self.stop_topic, MessageField.VALUE)))
+        key = self._next_key(self.stop_topic, "_stop_seq")
+        self.producer.produce(self.stop_topic, key=key, value=self.stop_serializer(event, SerializationContext(self.stop_topic, MessageField.VALUE)))
 
     @staticmethod
     def order_key_to_dict(orderId, ctx):

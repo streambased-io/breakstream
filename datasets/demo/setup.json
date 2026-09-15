@@ -2,6 +2,15 @@
   "generators": [
     {
       "topic": "customers",
+      "vars": {
+        "_key_seq": {
+          "_gen": "sequentialInteger"
+        }
+      },
+      "key": {
+        "_gen": "string",
+        "expr": "key#{_key_seq}"
+      },
       "value": {
         "CustomerID": {
           "_gen": "string",
@@ -32,6 +41,15 @@
     },
     {
       "topic": "branches",
+      "vars": {
+        "_key_seq": {
+          "_gen": "sequentialInteger"
+        }
+      },
+      "key": {
+        "_gen": "string",
+        "expr": "key#{_key_seq}"
+      },
       "value": {
         "BranchID": {
           "_gen": "sequentialInteger",
@@ -58,6 +76,15 @@
     },
     {
       "topic": "accounts",
+      "vars": {
+        "_key_seq": {
+          "_gen": "sequentialInteger"
+        }
+      },
+      "key": {
+        "_gen": "string",
+        "expr": "key#{_key_seq}"
+      },
       "value": {
         "AccountID": {
           "_gen": "sequentialInteger",
@@ -106,7 +133,14 @@
             "Deposit",
             "Withdrawal"
           ]
+        },
+        "_key_seq": {
+          "_gen": "sequentialInteger"
         }
+      },
+      "key": {
+        "_gen": "string",
+        "expr": "key#{_key_seq}"
       },
       "value": {
         "TransactionID": {
@@ -211,7 +245,7 @@
       "kind": "kafka",
       "producerConfigs": {
         "bootstrap.servers": "kafka1:9092",
-        "key.serializer": "io.confluent.kafka.serializers.KafkaAvroSerializer",
+        "key.serializer": "org.apache.kafka.common.serialization.StringSerializer",
         "value.serializer": "io.confluent.kafka.serializers.KafkaAvroSerializer",
         "schema.registry.url": "http://schema-registry:8081"
       }

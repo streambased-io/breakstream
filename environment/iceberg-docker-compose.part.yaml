@@ -47,7 +47,7 @@
       - CATALOG_S3_ENDPOINT=http://minio:9000
 
   minio:
-    image: minio/minio
+    image: cgr.dev/chainguard/minio:latest
     container_name: minio
     hostname: minio
     networks:
@@ -66,7 +66,7 @@
   mc:
     depends_on:
       - minio
-    image: minio/mc:RELEASE.2025-03-12T17-29-24Z
+    image: cgr.dev/chainguard/minio-client:latest-dev
     container_name: mc
     environment:
       - AWS_ACCESS_KEY_ID=admin
@@ -74,12 +74,12 @@
       - AWS_REGION=us-east-1
     entrypoint: |
       /bin/sh -c "
-      until (/usr/bin/mc config host add minio http://minio:9000 admin password) do echo '...waiting...' && sleep 1; done;
+      until (/usr/bin/mc alias set minio http://minio:9000 admin password) do echo '...waiting...' && sleep 1; done;
       /usr/bin/mc rm -r --force minio/warehouse;
       /usr/bin/mc mb minio/warehouse;
-      /usr/bin/mc policy set public minio/warehouse;
+      /usr/bin/mc anonymous set public minio/warehouse;
       /usr/bin/mc rm -r --force minio/coldset;
       /usr/bin/mc mb minio/coldset;
-      /usr/bin/mc policy set public minio/coldset;
+      /usr/bin/mc anonymous set public minio/coldset;
       tail -f /dev/null
       "
