@@ -2,6 +2,15 @@
   "generators": [
     {
       "topic": "customers",
+      "vars": {
+        "_key_seq": {
+          "_gen": "sequentialInteger"
+        }
+      },
+      "key": {
+        "_gen": "string",
+        "expr": "key#{_key_seq}"
+      },
       "value": {
         "LongString1": {
           "_gen": "string",
@@ -56,7 +65,7 @@
       "kind": "kafka",
       "producerConfigs": {
         "bootstrap.servers": "kafka1:9092",
-        "key.serializer": "io.confluent.kafka.serializers.KafkaAvroSerializer",
+        "key.serializer": "org.apache.kafka.common.serialization.StringSerializer",
         "value.serializer": "io.confluent.kafka.serializers.KafkaAvroSerializer",
         "max.request.size": "30485760",
         "schema.registry.url": "http://schema-registry:8081"

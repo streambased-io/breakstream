@@ -3,6 +3,15 @@
     {
       "name": "customers_batch_1",
       "topic": "customers",
+      "vars": {
+        "_key_seq": {
+          "_gen": "sequentialInteger"
+        }
+      },
+      "key": {
+        "_gen": "string",
+        "expr": "key#{_key_seq}"
+      },
       "value": {
         "CustomerID": {
           "_gen": "string",
@@ -34,6 +43,15 @@
     {
       "name": "customers_test_1",
       "topic": "customers",
+      "vars": {
+        "_key_seq": {
+          "_gen": "sequentialInteger"
+        }
+      },
+      "key": {
+        "_gen": "string",
+        "expr": "key#{_key_seq}"
+      },
       "value": {
         "CustomerID": "SB_TEST_1",
         "Name": "Judith Gottlieb Streambased1",
@@ -50,6 +68,15 @@
     {
       "name": "customers_batch_2",
       "topic": "customers",
+      "vars": {
+        "_key_seq": {
+          "_gen": "sequentialInteger"
+        }
+      },
+      "key": {
+        "_gen": "string",
+        "expr": "key#{_key_seq}"
+      },
       "value": {
         "CustomerID": {
           "_gen": "string",
@@ -81,6 +108,15 @@
     {
       "name": "customers_test_2",
       "topic": "customers",
+      "vars": {
+        "_key_seq": {
+          "_gen": "sequentialInteger"
+        }
+      },
+      "key": {
+        "_gen": "string",
+        "expr": "key#{_key_seq}"
+      },
       "value": {
         "CustomerID": "SB_TEST_2",
         "Name": "Judith Gottlieb Streambased2",
@@ -97,6 +133,15 @@
     {
       "name": "customers_batch_3",
       "topic": "customers",
+      "vars": {
+        "_key_seq": {
+          "_gen": "sequentialInteger"
+        }
+      },
+      "key": {
+        "_gen": "string",
+        "expr": "key#{_key_seq}"
+      },
       "value": {
         "CustomerID": {
           "_gen": "string",
@@ -128,6 +173,15 @@
     {
       "name": "branches",
       "topic": "branches",
+      "vars": {
+        "_key_seq": {
+          "_gen": "sequentialInteger"
+        }
+      },
+      "key": {
+        "_gen": "string",
+        "expr": "key#{_key_seq}"
+      },
       "value": {
         "BranchID": {
           "_gen": "sequentialInteger",
@@ -155,6 +209,15 @@
     {
       "name": "accounts",
       "topic": "accounts",
+      "vars": {
+        "_key_seq": {
+          "_gen": "sequentialInteger"
+        }
+      },
+      "key": {
+        "_gen": "string",
+        "expr": "key#{_key_seq}"
+      },
       "value": {
         "AccountID": {
           "_gen": "sequentialInteger",
@@ -197,6 +260,15 @@
     {
       "name": "stores_cold",
       "topic": "stores",
+      "vars": {
+        "_key_seq": {
+          "_gen": "sequentialInteger"
+        }
+      },
+      "key": {
+        "_gen": "string",
+        "expr": "key#{_key_seq}"
+      },
       "value": {
         "StoreID": {
           "_gen": "string",
@@ -228,6 +300,15 @@
     {
       "name": "stores_cold_nyc",
       "topic": "stores",
+      "vars": {
+        "_key_seq": {
+          "_gen": "sequentialInteger"
+        }
+      },
+      "key": {
+        "_gen": "string",
+        "expr": "key#{_key_seq}"
+      },
       "value": {
         "StoreID": {
           "_gen": "string",
@@ -260,7 +341,14 @@
             "Deposit",
             "Withdrawal"
           ]
+        },
+        "_key_seq": {
+          "_gen": "sequentialInteger"
         }
+      },
+      "key": {
+        "_gen": "string",
+        "expr": "key#{_key_seq}"
       },
       "value": {
         "TransactionID": {
@@ -393,7 +481,7 @@
       "kind": "kafka",
       "producerConfigs": {
         "bootstrap.servers": "kafka1:9092",
-        "key.serializer": "io.confluent.kafka.serializers.KafkaAvroSerializer",
+        "key.serializer": "org.apache.kafka.common.serialization.StringSerializer",
         "value.serializer": "io.confluent.kafka.serializers.KafkaAvroSerializer",
         "schema.registry.url": "http://schema-registry:8081"
       }

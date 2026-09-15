@@ -3,6 +3,15 @@
     {
       "name": "reordered_perf_customers_ordered",
       "topic": "reordered_perf_customers_ordered",
+      "vars": {
+        "_key_seq": {
+          "_gen": "sequentialInteger"
+        }
+      },
+      "key": {
+        "_gen": "string",
+        "expr": "key#{_key_seq}"
+      },
       "value": {
         "CustomerID": "RPC_PERF_ORDERED",
         "Name": "Reordered Perf Match",
@@ -35,7 +44,7 @@
       "kind": "kafka",
       "producerConfigs": {
         "bootstrap.servers": "kafka1:9092",
-        "key.serializer": "io.confluent.kafka.serializers.KafkaAvroSerializer",
+        "key.serializer": "org.apache.kafka.common.serialization.StringSerializer",
         "value.serializer": "io.confluent.kafka.serializers.KafkaAvroSerializer",
         "schema.registry.url": "http://schema-registry:8081"
       }

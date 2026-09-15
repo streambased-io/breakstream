@@ -3,6 +3,15 @@
     {
       "name": "stores_hot",
       "topic": "stores",
+      "vars": {
+        "_key_seq": {
+          "_gen": "sequentialInteger"
+        }
+      },
+      "key": {
+        "_gen": "string",
+        "expr": "key#{_key_seq}"
+      },
       "value": {
         "StoreID": {
           "_gen": "string",
@@ -34,6 +43,15 @@
     {
       "name": "stores_hot_nyc",
       "topic": "stores",
+      "vars": {
+        "_key_seq": {
+          "_gen": "sequentialInteger"
+        }
+      },
+      "key": {
+        "_gen": "string",
+        "expr": "key#{_key_seq}"
+      },
       "value": {
         "StoreID": {
           "_gen": "string",
@@ -68,7 +86,7 @@
       "kind": "kafka",
       "producerConfigs": {
         "bootstrap.servers": "kafka1:9092",
-        "key.serializer": "io.confluent.kafka.serializers.KafkaAvroSerializer",
+        "key.serializer": "org.apache.kafka.common.serialization.StringSerializer",
         "value.serializer": "io.confluent.kafka.serializers.KafkaAvroSerializer",
         "schema.registry.url": "http://schema-registry:8081"
       }
