@@ -35,7 +35,6 @@ then
   echo "  ordered:  reordered-e2e-performance-ordered -> reordered_perf_customers_ordered"
   echo "  catalog:  KSI_SPARK_CATALOG_NAME=isk"
   echo "  namespace: KSI_ICEBERG_NAMESPACE=hotset"
-  echo "  batch size: KSI_BATCH_SIZE=${KSI_BATCH_SIZE:-50000}"
   echo "  read timeout: KSI_COLD_STORAGE_TIMEOUT_MS=120000"
   KSI_ENV=(
     "KSI_BATCH_SIZE=${KSI_BATCH_SIZE:-50000}"
