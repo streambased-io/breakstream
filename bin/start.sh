@@ -64,7 +64,11 @@ then
     rm -rf $SCRIPT_DIR/environment/shadowtraffic
 fi
 mkdir -p $SCRIPT_DIR/environment/shadowtraffic
-curl  https://raw.githubusercontent.com/ShadowTraffic/shadowtraffic-examples/refs/heads/master/free-trial-license.env > $SCRIPT_DIR/environment/shadowtraffic_license.env
+# only specs with a ShadowTraffic datagen component need the licence
+if grep -q "image: shadowtraffic/" $SCRIPT_DIR/environment/docker-compose.yaml
+then
+  curl  https://raw.githubusercontent.com/ShadowTraffic/shadowtraffic-examples/refs/heads/master/free-trial-license.env > $SCRIPT_DIR/environment/shadowtraffic_license.env
+fi
 clear
 
 demo_paragraph "containers"
