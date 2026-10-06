@@ -37,8 +37,15 @@ docker --log-level ERROR compose exec spark-iceberg python -i /tmp/run_demo_cdc_
 # --- Inject 100 CDC deletes for orders 1-100 ---
 clear
 demo_paragraph "cdc_delete_header"
-docker --log-level ERROR compose down -v shadowtraffic_background 2>&1 >/dev/null
-docker --log-level ERROR compose up shadowtraffic_cdc_deletes 2>&1 >/dev/null
+docker rm -f cdc_live_datagen 2>&1 >/dev/null
+docker run --rm \
+	--name cdc_deletes_datagen \
+	--network environment_default \
+	-e PYTHONDONTWRITEBYTECODE=1 \
+	-v "$BASE_DIR/datasets/demo_cdc:/work" \
+	-w /work \
+	python:3.11-slim \
+	bash -c "pip install --quiet 'confluent-kafka[avro,schemaregistry]' && python deletes.py" 2>&1 >/dev/null
 
 # --- Part 2b: Show effect of deletes ---
 docker --log-level ERROR compose cp $SCRIPT_DIR/post_delete_count.scala spark-iceberg:/tmp/post_delete_count.scala 2>&1 >/dev/null
