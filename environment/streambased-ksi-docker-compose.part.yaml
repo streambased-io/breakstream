@@ -46,6 +46,9 @@
         condition: service_started
       directstream:
         condition: service_started
+      slipstream:
+        condition: service_started
+    restart: on-failure
     ports:
       - "9192:9192"
       - "9190:9190"
@@ -60,7 +63,8 @@
       - KSI_SPARK_CATALOG_NAME=${KSI_SPARK_CATALOG_NAME:-isk}
       - KSI_OFFSET_RANGE_CACHE_TTL_MS=300000
       - KSI_OFFSET_RANGE_CACHE_REFRESH_MS=60000
-      - KSI_SCHEMA_REGISTRY_URL=http://schema-registry:8081
+      - KSI_SLIPSTREAM_URL=http://slipstream:3000
+      - KSI_SLIPSTREAM_API_KEY=${KSI_SLIPSTREAM_API_KEY:-sbpk_12345678}
       - KSI_REORDERED_GROUP_CONFIG_PATH=/opt/kroxylicious/config/reordered-groups.yaml
       - STREAMBASED_LOG_LEVEL=DEBUG
     command: [ "-c", "/opt/kroxylicious/config.yaml" ]

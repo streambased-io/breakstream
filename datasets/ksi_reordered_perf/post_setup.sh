@@ -1,7 +1,8 @@
 #! /bin/bash
 set -euo pipefail
 SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
-BASE_DIR=$( cd -- "$SCRIPT_DIR/../../" &> /dev/null && pwd )
+BASE_DIR=$( cd -- "$SCRIPT_DIR/../.." &> /dev/null && pwd )
+cd "$BASE_DIR/environment"
 
 source $BASE_DIR/bin/lib/kafka_topic_config.sh
 source $BASE_DIR/bin/lib/reordered_perf_cases.sh

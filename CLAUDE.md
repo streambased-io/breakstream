@@ -71,7 +71,7 @@ A test consists of three components:
 3. Setup datasets are loaded via ShadowTraffic, followed by `post_setup.sh`
 4. Background dataset starts generating continuous traffic
 5. Test scripts execute (ScalaTest via Spark shell is common)
-6. Environment tears down unless it's a demo spec (prefix `demo_`)
+6. Environment remains running after tests unless `CLEAN_ENV_AFTER_TESTS=true` is set
 
 ### Test Implementation
 Tests typically use ScalaTest running in the `spark-iceberg` container. `run.sh` copies the test's `.scala` file and `tests/common/scalatest_common.scala` into the container, concatenates them, and pipes the result to `spark-shell`.

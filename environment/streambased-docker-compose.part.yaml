@@ -74,6 +74,8 @@
       - KSI_OFFSET_RANGE_CACHE_TTL_MS=300000
       - KSI_OFFSET_RANGE_CACHE_REFRESH_MS=60000
       - KSI_SCHEMA_REGISTRY_URL=http://schema-registry:8081
+      - KSI_SPARK_CATALOG_ACCESS_KEY=${KSI_SPARK_CATALOG_ACCESS_KEY:-admin}
+      - KSI_SPARK_CATALOG_SECRET=${KSI_SPARK_CATALOG_SECRET:-password}
       - KSI_REORDERED_GROUP_CONFIG_PATH=/opt/kroxylicious/config/reordered-groups.yaml
     command: [ "-c", "/opt/kroxylicious/config.yaml" ]
 

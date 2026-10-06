@@ -29,7 +29,7 @@ For split reordered perf datasets, `REORDERED_PERF_CASES` is also honored during
 
 ## Spec Matrix
 
-| Spec | Full setup command | Rerun existing data | KSI source | Preload |
+| Spec | Full test from scratch | Rerun existing data | KSI source | Preload |
 | --- | --- | --- | --- | --- |
 | `ksi_reordered_perf` | `./bin/start_tests.sh ksi_reordered_perf` | `./tests/ksi_reordered_perf/run.sh` | `direct.coldset` | Off |
 | `ksi_reordered_perf_preload` | `./bin/start_tests.sh ksi_reordered_perf_preload` | `./tests/ksi_reordered_perf_preload/run.sh` | `direct.coldset` | On |
@@ -38,15 +38,11 @@ For split reordered perf datasets, `REORDERED_PERF_CASES` is also honored during
 | `ksi_isk_hot_topic_reordering_preload` | `./bin/start_tests.sh ksi_isk_hot_topic_reordering_preload` | `./tests/ksi_isk_hot_topic_reordering_preload/run.sh` | `isk.hotset` | On |
 | `ksi_isk_hot_topic_reordering_streaming_reader` | `./bin/start_tests.sh ksi_isk_hot_topic_reordering_streaming_reader` | `./tests/ksi_isk_hot_topic_reordering_streaming_reader/run.sh` | `isk.hotset` | On, plus streaming cursor |
 
-Use `./bin/start_tests.sh ...` when data is not loaded yet. Use the test runner directly when data is already loaded and you only want to recreate KSI and rerun consumers.
+Use `./bin/start_tests.sh ...` when data is not loaded yet and you want the script to run setup, execute tests, and leave Docker Compose services running afterward. Add `CLEAN_ENV_AFTER_TESTS=true` when you want the script to stop and remove the environment after tests finish. Use `SETUP_MODE=true ./bin/start_tests.sh ...` when you only want to load data and keep services alive without running tests. Use the test runner directly when data is already loaded and you only want to recreate KSI and rerun consumers.
 
 ## Quick Run: Direct Coldset Streaming Reader
 
-Run the direct.coldset streaming-reader spec from the repository root:
-
-```bash
-cd /Users/lemanhcuong/Project/Java/breakstream
-```
+Run the direct.coldset streaming-reader spec from the repository root.
 
 Full setup, including data load:
 
@@ -78,6 +74,8 @@ REORDERED_PERF_TARGET_RECORDS=1990000 \
 This runner recreates `ksi` with `direct.coldset`, preload enabled, and `KSI_STREAMING_READER_ENABLED=true`.
 
 ## Full Setup Runs
+
+These commands load data, run the selected test, then leave the environment running for inspection.
 
 Cold-storage KSI:
 
@@ -115,6 +113,16 @@ ISK hotset KSI with preload and streaming reader:
 ./bin/start_tests.sh ksi_isk_hot_topic_reordering_streaming_reader
 ```
 
+To stop and remove Docker Compose services after the test finishes, prefix the command with `CLEAN_ENV_AFTER_TESTS=true`:
+
+```bash
+CLEAN_ENV_AFTER_TESTS=true \
+REORDERED_PERF_CASES=ordered,baseline,kafka \
+REORDERED_PERF_TARGET_RECORDS=1990000 \
+REORDERED_PERF_KSI_MAX_POLL_RECORDS=100000 \
+./bin/start_tests.sh ksi_reordered_perf_streaming_reader
+```
+
 The cold-storage specs load `datasets/ksi_reordered_perf`, copy `reordered_perf_customers` and `reordered_perf_customers_ordered` from `isk.hotset` to `direct.coldset`, then drain those two KSI topics from Kafka.
 
 The ISK-hot specs load `datasets/ksi_reordered_perf_isk_hot` and do not run a coldset migration. KSI reads directly from:
@@ -122,6 +130,31 @@ The ISK-hot specs load `datasets/ksi_reordered_perf_isk_hot` and do not run a co
 ```bash
 KSI_SPARK_CATALOG_NAME=isk
 KSI_ICEBERG_NAMESPACE=hotset
+```
+
+## Setup Only
+
+Use setup mode when you want to load data and keep Docker Compose services alive for manual inspection or repeated test runs:
+
+```bash
+SETUP_MODE=true \
+REORDERED_PERF_CASES=ordered,baseline,kafka \
+./bin/start_tests.sh ksi_reordered_perf
+```
+
+After setup-only mode finishes, rerun tests with the direct runner:
+
+```bash
+REORDERED_PERF_CASES=ordered,baseline,kafka \
+REORDERED_PERF_TARGET_RECORDS=1990000 \
+REORDERED_PERF_KSI_MAX_POLL_RECORDS=100000 \
+./tests/ksi_reordered_perf/run.sh
+```
+
+Stop services manually when finished:
+
+```bash
+./bin/stop.sh
 ```
 
 ## Rerun Existing Data
@@ -236,8 +269,15 @@ These variables tune KSI itself, not the benchmark consumer.
 | `KSI_COLD_STORAGE_TIMEOUT_MS` | `30000` | `120000` | KSI cold-storage read timeout. |
 | `KSI_SPARK_CATALOG_NAME` | `direct` | `isk` | Spark catalog KSI queries. |
 | `KSI_ICEBERG_NAMESPACE` | `coldset` | `hotset` | Namespace KSI queries. |
+| `KSI_SCHEMA_REGISTRY_URL` | `http://schema-registry:8081` | unset | Direct Schema Registry URL. Used only when KSI is not querying Slipstream. |
+| `KSI_SPARK_CATALOG_ACCESS_KEY` | `admin` | unset | Direct-mode catalog/S3 access key forwarded by KSI for `direct.coldset`. |
+| `KSI_SPARK_CATALOG_SECRET` | `password` | unset | Direct-mode catalog/S3 secret forwarded by KSI for `direct.coldset`. |
+| `KSI_SLIPSTREAM_URL` | unset | `http://slipstream:3000` | Slipstream base URL used only for `isk` catalog runs. |
+| `KSI_SLIPSTREAM_API_KEY` | unset | `sbpk_12345678` | Demo tenant public key passed to Slipstream for `isk` catalog runs. Override from your shell for non-demo tenants. |
 
 Increasing `REORDERED_PERF_KSI_MAX_POLL_RECORDS` does not increase KSI’s internal cold-storage read cap. Raise `KSI_BATCH_SIZE` too if the KSI batch size is the bottleneck.
+
+KSI uses direct mode for cold-storage `direct.coldset` runs and forwards the MinIO-compatible catalog credentials (`admin/password`) itself. KSI uses Slipstream mode for `isk.hotset` and `isk.merged` runs because those catalogs authenticate per tenant through DirectStream.
 
 Example ISK-hot preload rerun with larger KSI batches:
 
@@ -252,8 +292,8 @@ REORDERED_PERF_KSI_MAX_POLL_RECORDS=100000 \
 Preload means KSI record cache plus prefetch. These variables are applied by:
 
 - `environment/docker-compose.preload.yaml`
-- `tests/ksi/reordered_perf_preload_fresh.sh` (`coldset` mode, the default)
-- `tests/ksi/reordered_perf_preload_fresh.sh isk-hot`
+- `tests/ksi/reordered_perf_preload_fresh.sh`
+- `tests/ksi/isk_hot_reordered_perf_preload_fresh.sh`
 
 | Variable | Default in preload runners | Meaning |
 | --- | --- | --- |
@@ -282,14 +322,14 @@ The direct.coldset streaming-reader spec applies:
 
 - `environment/docker-compose.preload.yaml`
 - `environment/docker-compose.streaming-reader.yaml`
-- `tests/ksi/reordered_perf_streaming_reader_fresh.sh` (`coldset` mode, the default)
+- `tests/ksi/reordered_perf_streaming_reader_fresh.sh`
 
 The ISK-hot streaming-reader spec applies:
 
 - `environment/docker-compose.isk-hot.yaml`
 - `environment/docker-compose.preload.yaml`
 - `environment/docker-compose.streaming-reader.yaml`
-- `tests/ksi/reordered_perf_streaming_reader_fresh.sh isk-hot`
+- `tests/ksi/isk_hot_reordered_perf_streaming_reader_fresh.sh`
 
 | Variable | Default in streaming-reader runner | Meaning |
 | --- | --- | --- |
@@ -371,7 +411,7 @@ Compare:
 To rerun only the staged post-setup script, run it from `environment/`:
 
 ```bash
-cd /Users/lemanhcuong/Project/Java/breakstream/environment
+cd environment
 ./shadowtraffic/post_setup.sh
 ```
 
@@ -382,7 +422,7 @@ For the cold-storage perf dataset, this copies the reordered perf hotsets to `di
 Run:
 
 ```bash
-cd /Users/lemanhcuong/Project/Java/breakstream/environment
+cd environment
 docker --log-level ERROR compose exec spark-iceberg spark-shell --driver-memory 8g --conf spark.ui.enabled=false
 ```
 
@@ -402,7 +442,7 @@ spark.sql("SELECT COUNT(*) FROM direct.coldset.reordered_perf_customers_ordered"
 After a preload runner recreates KSI, check logs:
 
 ```bash
-cd /Users/lemanhcuong/Project/Java/breakstream/environment
+cd environment
 docker --log-level ERROR compose logs --tail=200 ksi
 ```
 
@@ -419,3 +459,17 @@ docker --log-level ERROR compose logs ksi | rg "STREAMING|streaming reader|Strea
 ```
 
 Expected signs are startup lines showing `streamingReaderEnabled=true` and runtime lines like `opening ordered cursor` followed by multiple `drained ... rows` entries.
+
+For direct-coldset runs, check that KSI skipped Slipstream and created Spark sessions with config-provided catalog credentials:
+
+```bash
+docker --log-level ERROR compose logs ksi | rg "Slipstream not configured|catalog credentials: from config|catalog credentials: enabled"
+```
+
+For ISK catalog Slipstream integration, check:
+
+```bash
+docker --log-level ERROR compose logs ksi | rg "Slipstream|Resolved cluster config|catalog credentials"
+```
+
+Expected signs are startup lines showing KSI resolved cluster config from `http://slipstream:3000/api/internal/cluster-config` and Spark session creation with catalog credentials enabled.

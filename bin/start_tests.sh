@@ -7,6 +7,7 @@ die () {
     echo >&2 "$@"
     exit 1
 }
+source "$SCRIPT_DIR/bin/lib/demo_common.sh"
 
 compose_has_service() {
   docker --log-level ERROR compose config --services | grep -qx "$1"
@@ -131,7 +132,7 @@ then
     rm -rf $SCRIPT_DIR/environment/shadowtraffic
 fi
 mkdir -p $SCRIPT_DIR/environment/shadowtraffic
-curl  https://raw.githubusercontent.com/ShadowTraffic/shadowtraffic-examples/refs/heads/master/free-trial-license.env > $SCRIPT_DIR/environment/shadowtraffic_license.env
+prepare_shadowtraffic_license
 clear
 
 # load datasets

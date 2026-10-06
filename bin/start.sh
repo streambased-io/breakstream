@@ -10,8 +10,7 @@ die () {
     echo >&2 "$@"
     exit 1
 }
-
-source $SCRIPT_DIR/bin/lib/demo_common.sh
+source "$SCRIPT_DIR/bin/lib/demo_common.sh"
 
 # check for prerequisites
 command -v curl > /dev/null 2>&1 || die "curl is required but not installed"
@@ -64,7 +63,7 @@ then
     rm -rf $SCRIPT_DIR/environment/shadowtraffic
 fi
 mkdir -p $SCRIPT_DIR/environment/shadowtraffic
-curl  https://raw.githubusercontent.com/ShadowTraffic/shadowtraffic-examples/refs/heads/master/free-trial-license.env > $SCRIPT_DIR/environment/shadowtraffic_license.env
+prepare_shadowtraffic_license
 clear
 
 demo_paragraph "containers"
