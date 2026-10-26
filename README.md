@@ -75,3 +75,9 @@ By default `./bin/start.sh` runs without waiting for keypresses. To add interact
 ```bash
 INTERACTIVE_MODE=true ./bin/start.sh
 ```
+
+## Union roll demo
+
+`./bin/start_tests.sh union_roll` starts a stack where the `union-roll` service calls Hyperstream's `POST /api/union/roll` for `branches`, `transactions` and `customers` every `UNION_ROLL_INTERVAL_SECONDS` (default 300), then checks `directstream_union_unrolled_epochs` and the union counts. The spec needs the DirectStream, Slipstream and Hyperstream branch builds: build them as `local/directstream:latest`, `local/slipstream:latest` and `local/hyperstream:latest`, then in `environment/streambased-union-roll-docker-compose.part.yaml` (the `streambased` part plus the union-view settings, used only by this spec) switch each service to the `local/` image and uncomment its `pull_policy: never` line so `compose pull` cannot replace the local tag.
+
+`datasets/union_roll/setup.json` mirrors `datasets/demo/setup.json` without its `post_setup`, which would create `direct.coldset.*` tables in the pre-epoch layout and collide with the roll's cold tables. The spec keeps `datagen-setup` because the topics `branches` and `customers` exist only through that setup; `transactions` also comes from the `demo` background dataset.

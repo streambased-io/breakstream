@@ -1,6 +1,7 @@
 
   directstream:
     #image: local/directstream:latest
+    #pull_policy: never
     image: streambased/directstream:latest
     hostname: directstream
     container_name: directstream
@@ -35,6 +36,7 @@
 
   hyperstream:
     #image: local/hyperstream:local
+    #pull_policy: never
     image: streambased/dev-hyperstream:latest
     container_name: hyperstream
     platform: linux/amd64
@@ -79,6 +81,7 @@
 
   slipstream:
     #image: local/slipstream:latest
+    #pull_policy: never
     image: streambased/dev-slipstream:latest
     hostname: slipstream
     container_name: slipstream
