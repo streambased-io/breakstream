@@ -1,0 +1,15 @@
+
+  union-roll:
+    image: alpine/curl:8.17.0
+    container_name: union-roll
+    depends_on:
+      - hyperstream
+    environment:
+      - TOPICS=branches transactions customers
+      - INTERVAL_SECONDS=${UNION_ROLL_INTERVAL_SECONDS:-300}
+      - CREDS=sbpk_12345678:sbsk_12345678
+      - URL=http://hyperstream:9088
+    entrypoint: [ "/bin/sh", "-c" ]
+    command:
+      - |
+        while true; do sleep $$INTERVAL_SECONDS; for t in $$TOPICS; do curl -fsS -w '\n' --max-time 600 -u "$$CREDS" -H 'content-type: application/json' -d "{\"table\":\"$$t\"}" "$$URL/api/union/roll" || echo "roll $$t failed"; done; done

@@ -1,0 +1,17 @@
+{
+  "components": [
+    "kafka",
+    "iceberg",
+    "datagen-setup",
+    "datagen-background",
+    "streambased-union-roll",
+    "union-roll"
+  ],
+  "setup_datasets": [
+    "union_roll"
+  ],
+  "background_dataset": "demo",
+  "tests": [
+    "union_roll"
+  ]
+}
