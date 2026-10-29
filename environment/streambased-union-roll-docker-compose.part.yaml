@@ -2,7 +2,7 @@
   directstream:
     #image: local/directstream:latest
     #pull_policy: never
-    image: streambased/directstream:latest
+    image: ${DIRECTSTREAM_IMAGE:-streambased/directstream:latest}
     hostname: directstream
     container_name: directstream
     platform: linux/amd64
@@ -32,7 +32,6 @@
       - ISK_COLDSET_CLIENT_S3_REGION=us-east-1
       - ISK_CDC_ENABLED=true
       - ISK_CDC_TOPICS=orders
-      - ISK_CDC_COLDSET_INITIAL_SCAN=true
       - ISK_CDC_COMBINED_VIEW_ENABLED=true
       - ISK_CDC_TOPICS_APPEND_VIEW_ENABLED=true
       - ISK_METRICS_ENABLED=true
@@ -42,7 +41,7 @@
   hyperstream:
     #image: local/hyperstream:latest
     #pull_policy: never
-    image: streambased/dev-hyperstream:latest
+    image: ${HYPERSTREAM_IMAGE:-streambased/dev-hyperstream:latest}
     container_name: hyperstream
     platform: linux/amd64
     ports:
@@ -51,7 +50,7 @@
       - SPARK_CONNECT_URL=sc://spark-iceberg:15002
       - COLD_SET_SCHEMA=direct.coldset
       - HOT_SET_SCHEMA=isk.hotset
-      - UNIFIED_SET_SCHEMA=isk.merged
+      - UNIFIED_SET_SCHEMA=isk.union
       - AUTH_ENABLED=true
       - SLIPSTREAM_URL=http://slipstream:3000
       - INDEX_CACHE_DURATION_SECONDS=600
@@ -88,7 +87,7 @@
   slipstream:
     #image: local/slipstream:latest
     #pull_policy: never
-    image: streambased/dev-slipstream:latest
+    image: ${SLIPSTREAM_IMAGE:-streambased/dev-slipstream:latest}
     hostname: slipstream
     container_name: slipstream
 

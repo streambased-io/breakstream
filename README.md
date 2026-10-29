@@ -34,7 +34,7 @@ Introduces Brian, a data scientist trying to analyse truck delivery efficiency. 
 
 ### Part 2 — Enter Streambased
 
-Shows the same query rewritten against the Streambased `hotset` and `merged` namespaces. Live Kafka events appear as Iceberg tables with no commit lag. Brian can now join today's live routes against historical baselines in a single SQL statement.
+Shows the same query rewritten against the Streambased `hotset` and `union` namespaces. Live Kafka events appear as Iceberg tables with no commit lag. Brian can now join today's live routes against historical baselines in a single SQL statement.
 
 ### Part 3 — Under the hood: composable views
 
@@ -44,13 +44,13 @@ Walks through the three logical namespaces exposed by Streambased:
 |-----------|--------|----------|
 | `isk.hotset` | Kafka | Live events, always current |
 | `isk.coldset` | Iceberg | Archived historical data |
-| `isk.merged` | Both | Automatic union, no duplicates |
+| `isk.union` | Both | Automatic union, no duplicates |
 
 Cells query each namespace and show the offset distributions so the boundary between hot and cold data is visible.
 
 ### Part 4 — Hot-to-cold transfer
 
-Demonstrates moving data from Kafka to Iceberg with a plain `INSERT INTO coldset SELECT * FROM hotset` statement. Because Kafka is always available as a live view, you choose when it is efficient to archive — there is no forced commit interval.
+Demonstrates moving data from Kafka to Iceberg with a single call to Hyperstream's roll endpoint (`POST /api/union/roll`). Because Kafka is always available as a live view, you choose when it is efficient to archive — there is no forced commit interval.
 
 ### Part 5 — Kafka consumers reading archived data (Slipstream)
 
@@ -78,6 +78,10 @@ INTERACTIVE_MODE=true ./bin/start.sh
 
 ## Union roll demo
 
-`./bin/start_tests.sh union_roll` starts a stack where the `union-roll` service calls Hyperstream's `POST /api/union/roll` for `branches`, `transactions` and `customers` every `UNION_ROLL_INTERVAL_SECONDS` (default 300), then checks `directstream_union_unrolled_epochs` and the union counts. The spec needs the DirectStream, Slipstream and Hyperstream branch builds: build them as `local/directstream:latest`, `local/slipstream:latest` and `local/hyperstream:latest`, then in `environment/streambased-union-roll-docker-compose.part.yaml` (the `streambased` part plus the union-view settings, used only by this spec) switch each service to the `local/` image and uncomment its `pull_policy: never` line so `compose pull` cannot replace the local tag.
+`./bin/start_tests.sh union_roll` starts a stack where the `union-roll` service calls Hyperstream's `POST /api/union/roll` for `branches`, `transactions` and `customers` every `UNION_ROLL_INTERVAL_SECONDS` (default 300), then checks `directstream_union_unrolled_epochs` and the union counts. The roll loop and the demos' roll calls share `bin/lib/union_roll.sh`.
 
-`datasets/union_roll/setup.json` mirrors `datasets/demo/setup.json` without its `post_setup`, which would create `direct.coldset.*` tables in the pre-epoch layout and collide with the roll's cold tables. The spec keeps `datagen-setup` because the topics `branches` and `customers` exist only through that setup; `transactions` also comes from the `demo` background dataset.
+Every spec that reads `isk.union.*` or fills `direct.coldset.*` (`union_roll`, `demo_core`, `demo_cdc`, `demo_logistics`) uses the `streambased-union-roll` component: the `streambased` part plus the union-view settings (coldset alias, combined CDC view, Hyperstream roll). The coldset is written only by rolls; the demo datasets roll once during setup. The `core` dataset and the `ksi` specs still copy hotset to coldset with Spark and use the plain `streambased` part.
+
+To run with locally built images, set `DIRECTSTREAM_IMAGE`, `HYPERSTREAM_IMAGE` and `SLIPSTREAM_IMAGE` (defaults: `streambased/directstream:latest`, `streambased/dev-hyperstream:latest`, `streambased/dev-slipstream:latest`). `compose pull` fails for a local-only image name and leaves it untouched.
+
+`datasets/union_roll/setup.json` mirrors `datasets/demo/setup.json`; the spec keeps `datagen-setup` because the topics `branches` and `customers` exist only through that setup, and `transactions` also comes from the `demo` background dataset.

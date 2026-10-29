@@ -2,7 +2,7 @@
   directstream:
     #image: local/directstream:latest
     #pull_policy: never
-    image: streambased/directstream:latest
+    image: ${DIRECTSTREAM_IMAGE:-streambased/directstream:latest}
     hostname: directstream
     container_name: directstream
     platform: linux/amd64
@@ -32,12 +32,11 @@
       - ISK_COLDSET_CLIENT_S3_REGION=us-east-1
       - ISK_CDC_ENABLED=true
       - ISK_CDC_TOPICS=orders
-      - ISK_CDC_COLDSET_INITIAL_SCAN=true
 
   hyperstream:
     #image: local/hyperstream:local
     #pull_policy: never
-    image: streambased/dev-hyperstream:latest
+    image: ${HYPERSTREAM_IMAGE:-streambased/dev-hyperstream:latest}
     container_name: hyperstream
     platform: linux/amd64
     ports:
@@ -82,7 +81,7 @@
   slipstream:
     #image: local/slipstream:latest
     #pull_policy: never
-    image: streambased/dev-slipstream:latest
+    image: ${SLIPSTREAM_IMAGE:-streambased/dev-slipstream:latest}
     hostname: slipstream
     container_name: slipstream
 

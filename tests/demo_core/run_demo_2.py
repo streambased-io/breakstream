@@ -8,9 +8,6 @@ p = Popen(['spark-shell --driver-memory 2g'], stdout=PIPE, stdin=PIPE, stderr=DE
 
 # run sections
 run_section(p,'/tmp/pre_move.scala')
-run_section(p,'/tmp/alter_table.scala')
-run_section(p,'/tmp/move.scala')
-run_section(p,'/tmp/post_move.scala')
 
 #  shut down
 p.stdin.close()
