@@ -3,6 +3,7 @@ SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
 BASE_DIR=$( cd -- "$SCRIPT_DIR/../../" &> /dev/null && pwd )
 
 source $BASE_DIR/bin/lib/kafka_topic_config.sh
+source $BASE_DIR/bin/lib/union_roll.sh
 
 GREEN='\033[0;32m'
 NC='\033[0m'
@@ -57,12 +58,17 @@ docker run --rm \
 	bash -c "pip install --quiet 'confluent-kafka[avro,schemaregistry]' && python datagen.py"
 
 echo ""
+log_step "Rolling populated hotset to coldset"
+echo ""
+roll_topics stops truck_positions delivery_control_events > /dev/null || { echo "Hotset to coldset roll failed"; exit 1; }
+
+echo ""
 log_step "Copying post setup steps to container"
 echo ""
 docker --log-level ERROR compose cp $SCRIPT_DIR/scala/post_setup.scala spark-iceberg:/tmp/post_setup.scala 2>&1 >/dev/null
 
 echo ""
-log_step "Copying populated hotset to coldset using Spark"
+log_step "Creating tax_reporting and the today namespace using Spark"
 echo ""
 docker --log-level ERROR compose exec -T spark-iceberg sh -c 'cat /tmp/post_setup.scala | spark-shell --driver-memory 8g --conf spark.ui.enabled=false   2>&1 >/dev/null'
 

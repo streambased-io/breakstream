@@ -4,6 +4,7 @@ SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
 BASE_DIR=$( cd -- "$SCRIPT_DIR/../../" &> /dev/null && pwd )
 
 source ${BASE_DIR}/bin/lib/demo_common.sh
+source ${BASE_DIR}/bin/lib/union_roll.sh
 
 # --- setup ---
 docker --log-level ERROR compose cp $SCRIPT_DIR/../common/runner_utils.py spark-iceberg:/tmp/runner_utils.py 2>&1 >/dev/null
@@ -59,12 +60,17 @@ clear
 demo_paragraph "cdc_roll_header"
 
 docker --log-level ERROR compose cp $SCRIPT_DIR/pre_roll.scala spark-iceberg:/tmp/pre_roll.scala 2>&1 >/dev/null
-docker --log-level ERROR compose cp $SCRIPT_DIR/roll_to_coldset.scala spark-iceberg:/tmp/roll_to_coldset.scala 2>&1 >/dev/null
 docker --log-level ERROR compose cp $SCRIPT_DIR/post_roll.scala spark-iceberg:/tmp/post_roll.scala 2>&1 >/dev/null
 
 docker --log-level ERROR compose cp $SCRIPT_DIR/run_demo_cdc_4.py spark-iceberg:/tmp/run_demo_cdc_4.py 2>&1 >/dev/null
 clear
 docker --log-level ERROR compose exec spark-iceberg python -i /tmp/run_demo_cdc_4.py
+
+clear
+demo_paragraph "cdc_roll_call"
+roll_topics orders || { echo "ORDERS ROLL FAILED"; exit 1; }
+docker --log-level ERROR compose cp $SCRIPT_DIR/run_demo_cdc_5.py spark-iceberg:/tmp/run_demo_cdc_5.py 2>&1 >/dev/null
+docker --log-level ERROR compose exec spark-iceberg python -i /tmp/run_demo_cdc_5.py
 
 clear
 demo_paragraph "complete"

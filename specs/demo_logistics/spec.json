@@ -3,7 +3,7 @@
   "components": [
     "kafka",
     "iceberg",
-    "streambased",
+    "streambased-union-roll",
     "jupyter"
   ],
   "setup_datasets": ["logistics"],

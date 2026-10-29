@@ -5,11 +5,11 @@ BASE_DIR=$( cd -- "$SCRIPT_DIR/../../" &> /dev/null && pwd )
 
 source $BASE_DIR/bin/lib/demo_common.sh
 source $BASE_DIR/bin/lib/kafka_topic_config.sh
+source $BASE_DIR/bin/lib/union_roll.sh
 
 # copy from hotset to coldset
 demo_paragraph "hotset_to_coldset"
-docker --log-level ERROR compose cp $SCRIPT_DIR/scala/post_setup.scala spark-iceberg:/tmp/post_setup.scala 2>&1 >/dev/null
-docker --log-level ERROR compose exec spark-iceberg sh -c 'cat /tmp/post_setup.scala | spark-shell --driver-memory 8g 2>&1 >/dev/null'
+roll_topics branches transactions customers > /dev/null || { echo "Hotset to coldset roll failed"; exit 1; }
 
 docker --log-level ERROR compose exec kafka1 kafka-topics --bootstrap-server kafka1:9092 --delete --topic branches 2>&1 >/dev/null
 docker --log-level ERROR compose exec schema-registry curl -s -X DELETE localhost:8081/subjects/branches-value 2>&1 >/dev/null

@@ -115,7 +115,7 @@ then
   echo "First let's get set up, to populate our demo environment we will:"
   echo ""
   echo " 1. Generate a sample dataset into Kafka"
-  echo " 2. Use I.S.K. to move this initial population from Kafka to Iceberg (hotset to coldset)"
+  echo " 2. Roll this initial population from Kafka to Iceberg (hotset to coldset)"
   echo " 3. Start continuous data generation into Kafka"
   echo ""
   echo ""
@@ -164,12 +164,13 @@ then
   echo "The Iceberg environment (the coldset) is empty."
   echo ""
   echo "To prepare the demo environment we need to:"
-  echo "  1. Copy the Kafka data to Iceberg to populate the coldset"
+  echo "  1. Roll the Kafka data into Iceberg to populate the coldset"
   echo "  2. Delete the hotset data from Kafka"
   echo ""
-  echo "All of the steps are performed using Spark and Stremabased I.S.K. (we will revisit this later)."
-  echo "You can see the scripts executed here:"
-  echo "  ./datasets/demo/scala"
+  echo "The roll is a single call to Hyperstream, it seals the Kafka data, copies it to Iceberg with Spark"
+  echo "and acknowledges the copy (we will revisit this later)."
+  echo "You can see the steps executed here:"
+  echo "  ./datasets/demo/post_setup.sh"
   echo ""
   echo ""
 fi
@@ -227,8 +228,8 @@ then
   echo -e "${GREEN}"
   echo "In this simulated environment we will perform the following steps:"
   echo ""
-  echo " 1. Use Spark to query a unified dataset composed of Kafka and Iceberg in Iceberg format using I.S.K."
-  echo " 2. Use Spark to move a hotset of data in Kafka to a coldset in Iceberg"
+  echo " 1. Use Spark to query a unified (union) dataset composed of Kafka and Iceberg in Iceberg format using I.S.K."
+  echo " 2. Roll a hotset of data in Kafka to a coldset in Iceberg"
   echo " 3. Run a sample application that consumes a dataset composed of Kafka and Iceberg in Kafka format using K.S.I."
   echo ""
   echo ""
@@ -310,7 +311,26 @@ then
   echo " \___/_| |_|\__, |\___||___/\__|_|\___/|_| |_|"
   echo "             __/ |                            "
   echo "            |___/                             "
-  echo "Now let's look at how Streambased can help transfer data from Kafka to Iceberg"
+  echo "Now let's look at how Streambased can help roll data from Kafka to Iceberg"
+  echo -e "${NC}"
+  echo ""
+fi
+
+if [ "$PARAGRAPH" = "test_2_roll" ]
+then
+  echo -e "${GREEN}"
+  echo "And finally roll the data with a single call to Hyperstream, POST /api/union/roll:"
+  echo ""
+  echo " * Streambased seals the transactions topic at its current end"
+  echo " * Hyperstream copies the sealed data into Iceberg with Spark, adding the new FraudRiskScore column to the coldset"
+  echo " * Hyperstream acknowledges the copy"
+  echo ""
+  echo "Rolling this way has the following advantages:"
+  echo ""
+  echo " * Roll from hotset to coldset is not a pre-requisite for data access"
+  echo " * It can be scheduled during low resource usage periods."
+  echo " * Data can be accumulated in Kafka until it is efficient to roll it (no small files)."
+  echo " * The roll is atomic, repeating it never duplicates data, and it involves no downtime."
   echo -e "${NC}"
   echo ""
 fi
@@ -337,13 +357,13 @@ fi
 
 if [ "$PARAGRAPH" = "cdc_hotset_to_coldset" ]
 then
-  echo "Moving the initial CDC orders from Kafka (hotset) to Iceberg (coldset)."
+  echo "Rolling the initial CDC orders from Kafka (hotset) to Iceberg (coldset)."
   echo ""
-  echo "I.S.K. reads the CDC-aware hotset - which shows the current state per key,"
-  echo "with duplicates removed and deletes applied - and writes it into Iceberg."
+  echo "A roll seals the orders topic, merges the sealed CDC records by key into Iceberg"
+  echo "(one row per order, deletes kept as rows with __op = 'd') and acknowledges the copy."
   echo ""
-  echo "You can see the Spark script used here:"
-  echo "  ./datasets/demo_cdc/scala/post_setup.scala"
+  echo "You can see the steps used here:"
+  echo "  ./datasets/demo_cdc/post_setup.sh"
   echo ""
 fi
 
@@ -362,8 +382,8 @@ then
   echo "Streambased I.S.K. handles this automatically:"
   echo "  * Envelope is unwrapped - the topic looks like a regular Iceberg table"
   echo "  * Updates are applied in-place - no duplicate rows"
-  echo "  * Deletes are propagated - deleted records disappear from all views"
-  echo "  * Merged view combines hotset and coldset with CDC-aware conflict resolution"
+  echo "  * Deletes are kept as rows with __op = 'd' - filter them out for the current state"
+  echo "  * Union view combines hotset and coldset with CDC-aware conflict resolution"
   echo ""
   echo " _          _       _____       _ "
   echo "| |        | |     |  __ \     | |"
@@ -386,7 +406,7 @@ then
   echo "| |__| | | \ V /| | | | (_) | | | | | | | | |  __/ | | | |_ "
   echo "\____/_| |_|\_/ |_|_|  \___/|_| |_|_| |_| |_|\___|_| |_|\__|"
   echo ""
-  echo "We will explore the hotset, coldset, and merged views of the orders CDC topic."
+  echo "We will explore the hotset, coldset, and union views of the orders CDC topic."
   echo -e "${NC}"
   echo ""
 fi
@@ -422,7 +442,7 @@ then
   echo "|___/ \___|_|\___|\__\___||___/";
   echo ""
   echo "We are now injecting 100 DELETE events for orders 1-100 into the Kafka CDC stream."
-  echo "I.S.K. will propagate these deletes across hotset, coldset, and merged views."
+  echo "I.S.K. will carry these deletes as __op = 'd' rows in the hotset and union views."
   echo -e "${NC}"
   echo ""
 fi
@@ -438,10 +458,25 @@ then
   echo "| |\ \ (_) | | |"
   echo "\_| \_\___/|_|_|"
   echo ""
-  echo "Rolling the hotset into coldset with a single atomic MERGE INTO."
+  echo "Rolling the hotset into coldset with a single call to Hyperstream."
   echo ""
-  echo "The MERGE source unions isk.hotset.orders (live records) with isk.cdc_deletes.orders (tombstones),"
-  echo "so one commit handles inserts, updates, and deletes together."
+  echo "The roll merges the sealed CDC records into the coldset by key in one commit,"
+  echo "so inserts, updates, and deletes (kept as __op = 'd' rows) land together."
+  echo -e "${NC}"
+  echo ""
+fi
+
+if [ "$PARAGRAPH" = "cdc_roll_call" ]
+then
+  echo -e "${GREEN}"
+  echo "Rolling the hotset into the coldset now: POST /api/union/roll for the orders topic."
+  echo ""
+  echo "  * Streambased seals the orders topic at its current end"
+  echo "  * Hyperstream merges the sealed CDC records into direct.coldset.orders by key, in one Iceberg commit:"
+  echo "      - existing orders are UPDATED to their latest state (e.g. SHIPPED)"
+  echo "      - new orders are INSERTED"
+  echo "      - deleted orders stay as rows with __op = 'd'"
+  echo "  * Hyperstream acknowledges the roll"
   echo -e "${NC}"
   echo ""
 fi

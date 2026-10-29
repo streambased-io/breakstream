@@ -1,7 +1,7 @@
 
   directstream:
     #image: local/directstream:latest
-    image: streambased/directstream:latest
+    image: ${DIRECTSTREAM_IMAGE:-streambased/directstream:latest}
     hostname: directstream
     container_name: directstream
     platform: linux/amd64
@@ -31,7 +31,6 @@
       - ISK_COLDSET_CLIENT_S3_REGION=us-east-1
       - ISK_CDC_ENABLED=true
       - ISK_CDC_TOPICS=orders
-      - ISK_CDC_COLDSET_INITIAL_SCAN=true
 
   ksi:
     #image: local/ksi:latest
@@ -67,7 +66,7 @@
 
   slipstream:
     #image: local/slipstream:latest
-    image: streambased/dev-slipstream:latest
+    image: ${SLIPSTREAM_IMAGE:-streambased/dev-slipstream:latest}
     hostname: slipstream
     container_name: slipstream
     platform: linux/amd64

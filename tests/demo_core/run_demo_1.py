@@ -10,10 +10,10 @@ p = Popen(['spark-shell --driver-memory 2g'], stdout=PIPE, stdin=PIPE, stderr=DE
 run_section(p,'/tmp/show_databases.scala')
 run_section(p,'/tmp/show_tables_in_hotset.scala')
 run_section(p,'/tmp/show_tables_in_coldset.scala')
-run_section(p,'/tmp/show_tables_in_merged.scala')
+run_section(p,'/tmp/show_views_in_union.scala')
 run_section(p,'/tmp/count_coldset_transactions.scala')
 run_section(p,'/tmp/count_hotset_transactions.scala')
-run_section(p,'/tmp/count_merged_transactions.scala')
+run_section(p,'/tmp/count_union_transactions.scala')
 
 #  shut down
 p.stdin.close()

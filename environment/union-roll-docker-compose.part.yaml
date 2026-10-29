@@ -4,12 +4,14 @@
     container_name: union-roll
     depends_on:
       - hyperstream
+    volumes:
+      - ../bin/lib/union_roll.sh:/union_roll.sh:ro
     environment:
       - TOPICS=branches transactions customers
       - INTERVAL_SECONDS=${UNION_ROLL_INTERVAL_SECONDS:-300}
-      - CREDS=sbpk_12345678:sbsk_12345678
-      - URL=http://hyperstream:9088
+      - HYPERSTREAM_CREDS=sbpk_12345678:sbsk_12345678
+      - HYPERSTREAM_URL=http://hyperstream:9088
     entrypoint: [ "/bin/sh", "-c" ]
     command:
       - |
-        while true; do sleep $$INTERVAL_SECONDS; for t in $$TOPICS; do curl -fsS -w '\n' --max-time 600 -u "$$CREDS" -H 'content-type: application/json' -d "{\"table\":\"$$t\"}" "$$URL/api/union/roll" || echo "roll $$t failed"; done; done
+        . /union_roll.sh; while true; do sleep $$INTERVAL_SECONDS; roll_topics $$TOPICS; done

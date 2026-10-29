@@ -3,7 +3,7 @@
   "components": [
     "kafka",
     "iceberg",
-    "streambased"
+    "streambased-union-roll"
   ],
   "setup_datasets": [
     "demo_cdc"

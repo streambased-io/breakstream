@@ -4,6 +4,7 @@ SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
 BASE_DIR=$( cd -- "$SCRIPT_DIR/../../" &> /dev/null && pwd )
 
 source $BASE_DIR/bin/lib/demo_common.sh
+source $BASE_DIR/bin/lib/union_roll.sh
 
 # stop any previously running live datagen
 docker rm -f cdc_live_datagen 2>/dev/null >/dev/null || true
@@ -29,10 +30,9 @@ then
   exit 1
 fi
 
-# copy initial CDC orders from hotset to coldset
+# roll the initial CDC orders from hotset to coldset
 demo_paragraph "cdc_hotset_to_coldset"
-docker --log-level ERROR compose cp $SCRIPT_DIR/scala/post_setup.scala spark-iceberg:/tmp/cdc_post_setup.scala 2>&1 >/dev/null
-docker --log-level ERROR compose exec spark-iceberg sh -c 'cat /tmp/cdc_post_setup.scala | spark-shell --driver-memory 8g 2>&1 >/dev/null'
+roll_topics orders > /dev/null || { echo "Initial CDC orders roll failed"; exit 1; }
 
 # start live datagen: new orders + PENDING -> SHIPPED updates
 docker run -d \

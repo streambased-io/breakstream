@@ -9,6 +9,8 @@ docker --log-level ERROR compose rm -f
 # have to stop profiled containers separately as compose may not track them
 docker --log-level ERROR compose stop shadowtraffic_background shadowtraffic_setup 2>/dev/null
 docker --log-level ERROR compose rm -f shadowtraffic_background shadowtraffic_setup 2>/dev/null
+docker --log-level ERROR compose stop shadowtraffic_background_evolved shadowtraffic_setup_evolved 2>/dev/null
+docker --log-level ERROR compose rm -f shadowtraffic_background_evolved shadowtraffic_setup_evolved 2>/dev/null
 
 # the logistics_* and cdc_* datagen containers are launched via plain
 # `docker run`, not compose, so they aren't covered by the commands above and

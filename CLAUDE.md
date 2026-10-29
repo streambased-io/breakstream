@@ -39,7 +39,7 @@ SETUP_MODE=true ./bin/start_tests.sh <spec_name>
 Streambased exposes a tiered storage model with three logical views:
 - **hotset** — Real-time data on Kafka topics (via ISK, exposed as Iceberg-compatible tables)
 - **coldset** — Historical data in Iceberg tables on MinIO object storage
-- **merged** — Unified virtual view combining both hotset and coldset
+- **union** — Unified virtual view combining the coldset with the part of the hotset not yet rolled into it; the coldset is filled only by Hyperstream's roll (`POST /api/union/roll`)
 
 Tests typically assert on row counts across these three namespaces using Spark SQL.
 
@@ -60,8 +60,8 @@ A test consists of three components:
 2. **Dataset** (`datasets/<dataset_name>/`) — Contains ShadowTraffic configs for data generation:
    - `setup.json` — One-shot data prepopulation (e.g., 1M rows into Kafka topics)
    - `background.json` — Long-running background traffic during tests
-   - `post_setup.sh` — Post-load actions (e.g., copying hotset data to coldset Iceberg tables, configuring Kafka retention)
-   - `scala/` — Scala scripts invoked by `post_setup.sh` to move data via `spark-shell`
+   - `post_setup.sh` — Post-load actions (e.g., rolling hotset data to coldset Iceberg tables with `bin/lib/union_roll.sh`, configuring Kafka retention)
+   - `scala/` — Scala scripts invoked by `post_setup.sh` (data movement for demo and demo_cdc goes through `roll_topics` in `bin/lib/union_roll.sh`, Hyperstream's `POST /api/union/roll`, not spark-shell)
 
 3. **Test case** (`tests/<test_name>/run.sh`) — Shell script that returns 0 for success, non-zero for failure
 

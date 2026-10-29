@@ -7,7 +7,7 @@
     "datagen-background",
     "datagen-setup-evolved",
     "datagen-background-evolved",
-    "streambased",
+    "streambased-union-roll",
     "debug"
   ],
   "setup_datasets": [
