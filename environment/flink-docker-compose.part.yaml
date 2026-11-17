@@ -1,0 +1,68 @@
+
+  flink-jobmanager:
+    build: ./flink
+    image: breakstream/flink:1.20.1
+    pull_policy: build
+    hostname: flink-jobmanager
+    container_name: flink-jobmanager
+    command: jobmanager
+    ports:
+      - 8082:8081
+    healthcheck:
+      start_period: 5s
+      interval: 2s
+      retries: 60
+      test: curl --fail --silent http://localhost:8081/overview --output /dev/null || exit 1
+    environment:
+      - AWS_REGION=us-east-1
+      - AWS_ACCESS_KEY_ID=sbpk_12345678
+      - AWS_SECRET_ACCESS_KEY=sbsk_12345678
+      - |
+        FLINK_PROPERTIES=
+        jobmanager.rpc.address: flink-jobmanager
+        rest.address: flink-jobmanager
+        execution.checkpointing.interval: 10s
+        parallelism.default: 2
+
+  flink-taskmanager:
+    image: breakstream/flink:1.20.1
+    pull_policy: never
+    hostname: flink-taskmanager
+    container_name: flink-taskmanager
+    command: taskmanager
+    depends_on:
+      flink-jobmanager:
+        condition: service_healthy
+    environment:
+      - AWS_REGION=us-east-1
+      - AWS_ACCESS_KEY_ID=sbpk_12345678
+      - AWS_SECRET_ACCESS_KEY=sbsk_12345678
+      - |
+        FLINK_PROPERTIES=
+        jobmanager.rpc.address: flink-jobmanager
+        taskmanager.numberOfTaskSlots: 8
+        taskmanager.memory.process.size: 4g
+        execution.checkpointing.interval: 10s
+        parallelism.default: 2
+
+  flink-sql-gateway:
+    image: breakstream/flink:1.20.1
+    pull_policy: never
+    hostname: flink-sql-gateway
+    container_name: flink-sql-gateway
+    command: bin/sql-gateway.sh start-foreground -Dsql-gateway.endpoint.rest.address=0.0.0.0
+    depends_on:
+      flink-jobmanager:
+        condition: service_healthy
+    ports:
+      - 8083:8083
+    environment:
+      - AWS_REGION=us-east-1
+      - AWS_ACCESS_KEY_ID=sbpk_12345678
+      - AWS_SECRET_ACCESS_KEY=sbsk_12345678
+      - |
+        FLINK_PROPERTIES=
+        jobmanager.rpc.address: flink-jobmanager
+        rest.address: flink-jobmanager
+        execution.checkpointing.interval: 10s
+        parallelism.default: 2

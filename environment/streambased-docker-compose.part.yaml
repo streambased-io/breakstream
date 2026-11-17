@@ -34,9 +34,9 @@
       - ISK_CDC_TOPICS=orders
 
   hyperstream:
-    #image: local/hyperstream:local
-    #pull_policy: never
-    image: ${HYPERSTREAM_IMAGE:-streambased/dev-hyperstream:latest}
+    image: local/hyperstream:latest
+    pull_policy: never
+    #image: ${HYPERSTREAM_IMAGE:-streambased/dev-hyperstream:latest}
     container_name: hyperstream
     platform: linux/amd64
     ports:

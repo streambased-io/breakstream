@@ -12,11 +12,12 @@ docker --log-level ERROR compose rm -f shadowtraffic_background shadowtraffic_se
 docker --log-level ERROR compose stop shadowtraffic_background_evolved shadowtraffic_setup_evolved 2>/dev/null
 docker --log-level ERROR compose rm -f shadowtraffic_background_evolved shadowtraffic_setup_evolved 2>/dev/null
 
-# the logistics_* and cdc_* datagen containers are launched via plain
+# the logistics_*, oil_and_gas_* and cdc_* datagen containers are launched via plain
 # `docker run`, not compose, so they aren't covered by the commands above and
 # would otherwise leak
 docker rm -f logistics_live_datagen 2>/dev/null
 docker rm -f logistics_initial_datagen 2>/dev/null
+docker rm -f oil_and_gas_live_datagen oil_and_gas_initial_datagen 2>/dev/null
 docker rm -f cdc_live_datagen cdc_initial_datagen cdc_deletes_datagen 2>/dev/null
 
 if [ -d "$SCRIPT_DIR/environment/shadowtraffic" ]

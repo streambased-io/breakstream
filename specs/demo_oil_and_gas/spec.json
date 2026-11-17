@@ -1,0 +1,11 @@
+{
+  "launcher": "start",
+  "components": [
+    "kafka",
+    "iceberg",
+    "streambased-union-roll",
+    "jupyter"
+  ],
+  "setup_datasets": ["oil_and_gas"],
+  "tests": []
+}

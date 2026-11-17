@@ -1,0 +1,22 @@
+{
+  "type": "record",
+  "name": "MicroseismicEvent",
+  "doc": "A microseismic event: a tiny earthquake detected by downhole or surface geophone arrays while a well is being fracked, caused by rock cracking as fractures grow. This topic exists only in Kafka (no Iceberg table), so it is visible in isk.hotset but has no coldset or union equivalent. In this demo it is created empty to show that Kafka-only topics are still queryable. Relationships: wellId joins to pump_telemetry, frac_stages and well_control_events, and timestamp places the event within that well's job. Business use: mapping how far and in which direction fractures grow, spotting fractures reaching into neighbouring wells or faults, and regulatory monitoring of induced seismicity.",
+  "fields": [
+    {
+      "name": "wellId",
+      "type": "string",
+      "doc": "UUID of the frac job being pumped when the event was detected; foreign key to pump_telemetry.wellId, frac_stages.wellId and well_control_events.wellId."
+    },
+    {
+      "name": "timestamp",
+      "type": "long",
+      "doc": "Time the event was detected, in epoch milliseconds (UTC). Compare with pump_telemetry.timestamp and frac_stages.timestamp to attribute the event to a stage."
+    },
+    {
+      "name": "magnitude",
+      "type": "double",
+      "doc": "Moment magnitude (Mw) of the event. Frac-induced microseismicity is typically between -3 and 0 Mw and cannot be felt at the surface; values above about 2 are notable and may trigger regulatory 'traffic light' protocols requiring pumping to slow or stop."
+    }
+  ]
+}

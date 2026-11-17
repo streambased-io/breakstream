@@ -33,3 +33,5 @@ environment/shadowtraffic_license.env
 
 # jupyter autosave artifacts
 .ipynb_checkpoints/
+# python bytecode
+__pycache__/

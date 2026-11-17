@@ -12,7 +12,7 @@ BreakStream is a Docker-based black-box testing framework for Streambased compon
 Each `specs/<spec_name>/spec.json` has a `"launcher"` field (`"start"` or `"start_tests"`, defaulting to `"start_tests"` if absent) that determines which script must launch it; the wrong script exits immediately with a pointer to the right one.
 
 ```bash
-./bin/start.sh <spec_name>        # for specs with "launcher": "start" - the non-asserting demo specs (demo_logistics, demo_core, demo_cdc)
+./bin/start.sh <spec_name>        # for specs with "launcher": "start" - the non-asserting demo specs (demo_logistics, demo_oil_and_gas, demo_core, demo_cdc)
 ./bin/start_tests.sh <spec_name>  # for everything else - real ScalaTest-asserting specs, with healthcheck waits and multi-file dataset setup support
 ```
 Example: `./bin/start_tests.sh core_functions`

@@ -52,6 +52,16 @@ do
   cat $SCRIPT_DIR/environment/$COMPONENT-docker-compose.part.yaml >> $SCRIPT_DIR/environment/docker-compose.yaml
 done
 
+# a spec with the jupyter component mounts (and opens) the notebook from its first setup dataset's notebooks/ dir
+DEMO_NOTEBOOK=""
+if jq -e '.components | index("jupyter")' $SCRIPT_DIR/specs/$SPEC_NAME/spec.json > /dev/null
+then
+  DEMO_DATASET=$(jq -r '.setup_datasets[0] // empty' $SCRIPT_DIR/specs/$SPEC_NAME/spec.json)
+  export DEMO_NOTEBOOK_DIR="$BREAKSTREAM_HOST_DIR/datasets/$DEMO_DATASET/notebooks"
+  DEMO_NOTEBOOK=$(basename "$(ls $DEMO_NOTEBOOK_DIR/*.ipynb 2>/dev/null | head -1)" 2>/dev/null)
+  [ -n "$DEMO_NOTEBOOK" ] || die "Spec '$SPEC_NAME' uses jupyter but datasets/$DEMO_DATASET/notebooks has no .ipynb"
+fi
+
 # start services
 cd $SCRIPT_DIR/environment
 docker --log-level ERROR compose pull
@@ -165,8 +175,8 @@ done
 # tear down
 demo_paragraph "finish"
 
-# launch notebook for logistics demo
-if [ "$SPEC_NAME" = "demo_logistics" ]
+# launch the demo notebook (specs with the jupyter component)
+if [ -n "$DEMO_NOTEBOOK" ]
 then
   echo "Waiting for Jupyter notebook server..."
   NOTEBOOK_URL=""
@@ -175,18 +185,18 @@ then
   do
     NOTEBOOK_URL=$(docker --log-level ERROR compose logs jupyter 2>/dev/null \
       | grep -o 'http://127\.0\.0\.1:8888[^[:space:]]*' | head -1 \
-      | sed -e 's/:8888/:8889/' -e 's#/tree#/notebooks/logistics_demo.ipynb#')
+      | sed -e 's/:8888/:8889/' -e "s#/tree#/notebooks/$DEMO_NOTEBOOK#")
     if [ -z "$NOTEBOOK_URL" ]; then
       sleep 2
       ATTEMPTS=$((ATTEMPTS + 1))
     fi
   done
 
-  OPEN_URL="${NOTEBOOK_URL:-http://localhost:8889/notebooks/logistics_demo.ipynb}"
+  OPEN_URL="${NOTEBOOK_URL:-http://localhost:8889/notebooks/$DEMO_NOTEBOOK}"
 
   echo ""
   echo "================================================"
-  echo "  Logistics demo notebook is ready"
+  echo "  Demo notebook ($DEMO_NOTEBOOK) is ready"
   echo ""
   echo "  Open: $OPEN_URL"
   echo ""
