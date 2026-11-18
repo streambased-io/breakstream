@@ -33,6 +33,13 @@ Runs every spec whose `launcher` resolves to `start_tests` (i.e. everything exce
 SETUP_MODE=true ./bin/start_tests.sh <spec_name>
 ```
 
+### Use local images without pulling
+Both launchers run `docker compose pull --ignore-pull-failures` before starting, which replaces any local image under a tag the compose files use (e.g. `streambased/dev-slipstream:latest`). Skip the pull to keep local builds:
+```bash
+SKIP_PULL=true ./bin/start.sh <spec_name>
+```
+Or point at differently-tagged local builds with `HYPERSTREAM_IMAGE` / `SLIPSTREAM_IMAGE` (e.g. `SLIPSTREAM_IMAGE=local/slipstream:latest`).
+
 ## Architecture
 
 ### Data Model

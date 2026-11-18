@@ -45,6 +45,9 @@ demo_paragraph "architecture"
 demo_paragraph "deep_dive"
 demo_paragraph "environment"
 
+# topics Slipstream lists on its overview screen; empty keeps Slipstream's own default
+export SLIPSTREAM_TOPICS=$(jq -r '(.slipstream_topics // []) | join(",")' $SCRIPT_DIR/specs/$SPEC_NAME/spec.json)
+
 # make docker compose
 cat $SCRIPT_DIR/environment/header-docker-compose.part.yaml > $SCRIPT_DIR/environment/docker-compose.yaml
 for COMPONENT in $(cat $SCRIPT_DIR/specs/$SPEC_NAME/spec.json | jq .components[] | sed -e 's/"//g')
@@ -54,7 +57,13 @@ done
 
 # start services
 cd $SCRIPT_DIR/environment
-docker --log-level ERROR compose pull
+# SKIP_PULL=true uses whatever images are already local (e.g. your own builds under the default tags)
+if [ "$SKIP_PULL" = "true" ]
+then
+  echo "SKIP_PULL=true: not pulling images"
+else
+  docker --log-level ERROR compose pull --ignore-pull-failures
+fi
 docker --log-level ERROR compose up -d
 clear
 
@@ -182,13 +191,16 @@ then
     fi
   done
 
-  OPEN_URL="${NOTEBOOK_URL:-http://localhost:8889/notebooks/logistics_demo.ipynb}"
+  JUPYTER_URL="${NOTEBOOK_URL:-http://localhost:8889/notebooks/logistics_demo.ipynb}"
+  # the browser opens the notebook inside Slipstream; the direct Jupyter link is printed as a fallback
+  OPEN_URL="http://localhost:3000/dashboard/notebook"
 
   echo ""
   echo "================================================"
   echo "  Logistics demo notebook is ready"
   echo ""
   echo "  Open: $OPEN_URL"
+  echo "  (direct Jupyter link: $JUPYTER_URL)"
   echo ""
   echo "  Run cells from top to bottom."
   echo ""

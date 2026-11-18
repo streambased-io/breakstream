@@ -7,5 +7,6 @@
     "jupyter"
   ],
   "setup_datasets": ["logistics"],
+  "slipstream_topics": ["truck_positions", "stops", "delivery_control_events"],
   "tests": []
 }
