@@ -108,6 +108,9 @@ then
   die "Spec '$SPEC_NAME' is configured to run via bin/start.sh, not bin/start_tests.sh. Run: ./bin/start.sh $SPEC_NAME"
 fi
 
+# topics Slipstream lists on its overview screen; empty keeps Slipstream's own default
+export SLIPSTREAM_TOPICS=$(jq -r '(.slipstream_topics // []) | join(",")' $SCRIPT_DIR/specs/$SPEC_NAME/spec.json)
+
 # make docker compose
 cat $SCRIPT_DIR/environment/header-docker-compose.part.yaml > $SCRIPT_DIR/environment/docker-compose.yaml
 for COMPONENT in $(cat $SCRIPT_DIR/specs/$SPEC_NAME/spec.json | jq .components[] | sed -e 's/"//g')
@@ -119,7 +122,13 @@ done
 echo "starting service"
 cd $SCRIPT_DIR/environment
 docker --log-level ERROR compose build
-docker --log-level ERROR compose pull
+# SKIP_PULL=true uses whatever images are already local (e.g. your own builds under the default tags)
+if [ "$SKIP_PULL" = "true" ]
+then
+  echo "SKIP_PULL=true: not pulling images"
+else
+  docker --log-level ERROR compose pull --ignore-pull-failures
+fi
 docker --log-level ERROR compose up -d
 wait_for_services
 clear

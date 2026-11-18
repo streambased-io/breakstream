@@ -102,3 +102,4 @@
       - HYPERSTREAM_BASE_URL=http://hyperstream:9088
       - OPENAI_API_KEY=nope
       - OPEN_AI_MODEL=gpt-4o-mini
+      - DEFAULT_CLUSTER_TOPICS=${SLIPSTREAM_TOPICS:-}
