@@ -24,7 +24,7 @@ then
   ls $SCRIPT_DIR/specs/$1 > /dev/null 2>&1  || die "Test case not found, $1 provided"
   SPEC_NAME=$1
 else
-  SPEC_NAME="demo_logistics"
+  SPEC_NAME="demo_oil_and_gas"
 fi
 
 # are we running a demo?
@@ -63,6 +63,8 @@ then
   export DEMO_NOTEBOOK_DIR="$BREAKSTREAM_HOST_DIR/datasets/$DEMO_DATASET/notebooks"
   DEMO_NOTEBOOK=$(basename "$(ls $DEMO_NOTEBOOK_DIR/*.ipynb 2>/dev/null | head -1)" 2>/dev/null)
   [ -n "$DEMO_NOTEBOOK" ] || die "Spec '$SPEC_NAME' uses jupyter but datasets/$DEMO_DATASET/notebooks has no .ipynb"
+  # Slipstream's /dashboard/notebook page embeds this (it otherwise defaults to logistics_demo.ipynb)
+  export SLIPSTREAM_NOTEBOOK_URL="http://localhost:8889/notebooks/$DEMO_NOTEBOOK"
 fi
 
 # start services
