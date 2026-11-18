@@ -7,5 +7,6 @@
     "jupyter"
   ],
   "setup_datasets": ["oil_and_gas"],
+  "slipstream_topics": ["frac_stages", "pump_telemetry", "well_control_events"],
   "tests": []
 }

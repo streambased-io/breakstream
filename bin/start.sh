@@ -201,8 +201,7 @@ then
     fi
   done
 
-  JUPYTER_URL="${NOTEBOOK_URL:-http://localhost:8889/notebooks/$DEMO_NOTEBOOK}"
-  # the browser opens the notebook inside Slipstream; the direct Jupyter link is printed as a fallback
+  # the wait above only checks Jupyter is up; the notebook is opened inside Slipstream
   OPEN_URL="http://localhost:3000/dashboard/notebook"
 
   echo ""
@@ -210,7 +209,6 @@ then
   echo "  Demo notebook ($DEMO_NOTEBOOK) is ready"
   echo ""
   echo "  Open: $OPEN_URL"
-  echo "  (direct Jupyter link: $JUPYTER_URL)"
   echo ""
   echo "  Run cells from top to bottom."
   echo ""
